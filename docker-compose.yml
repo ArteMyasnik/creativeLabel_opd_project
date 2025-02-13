@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  app:
+    # Конфигурация для вашего приложения Node.js
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: postgres
+      DB_PASSWORD: iloveopd
+      DB_NAME: creativeLabelDB
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  db:
+    # Конфигурация для базы данных PostgreSQL
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: iloveopd
+      POSTGRES_DB: creativeLabelDB
+#    volumes:
+#      - ./db:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
