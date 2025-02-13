@@ -1,0 +1,89 @@
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 5px;
+  background-image: url("header_background.jpg");
+  background-repeat: 0;
+  font-size: 0;
+}
+.button-container button {
+  margin: 0.5rem 0.5rem;
+  padding: 0.5rem 2rem;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  background-color: #6a5acd;
+  color: white;
+}
+.button-container button:hover {
+  background-color: #483d8b;
+}
+body {
+  background-image: url("site_background.jpg");
+}
+.left-button {
+  margin-right: auto; /* Выравнивание первой кнопки по левому краю */
+}
+.right-buttons {
+  display: flex;
+}
+/* Стили для списка */
+.dropdown {
+  position: relative;
+  display: inline-block;
+  margin: 20px;
+}
+
+/* Кнопка, которая открывает список */
+.dropbtn {
+  background-color: #6a5acd;
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Выпадающее меню */
+.dropdown-content {
+  display: none; /* Скрыто по умолчанию */
+  position: absolute;
+  background-color: #f9f9f9; /* Белый фон */
+  min-width: 150px; /* Уменьшаем ширину меню */
+  width: auto; /* Ширина будет подстраиваться под содержимое */
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  border-radius: 5px;
+  padding: 5px; /* Внутренний отступ для меню */
+}
+
+/* Кнопки внутри выпадающего меню */
+.dropdown-content button {
+  color: white; /* Белый текст, как у кнопки меню */
+  padding: 5px 10px; /* Уменьшаем внутренние отступы */
+  text-decoration: none;
+  display: block;
+  width: 100%; /* Кнопки занимают всю ширину меню */
+  text-align: left;
+  border: none;
+  background-color: #6a5acd; /* Цвет фона, как у кнопки меню */
+  cursor: pointer;
+  height: 30px; /* Фиксированная высота кнопки */
+  line-height: 20px; /* Выравнивание текста по вертикали */
+  box-sizing: border-box; /* Учитываем padding и border в высоте */
+  border-radius: 3px; /* Закругляем углы */
+  margin: 2px 0; /* Отступы между кнопками */
+}
+
+/* Изменение цвета кнопок при наведении */
+.dropdown-content button:hover {
+  background-color: #483d8b; /* Цвет при наведении, как у кнопки меню */
+}
+
+/* Показ выпадающего меню */
+.show {
+  display: block;
+}
