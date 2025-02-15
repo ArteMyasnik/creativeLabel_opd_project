@@ -1,30 +1,42 @@
 version: '3.8'
 
 services:
+  postgres:
+    container_name: creativeLabel_opd_project_postgres
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "iloveopd"
+      POSTGRES_DB: creativeLabelDB
+    volumes:
+      - creativeLabel_opd_project:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - internal
+
   app:
-    # Конфигурация для вашего приложения Node.js
+    container_name: creativeLabel_opd_project_app
     build: .
     ports:
       - "3000:3000"
     depends_on:
-      - db
+      - postgres
     environment:
-      DB_HOST: db
+      DB_HOST: postgres
       DB_USER: postgres
-      DB_PASSWORD: iloveopd
+      DB_PASSWORD: "iloveopd"
       DB_NAME: creativeLabelDB
+      DB_PORT: 5432
     volumes:
-      - .:/app
-      - /app/node_modules
+      - .:/app  # Монтируем текущую директорию в /app внутри контейнера
+    networks:
+      - internal
 
-  db:
-    # Конфигурация для базы данных PostgreSQL
-    image: postgres:13
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: iloveopd
-      POSTGRES_DB: creativeLabelDB
-#    volumes:
-#      - ./db:/docker-entrypoint-initdb.d
-    ports:
-      - "5432:5432"
+volumes:
+  creativeLabel_opd_project:
+
+networks:
+  internal:
+    name: internal
