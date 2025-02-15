@@ -30,7 +30,7 @@ services:
       DB_NAME: creativeLabelDB
       DB_PORT: 5432
     volumes:
-      - .:/app  # Монтируем текущую директорию в /app внутри контейнера
+      - .:/app
     networks:
       - internal
 
