@@ -10,7 +10,8 @@ services:
       POSTGRES_PASSWORD: "iloveopd"
       POSTGRES_DB: creativeLabelDB
     volumes:
-      - creativeLabel_opd_project:/var/lib/postgresql/data
+      - creativeLabel_opd_project_volume:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
     networks:
@@ -35,7 +36,7 @@ services:
       - internal
 
 volumes:
-  creativeLabel_opd_project:
+  creativeLabel_opd_project_volume:
 
 networks:
   internal:

@@ -3,7 +3,7 @@
   justify-content: space-between;
   align-items: center;
   border-radius: 5px;
-  background-image: url("header_background.jpg");
+  background-image: url("../Images/header_background.jpg");
   background-repeat: 0;
   font-size: 0;
 }
@@ -21,7 +21,7 @@
   background-color: #483d8b;
 }
 body {
-  background-image: url("site_background.jpg");
+  background-image: url("../Images/site_background.jpg");
 }
 .left-button {
   margin-right: auto; /* Выравнивание первой кнопки по левому краю */
@@ -33,7 +33,6 @@ body {
 .dropdown {
   position: relative;
   display: inline-block;
-  margin: 20px;
 }
 
 /* Кнопка, которая открывает список */

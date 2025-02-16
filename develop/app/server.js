@@ -9,19 +9,19 @@ app.use(express.static(path.join(__dirname, 'public', 'frontend')));
 app.use(express.json());
 app.use('/api', userRouter);
 app.get("/", (req, res) => {
-    res.send('SOSAT');
+    res.send('Перейдите по ссылке справа http://localhost:3000/main');
 });
 
 app.get('/main', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/frontend', 'main_page.html'));
+    res.sendFile(path.join(__dirname, 'public/frontend/Pages', 'main_page.html'));
 });
 
 app.get('/registration', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/frontend', 'registration_page.html'));
+    res.sendFile(path.join(__dirname, 'public/frontend/Pages', 'registration_page.html'));
 });
 
 app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/frontend', 'login_page.html'));
+    res.sendFile(path.join(__dirname, 'public/frontend/Pages', 'login_page.html'));
 });
 
 app.get('/developers', (req, res) => {
@@ -29,5 +29,5 @@ app.get('/developers', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Сервер запущен на http://localhost:${PORT}`);
+    console.log(`Сервер запущен на http://localhost:${PORT}/main`);
 });

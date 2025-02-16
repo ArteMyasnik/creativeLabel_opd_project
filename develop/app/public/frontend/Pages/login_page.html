@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>login page</title>
-    <link rel="stylesheet" href="stylesLogin.css">
+    <link rel="stylesheet" href="../Styles/stylesLogin.css">
   </head>
   <body>
     <div class="button-container">
@@ -14,11 +14,13 @@
     </div>
     <div class="login-container">
       <h2>Вход</h2>
-      <form>
-        <input name="email" type="text" placeholder="Введите почту" required/>
-        <input type="password" placeholder="Введите пароль" required />
+      <form id="loginForm">
+        <input id="email" name="login" type="text" placeholder="Введите логин" required/>
+        <input id="password" name="password" type="password" placeholder="Введите пароль" required />
+        <div id="error" style="color: red"></div>
         <button type="submit">Войти</button>
       </form>
     </div>
+    <script src="../../backend/login.js"></script>
   </body>
 </html>
