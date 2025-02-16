@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>registrtation page</title>
-    <link rel="stylesheet" href="stylesRegistrationPage.css">
+    <link rel="stylesheet" href="../Styles/stylesRegistrationPage.css">
   </head>
   <body>
     <div class="button-container">
@@ -14,7 +14,7 @@
     </div>
     <div class="login-container">
       <h2>Регистрация</h2>
-      <form name="registrationForm", method="post">
+      <form name="registrationForm" id="registrationForm">
         <input name="login" type="text" placeholder="Введите логин" required>
         <input name="email" type="text" placeholder="Введите почту" required/>
         <input name="password" type="password" placeholder="Введите Пароль" required/>
@@ -23,6 +23,6 @@
         <button type="submit">Зарегистрироваться</button>
       </form>
     </div>
-    <script src="../backend/registr.js"></script>
+    <script src="../../backend/registr.js"></script>
   </body>
 </html>

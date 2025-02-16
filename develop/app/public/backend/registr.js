@@ -23,24 +23,25 @@ for (let i = 0; i < str.length; i++) {
 return false;
 }
 
-function checkRegisterForm(event) {
+async function checkRegisterForm(event) {
+  document.getElementById("error").innerHTML = "";
     event.preventDefault();
     var form = document.querySelector('form');
-    var login = document.querySelector('[name="login"]');
-    var password = document.querySelector('[name="password"]');
-    var repassword = document.querySelector('[name="repassword"]');
-    var email = document.querySelector('[name="email"]');
+    var login = document.querySelector('input[name="login"]');
+    var password = document.querySelector('input[name="password"]');
+    var repassword = document.querySelector('input[name="repassword"]');
+    var email = document.querySelector('input[name="email"]');
     loginValue = login.value;
     passwordValue = password.value;
     repasswordValue = repassword.value;
     emailValue = email.value;
     var fail = '';
-    if (!hasUpperCase(loginValue)) {
-        fail = "Логин должен содержать заглавные буквы";
+    if (passwordValue.length < 6) {
+      fail = "Длина пароля должна быть не меньше 6 символов";
+    } else if (!hasUpperCase(passwordValue)) {
+        fail = "Пароль должен содержать заглавные буквы";
     } else if (!isValidEmail(emailValue)) {
         fail = "Некорректный адрес почты";
-    } else if (password.value.length < 6) {
-        fail = "Длина пароля должна быть не меньше 6 символов";
     } else if (password.value != repassword.value) {
         fail = "Пароли должны совпадать";
     } else if (!hasNumber(passwordValue) && !hasSpecialCharacter(passwordValue)) {
@@ -53,31 +54,47 @@ function checkRegisterForm(event) {
     if (fail != "") {
         document.getElementById("error").innerHTML = fail;
       } else {
-        alert("Все данные заполнены корректно");
-      }
+        // 1. Собираем данные из формы
+        const formData = {
+            login: loginValue,
+            email: emailValue,
+            password: passwordValue
+        };
 
+        // 2. Преобразуем данные в JSON
+        const jsonData = JSON.stringify(formData);
+
+        try {
+            // 3. Отправляем данные на сервер (Node.js) с помощью fetch
+            const response = await fetch('http://localhost:3000/register', { // Замените на URL вашего сервера
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: jsonData
+            });
+
+            // 4. Обрабатываем ответ от сервера
+            if (response.ok) {
+                const result = await response.json();
+                console.log('Успешно зарегистрирован!', result);
+                alert('Вы успешно зарегистрированы!'); // Или другое уведомление
+                form.reset(); // Очищаем форму
+            } else {
+                console.error('Ошибка регистрации:', response.status);
+                const errorData = await response.json(); // Получаем сообщение об ошибке с сервера
+                document.getElementById("error").innerHTML = errorData.message || 'Ошибка регистрации. Попробуйте позже.'; // Выводим сообщение об ошибке на страницу
+            }
+
+        } catch (error) {
+            console.error('Произошла ошибка:', error);
+            document.getElementById("error").innerHTML = 'Произошла ошибка при регистрации. Попробуйте позже.';
+        }
+      }
+      
 }
 
 const registrationForm = document.querySelector('form').addEventListener('submit', checkRegisterForm);
 
 
 
-//МЕНЮ
-// Функция для показа/скрытия выпадающего меню
-function toggleDropdown() {
-    const dropdownContent = document.getElementById("dropdownContent");
-    dropdownContent.classList.toggle("show");
-  }
-
-  // Закрытие выпадающего меню при клике вне его области
-  window.onclick = function(event) {
-    if (!event.target.matches('.dropbtn')) {
-      const dropdowns = document.getElementsByClassName("dropdown-content");
-      for (let i = 0; i < dropdowns.length; i++) {
-        const openDropdown = dropdowns[i];
-        if (openDropdown.classList.contains('show')) {
-          openDropdown.classList.remove('show');
-        }
-      }
-    }
-  }
