@@ -66,7 +66,7 @@ async function checkRegisterForm(event) {
 
         try {
             // 3. Отправляем данные на сервер (Node.js) с помощью fetch
-            const response = await fetch('http://localhost:3000/register', { // Замените на URL вашего сервера
+            const response = await fetch('http://localhost:3000/api/registration', { // Замените на URL вашего сервера
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
