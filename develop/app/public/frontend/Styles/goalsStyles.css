@@ -1,13 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
 button {
-    margin: 0.5rem 0.5rem;
+    margin: 1rem 0.5rem;
     padding: 0.5rem 2rem;
-    font-size: 14px;
+    font-size: 17px;
+    font-family: Montserrat;
     cursor: pointer;
     border: none;
-    border-radius: 5px;
-    background-color: #6a5acd;
+    border-radius: 20px;
+    background-color: #479C92;
     color: white;
  }
 button:hover {
-    background-color: #483d8b;
+    background-color: #2d5e58;
 }
+
+h1 {
+    font-family: Montserrat;
+    font-size: 65px;
+    text-align: left;
+    margin-left: 5%;
+}
+
+body {
+    background-color: black;  /*Черный фон */
+    color: white; /* Белый текст для контраста */
+    margin: 0;
+    padding: 0;
+    font-family: Montserrat;
+    position: relative; /* Для позиционирования псевдоэлемента */
+    overflow: hidden; /* Чтобы изображение не выходило за пределы страницы */
+    min-height: 100vh; /* чтобы body занимал высоту окна браузера */
+  }
+
+/* Псевдоэлемент для фонового изображения */
+body::before {
+    content: "";
+    background-image: url("../Images/фон\ 2.jpg"); /* Путь к вашему изображению */
+    background-size: cover; /* Растягиваем изображение на весь экран */
+    background-position: center; /* Центрируем изображение */
+    opacity: 0.2; /* Прозрачность 20% */
+    position: absolute; /* Абсолютное позиционирование */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+  
+  }
+  
+  .content {
+    position: relative; /* Чтобы контент был поверх изображения */
+    padding: 20px;
+    text-align: center;
+    font-size: 10px;
+    
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%; 
+  }
+
+  p {
+    font-family: Montserrat;
+    font-size: 20px;
+    margin-left: 5%;
+  }

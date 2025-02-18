@@ -1,77 +1,132 @@
-const pool = require('../db/db'); // Путь исправлен
+const pool = require('../db/db');
+const bcryptjs = require('bcryptjs');
+const crypto = require('crypto');
+
+
+// Функция для хэширования пароля
+async function hashPassword(password) {
+    const salt = await bcryptjs.genSalt(10);
+    return await bcryptjs.hash(password, salt);
+}
+bcryptjs.setRandomFallback((len) => {
+    const buf = crypto.randomBytes(len);
+    return buf;
+});
+
 
 class UserController {
-    async createUser(req, res) {
+    // async createUser(req, res) {
+    //     try {
+    //         const { name, email } = req.body;
+    //         const newUser = await pool.query(
+    //             'INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *',
+    //             [name, email]
+    //         );
+    //         res.json(newUser.rows[0]);
+    //     } catch (err) {
+    //         console.error(err.message);
+    //         res.status(500).send('Server Error');
+    //     }
+    // }
+    //
+    // async getUsers(req, res) {
+    //     try {
+    //         const allUsers = await pool.query('SELECT * FROM users');
+    //         res.json(allUsers.rows);
+    //     } catch (err) {
+    //         console.error(err.message);
+    //         res.status(500).send('Server Error');
+    //     }
+    // }
+    //
+    // async getOneUser(req, res) {
+    //     try {
+    //         const { id } = req.params;
+    //         const user = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
+    //         if (user.rows.length === 0) {
+    //             return res.status(404).json({ message: 'User not found' });
+    //         }
+    //         res.json(user.rows[0]);
+    //     } catch (err) {
+    //         console.error(err.message);
+    //         res.status(500).send('Server Error');
+    //     }
+    // }
+    //
+    // async updateUser(req, res) {
+    //     try {
+    //         const { id } = req.params;
+    //         const { name, email } = req.body;
+    //         const updatedUser = await pool.query(
+    //             'UPDATE users SET name = $1, email = $2 WHERE id = $3 RETURNING *',
+    //             [name, email, id]
+    //         );
+    //         if (updatedUser.rows.length === 0) {
+    //             return res.status(404).json({ message: 'User not found' });
+    //         }
+    //         res.json(updatedUser.rows[0]);
+    //     } catch (err) {
+    //         console.error(err.message);
+    //         res.status(500).send('Server Error');
+    //     }
+    // }
+    //
+    // async deleteUser(req, res) {
+    //     try {
+    //         const { id } = req.params;
+    //         const deletedUser = await pool.query('DELETE FROM users WHERE id = $1 RETURNING *', [id]);
+    //         if (deletedUser.rows.length === 0) {
+    //             return res.status(404).json({ message: 'User not found' });
+    //         }
+    //         res.json({ message: 'User deleted' });
+    //     } catch (err) {
+    //         console.error(err.message);
+    //         res.status(500).send('Server Error');
+    //     }
+    // }
+
+    async registration(req, res) {
         try {
-            const { name, email } = req.body;
-            const newUser = await pool.query(
-                'INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *',
-                [name, email]
+            const { login, email, password } = req.body;
+            const hashedPassword = await hashPassword(password);
+
+            const checkUser = await pool.query(
+                'SELECT COUNT(*) FROM users WHERE login = $1 AND password_hash = $2',
+                [login, hashedPassword]
             );
-            res.json(newUser.rows[0]);
-        } catch (err) {
-            console.error(err.message);
-            res.status(500).send('Server Error');
-        }
-    }
-
-    async getUsers(req, res) {
-        try {
-            const allUsers = await pool.query('SELECT * FROM users');
-            res.json(allUsers.rows);
-        } catch (err) {
-            console.error(err.message);
-            res.status(500).send('Server Error');
-        }
-    }
-
-    async getOneUser(req, res) {
-        try {
-            const { id } = req.params;
-            const user = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
-            if (user.rows.length === 0) {
-                return res.status(404).json({ message: 'User not found' });
+            if (checkUser === 0) {
+                res.status(400).json({ message: 'Логин или пароль введены неверно' });
+            } else {
+                const registrationUser = await pool.query(
+                    'INSERT INTO users (login, email, password_hash) VALUES ($1, $2, $3) RETURNING *',
+                    [login, email, hashedPassword]
+                );
+                res.status(201).json({ message: 'Пользователь успешно зарегистрирован', user: registrationUser.rows[0] });
             }
-            res.json(user.rows[0]);
         } catch (err) {
             console.error(err.message);
-            res.status(500).send('Server Error');
+            res.status(500).send("Server error");
         }
     }
 
-    async updateUser(req, res) {
+    async login (req, res) {
         try {
-            const { id } = req.params;
-            const { name, email } = req.body;
-            const updatedUser = await pool.query(
-                'UPDATE users SET name = $1, email = $2 WHERE id = $3 RETURNING *',
-                [name, email, id]
+            const { login, password } = req.body;
+            const hashedPassword = await hashPassword(password);
+            const checkUser = await pool.query(
+                'SELECT COUNT(*) FROM users WHERE login = $1 AND password_hash = $2',
+                [login, hashedPassword]
             );
-            if (updatedUser.rows.length === 0) {
-                return res.status(404).json({ message: 'User not found' });
+            if (checkUser === 0) {
+                res.status(400).json({ message: 'Логин или пароль введены неверно' });
+            } else {
+                res.status(200).json({ message: 'Вход выполнен успешно', user: user.rows[0] });
             }
-            res.json(updatedUser.rows[0]);
         } catch (err) {
             console.error(err.message);
-            res.status(500).send('Server Error');
+            res.status(500).send("Server error");
         }
     }
-
-    async deleteUser(req, res) {
-        try {
-            const { id } = req.params;
-            const deletedUser = await pool.query('DELETE FROM users WHERE id = $1 RETURNING *', [id]);
-            if (deletedUser.rows.length === 0) {
-                return res.status(404).json({ message: 'User not found' });
-            }
-            res.json({ message: 'User deleted' });
-        } catch (err) {
-            console.error(err.message);
-            res.status(500).send('Server Error');
-        }
-    }
-
-
 }
 
 module.exports = new UserController();
