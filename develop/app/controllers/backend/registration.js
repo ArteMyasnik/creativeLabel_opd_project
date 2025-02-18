@@ -1,35 +1,49 @@
+//РЕГИСТРАЦИЯ
+function hasNumber(str) {
+    return /\d/.test(str);
+}
+
 function hasSpecialCharacter(password) {
     const specialCharacters = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
     return specialCharacters.test(password);
-    }
-    
+}
+
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
 function hasUpperCase(str) {
     for (let i = 0; i < str.length; i++) {
         const charCode = str.charCodeAt(i);
-        if (charCode >= 65 && charCode <= 90) { // ASCII коды заглавных букв
-        return true;
+        if (charCode >= 65 && charCode <= 90) {
+            return true;
         }
     }
     return false;
 }
-function hasNumber(str) {
-    return /\d/.test(str);
-  }
 
-
-async function checkLoginForm(event) {
-    event.preventDefault();
+async function checkRegisterForm(event) {
     document.getElementById("error").innerHTML = "";
+    event.preventDefault();
     var form = document.querySelector('form');
     var login = document.querySelector('input[name="login"]');
     var password = document.querySelector('input[name="password"]');
+    var repassword = document.querySelector('input[name="repassword"]');
+    var email = document.querySelector('input[name="email"]');
     loginValue = login.value;
     passwordValue = password.value;
+    repasswordValue = repassword.value;
+    emailValue = email.value;
     var fail = '';
     if (passwordValue.length < 6) {
         fail = "Длина пароля должна быть не меньше 6 символов";
-    }else if (!hasUpperCase(passwordValue)) {
+    } else if (!hasUpperCase(passwordValue)) {
         fail = "Пароль должен содержать заглавные буквы";
+    } else if (!isValidEmail(emailValue)) {
+        fail = "Некорректный адрес почты";
+    } else if (password.value != repassword.value) {
+        fail = "Пароли должны совпадать";
     } else if (!hasNumber(passwordValue) && !hasSpecialCharacter(passwordValue)) {
         fail = "Пароль должен содержать цифры и специальный символ";
     } else if (!hasNumber(passwordValue) && hasSpecialCharacter(passwordValue)) {
@@ -39,11 +53,14 @@ async function checkLoginForm(event) {
     }
     if (fail != "") {
         document.getElementById("error").innerHTML = fail;
-      } else {
+    } else {
+        sessionStorage.setItem('isLoggedIn', 'true'); // Сохраняем информацию о входе
+        window.location.href = "/main"; // Перенаправляем на главную страницу
         // 1. Собираем данные из формы
         const formData = {
             login: loginValue,
-            password: passwordValue
+            email: emailValue,
+            password: passwordValue,
         };
 
         // 2. Преобразуем данные в JSON
@@ -51,7 +68,7 @@ async function checkLoginForm(event) {
 
         try {
             // 3. Отправляем данные на сервер (Node.js) с помощью fetch
-            const response = await fetch('http://localhost:3000/api/login', { // Замените на URL вашего сервера
+            const response = await fetch('http://localhost:3000/api/registration', { // Замените на URL вашего сервера
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -62,20 +79,21 @@ async function checkLoginForm(event) {
             // 4. Обрабатываем ответ от сервера
             if (response.ok) {
                 const result = await response.json();
-                console.log('Вход выполнен успешно!', result);
-                alert('Вход выполнен успешно!'); // Или перенаправление на другую страницу
-                // Например: window.location.href = '/profile';
+                console.log('Успешно зарегистрирован!', result);
+                alert('Вы успешно зарегистрированы!'); // Или другое уведомление
+                form.reset(); // Очищаем форму
             } else {
-                const errorData = await response.json();
-                console.error('Ошибка входа:', response.status);
-                document.getElementById('error').innerText = errorData.message || 'Неверный логин или пароль.';
+                console.error('Ошибка регистрации:', response.status);
+                const errorData = await response.json(); // Получаем сообщение об ошибке с сервера
+                document.getElementById("error").innerHTML = errorData.message || 'Ошибка регистрации. Попробуйте позже.'; // Выводим сообщение об ошибке на страницу
             }
 
         } catch (error) {
             console.error('Произошла ошибка:', error);
-            document.getElementById('error').innerText = 'Произошла ошибка при входе. Попробуйте позже.';
+            document.getElementById("error").innerHTML = 'Произошла ошибка при регистрации. Попробуйте позже.';
         }
     }
+
 }
 
-const loginForm = document.querySelector('form').addEventListener('submit', checkLoginForm);
+const registrationForm = document.querySelector('form').addEventListener('submit', checkRegisterForm);

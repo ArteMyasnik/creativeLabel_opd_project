@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../Styles/stylesMain.css">
   </head>
   <body>
+
     <div class="button-container">
       <div class="dropdown">
         <button class="dropbtn" onclick="toggleDropdown()">Меню</button>
@@ -15,16 +16,55 @@
           <button onclick="window.location.href='/developers'">Разработчики</button>
           <button onclick="window.location.href=''">О проекте</button>
         </div>
-      </div>
-      <div class="right-buttons">
-        <a href="/registration">
-          <button>Зарегистрироваться</button>
-        </a>
-        <a href="/login">
-          <button>Войти</button>
-        </a>
-      </div>
     </div>
-    <script src="../../backend/main_page.js"></script>
+    <div class="right-buttons">
+      <a href="/registration">
+        <button id="registration_button">Зарегистрироваться</button>
+      </a>
+      <a href="/login">
+        <button id="login-button">Войти</button>
+      </a>
+      <a href="/main">
+        <button id="logout-button" style="display: none;" >Выход</button>
+      </a>
+    </div>
+    </div>
+
+    <div class="content">
+      <h1>IT-профессии</h1>
+    </div>
+    
+    <div class="grid">
+      <a href="/programmer" class="object">Программист
+        <img src="..\Icons/coding_2828881.png" alt="Программист">
+
+      </a>
+      <a href="/itSpecialist" class="object">IT-специалист
+        <img src="..\Icons\worldwide_2593461.png" alt="IT-специалист">
+      </a>
+      <a href="/computerScientist" class="object">Информатик
+        <img src="..\Icons\data-loss_6743132.png" alt="Информатик">
+      </a>
+      <a href="/developer" class="object">Разработчик
+        <img src="..\Icons\cpu_707475.png" alt="Разработчик">
+      </a>
+      <a href="/tester" class="object">Тестировщик
+        <img src="..\Icons\virus_1320571.png" alt="Тестировщик">
+      </a>
+      <a href="/businessCompScientist" class="object">Бизнес-информатик
+        <img src="..\Icons\fund_2177058 (1).png" alt="Бизнес-информатик">
+      </a>
+      <a href="/operator" class="object">Оператор ЭВМ
+        <img src="..\Icons\sharing_3962127.png" alt="Оператор ЭВМ">
+      </a>
+      <a href="/sysAdmin" class="object">Системный администратор
+        <img src="..\Icons\lock_4693311.png" alt="Системный администратор">
+      </a>
+      <a href="/gameDeveloper" class="object">Разработчик игр
+        <img src="..\Icons\joystick_1588363.png" alt="Разработчик игр">
+      </a>
+    </div>
+
+    <script src="/backend/main_page.js"></script>
   </body>
 </html>

@@ -1,33 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
 .button-container {
+  padding-top: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-radius: 5px;
-  background-image: url("../Images/header_background.jpg");
-  background-repeat: 0;
+  background-repeat: no-repeat;
   font-size: 0;
 }
 .button-container button {
   margin: 0.5rem 0.5rem;
-  padding: 0.5rem 2rem;
-  font-size: 14px;
+  padding: 0.7rem 2rem;
+  font-size: 17px;
+  font-family: Montserrat;
   cursor: pointer;
   border: none;
-  border-radius: 5px;
-  background-color: #6a5acd;
+  border-radius: 20px;
+  background-color: #479C92;
   color: white;
 }
 .button-container button:hover {
-  background-color: #483d8b;
+  background-color: #2d5e58;
+  transition: all 0.3s ease;
 }
+
+
 body {
-  background-image: url("../Images/site_background.jpg");
+
+  background-color: black;
+  color: white;
+  margin: 0;
+  padding: 0;
+  font-family: Montserrat;
+  min-height: 100vh;
+  position: relative; /* Для позиционирования псевдоэлемента */
+  /* Убедитесь, что здесь нет overflow: hidden, чтобы была возможность прокрутки */
+  overflow-y: auto;
 }
+
+body::before {
+  content: "";
+  background-image: url("../Images/фон.jpg");
+  background-size: cover;
+  background-position: center;
+  opacity: 0.2;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  pointer-events: none; /* Чтобы фон не блокировал клики */
+}
+.content {
+  position: relative; /* Чтобы контент был поверх изображения */
+  padding: 20px;
+  text-align: center;
+  font-size: 10px;
+  opacity: 0;
+  animation: ani 2.5s forwards;
+  
+}
+html, body {
+  margin: 0;
+  padding: 0;
+
+}
+
+.content h1 {
+  font-size: 70px;
+  text-align: left;
+  margin-left: 5%;
+  padding-bottom: -1%;
+}
+
+
+
 .left-button {
   margin-right: auto; /* Выравнивание первой кнопки по левому краю */
 }
 .right-buttons {
   display: flex;
+  z-index: 0;
 }
 /* Стили для списка */
 .dropdown {
@@ -37,8 +92,8 @@ body {
 
 /* Кнопка, которая открывает список */
 .dropbtn {
-  background-color: #6a5acd;
-  color: white;
+  background-color: #479C92;
+  color: black;
   padding: 10px 20px;
   font-size: 16px;
   border: none;
@@ -48,41 +103,124 @@ body {
 
 /* Выпадающее меню */
 .dropdown-content {
-  display: none; /* Скрыто по умолчанию */
   position: absolute;
   background-color: #f9f9f9; /* Белый фон */
-  min-width: 150px; /* Уменьшаем ширину меню */
-  width: auto; /* Ширина будет подстраиваться под содержимое */
+  min-width: 150px;         /* Минимальная ширина меню */
+  width: auto;              /* Ширина будет подстраиваться под содержимое */
   box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
   z-index: 1;
   border-radius: 5px;
-  padding: 5px; /* Внутренний отступ для меню */
+  padding: 5px;             /* Внутренний отступ для меню */
+
+  /* Скрываем меню изначально с помощью трансформации и прозрачности */
+  transform: scaleY(0);
+  transform-origin: top;
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  pointer-events: none; /* Отключаем взаимодействие, когда меню скрыто */
+}
+
+/* Состояние при открытом меню */
+.dropdown-content.show {
+  transform: scaleY(1);
+  opacity: 1;
+  pointer-events: auto; /* Включаем взаимодействие */
 }
 
 /* Кнопки внутри выпадающего меню */
 .dropdown-content button {
-  color: white; /* Белый текст, как у кнопки меню */
-  padding: 5px 10px; /* Уменьшаем внутренние отступы */
+  color: white;           /* Белый текст */
+  padding: 5px 10px;       /* Внутренние отступы */
   text-decoration: none;
   display: block;
-  width: 100%; /* Кнопки занимают всю ширину меню */
+  width: 100%;            /* Занимают всю ширину меню */
   text-align: left;
   border: none;
-  background-color: #6a5acd; /* Цвет фона, как у кнопки меню */
+  background-color: #479C92; /* Фоновый цвет, как у кнопки меню */
   cursor: pointer;
-  height: 30px; /* Фиксированная высота кнопки */
-  line-height: 20px; /* Выравнивание текста по вертикали */
+  height: 30px;           /* Фиксированная высота кнопки */
+  line-height: 20px;      /* Выравнивание текста по вертикали */
   box-sizing: border-box; /* Учитываем padding и border в высоте */
-  border-radius: 3px; /* Закругляем углы */
-  margin: 2px 0; /* Отступы между кнопками */
+  border-radius: 3px;     /* Закругляем углы */
+  margin: 2px 0;          /* Отступы между кнопками */
 }
 
+/* Дополнительное состояние при наведении на кнопки */
+.dropdown-content button:hover {
+  background-color: #2d5e58;
+}
+@keyframes ani {
+  0% {opacity: 0;}
+  100% {opacity: 1;}
+}
 /* Изменение цвета кнопок при наведении */
 .dropdown-content button:hover {
-  background-color: #483d8b; /* Цвет при наведении, как у кнопки меню */
+  background-color: #2d5e58; /* Цвет при наведении, как у кнопки меню */
 }
 
 /* Показ выпадающего меню */
 .show {
   display: block;
 }
+.grid {
+  opacity: 0;
+  animation: ani 2.5s forwards;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(100px, 1fr)); /* Не больше 3 колонок */
+  grid-auto-rows: minmax(165px, auto); /* Адаптивные строки */
+  gap: 50px 80px; /* Отступы между элементами */
+  text-align: left;
+  padding: 0px;
+  max-width: calc(3 * 380px + 2 * 80px); /* Максимальная ширина для 3 колонок */
+  margin-left: 5%;
+  margin-right: 5%;
+ /* Центрируем сетку */
+}
+
+/* Медиазапросы для адаптации под разные экраны */
+@media (max-width: 1200px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(250px, 1fr)); /* 2 колонки на средних экранах */
+    gap: 40px 60px;
+  }
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(1, minmax(200px, 1fr)); /* 1 колонка на маленьких экранах */
+    gap: 30px 40px;
+  }
+}
+
+
+.object {
+  background-color: black;
+  border-color: #585858;
+  border: 3px solid #585858;
+  border-radius: 20px;
+  font-family: Montserrat;
+  font-size: 25px;
+  text-align: center;
+  padding-top: 3%;
+  transition: all 0.7s ease;
+  position: relative;
+  text-decoration: none;
+  color: white;
+}
+
+.object:hover {
+  background-color: #2d5e58;
+  transform: scale(1.15);
+  border-color: #2d5e58;
+}
+
+.object img {
+  width: 100px;
+  height: 100px;
+  bottom: 10px;
+  position: absolute;
+  left: 37%;
+
+}
+
+

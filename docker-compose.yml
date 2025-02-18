@@ -11,7 +11,7 @@ services:
       POSTGRES_DB: creativeLabelDB
     volumes:
       - creativeLabel_opd_project_volume:/var/lib/postgresql/data
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./develop/app/db/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
     networks:

@@ -48,22 +48,66 @@ body::before {
     z-index: -1;
   
   }
-  
-  .content {
-    position: relative; /* Чтобы контент был поверх изображения */
-    padding: 20px;
-    text-align: center;
-    font-size: 10px;
-    
+  .button-container {
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 5px;
+    background-repeat: no-repeat;
+    font-size: 0;
   }
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%; 
+  .button-container button {
+    margin: 0.5rem 0.5rem;
+    padding: 0.7rem 2rem;
+    font-size: 17px;
+    font-family: Montserrat;
+    cursor: pointer;
+    border: none;
+    border-radius: 20px;
+    background-color: #479C92;
+    color: white;
+  }
+  .button-container button:hover {
+    background-color: #2d5e58;
+    transition: all 0.3s ease;
+  }
+  .left-button {
+    margin-right: auto; /* Выравнивание первой кнопки по левому краю */
+  }
+  .right-buttons {
+    display: flex;
+    z-index: 0;
   }
 
-  p {
-    font-family: Montserrat;
-    font-size: 20px;
-    margin-left: 5%;
-  }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 380px);
+  grid-template-rows: repeat(1, 165px);
+  gap: 40%;
+  text-align: left;
+  margin-left: 5%;
+}
+
+.photo img {
+  width: 135%;
+  padding-top: 50px;
+  border-radius: 10px;
+}
+
+.text {
+  width: 250%;
+  font-family: Montserrat;
+  font-size: 20px;
+  padding-top: 50px;
+  line-height: 30px;
+}
+
+.line {
+  width: 85%;
+  border-top: 2px solid #585858;
+  margin-left: 5%;
+}
+
+
