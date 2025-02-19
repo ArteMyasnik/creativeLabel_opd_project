@@ -23,24 +23,24 @@ h1 {
 }
 
 body {
-    background-color: black;  /*Черный фон */
-    color: white; /* Белый текст для контраста */
+    background-color: black; 
+    color: white; 
     margin: 0;
     padding: 0;
     font-family: Montserrat;
-    position: relative; /* Для позиционирования псевдоэлемента */
-    overflow: hidden; /* Чтобы изображение не выходило за пределы страницы */
-    min-height: 100vh; /* чтобы body занимал высоту окна браузера */
+    position: relative;
+    overflow: hidden; 
+    min-height: 100vh; 
   }
 
-/* Псевдоэлемент для фонового изображения */
+
 body::before {
     content: "";
-    background-image: url("../Images/фон\ 2.jpg"); /* Путь к вашему изображению */
-    background-size: cover; /* Растягиваем изображение на весь экран */
-    background-position: center; /* Центрируем изображение */
-    opacity: 0.2; /* Прозрачность 20% */
-    position: absolute; /* Абсолютное позиционирование */
+    background-image: url("../Images/фон\ 2.jpg"); 
+    background-size: cover; 
+    background-position: center; 
+    opacity: 0.2; 
+    position: absolute; 
     top: 0;
     left: 0;
     width: 100%;
@@ -73,7 +73,7 @@ body::before {
     transition: all 0.3s ease;
   }
   .left-button {
-    margin-right: auto; /* Выравнивание первой кнопки по левому краю */
+    margin-right: auto;
   }
   .right-buttons {
     display: flex;

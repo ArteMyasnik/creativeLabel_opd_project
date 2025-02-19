@@ -27,24 +27,24 @@ h1 {
 }
 body {
 
-    background-color: black;  /*Черный фон */
-    color: white; /* Белый текст для контраста */
+    background-color: black; 
+    color: white; 
     margin: 0;
     padding: 0;
     font-family: Montserrat;
-    position: relative; /* Для позиционирования псевдоэлемента */
+    position: relative; 
     
-    min-height: 100vh; /* чтобы body занимал высоту окна браузера */
+    min-height: 100vh;
   }
 
-/* Псевдоэлемент для фонового изображения */
+
 body::before {
     content: "";
-    background-image: url("../Images/фон\ 2.jpg"); /* Путь к вашему изображению */
-    background-size: cover; /* Растягиваем изображение на весь экран */
-    background-position: center; /* Центрируем изображение */
-    opacity: 0.2; /* Прозрачность 20% */
-    position: absolute; /* Абсолютное позиционирование */
+    background-image: url("../Images/фон\ 2.jpg");
+    background-size: cover; 
+    background-position: center;
+    opacity: 0.2; 
+    position: absolute; 
     top: 0;
     left: 0;
     width: 100%;
@@ -77,7 +77,7 @@ body::before {
     transition: all 0.3s ease;
   }
   .left-button {
-    margin-right: auto; /* Выравнивание первой кнопки по левому краю */
+    margin-right: auto;
   }
   .right-buttons {
     display: flex;
@@ -85,40 +85,37 @@ body::before {
   }
 
 
-/* Адаптивная сетка */
 .grid {  opacity: 0;
   animation: ani 2.5s forwards;
   display: grid;
-  grid-template-columns: 2fr 1fr; /* две равные колонки */
-  gap: 20px;                   /* промежуток между элементами */
-          /* центрирование контейнера */
-  max-width: auto;           /* максимальная ширина контейнера */
-  padding: 20px;               /* внутренние отступы */
+  grid-template-columns: 2fr 1fr; 
+  gap: 20px;                  
+  max-width: auto;          
+  padding: 20px;              
   box-sizing: border-box;
 }
 
-/* Стили для текстового блока */
+
 .text {
   font-family: Montserrat, sans-serif;
-  font-size: 1.25rem; /* приблизительно 20px */
+  font-size: 1.25rem; 
   line-height: 1.5;
   color: white;
   text-align: justify;
   margin-left: 5%;
 }
 
-/* Стили для блока с картинкой */
+
 .photo img {
-  width: 75%;   /* изображение занимает всю ширину родительского блока */
-  height: auto;  /* сохраняет пропорции */
+  width: 75%;  
+  height: auto;  
   border-radius: 10px;
   display: block;
 }
 
-/* Медиазапрос для узких экранов */
 @media (max-width: 1024px) {
   .grid {
-    grid-template-columns: 1fr; /* одна колонка */
+    grid-template-columns: 1fr; 
   }
   .photo img{
     width: 100%;

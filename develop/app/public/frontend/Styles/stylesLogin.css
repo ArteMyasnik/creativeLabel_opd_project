@@ -26,7 +26,7 @@
   html, body {
     margin: 0;
     padding: 0;
-    height: 100%; /* Обеспечивает, что элементы занимают всю высоту окна */
+    height: 100%;
   }
   .login-container button {
     width: 100%;

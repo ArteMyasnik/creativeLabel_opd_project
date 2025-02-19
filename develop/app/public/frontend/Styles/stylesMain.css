@@ -34,8 +34,7 @@ body {
   padding: 0;
   font-family: Montserrat;
   min-height: 100vh;
-  position: relative; /* Для позиционирования псевдоэлемента */
-  /* Убедитесь, что здесь нет overflow: hidden, чтобы была возможность прокрутки */
+  position: relative; 
   overflow-y: auto;
 }
 
@@ -51,10 +50,10 @@ body::before {
   right: 0;
   bottom: 0;
   z-index: -1;
-  pointer-events: none; /* Чтобы фон не блокировал клики */
+  pointer-events: none; 
 }
 .content {
-  position: relative; /* Чтобы контент был поверх изображения */
+  position: relative; 
   padding: 20px;
   text-align: center;
   font-size: 10px;
@@ -78,19 +77,17 @@ html, body {
 
 
 .left-button {
-  margin-right: auto; /* Выравнивание первой кнопки по левому краю */
+  margin-right: auto;
 }
 .right-buttons {
   display: flex;
   z-index: 0;
 }
-/* Стили для списка */
 .dropdown {
   position: relative;
   display: inline-block;
 }
 
-/* Кнопка, которая открывает список */
 .dropbtn {
   background-color: #479C92;
   color: black;
@@ -101,51 +98,46 @@ html, body {
   cursor: pointer;
 }
 
-/* Выпадающее меню */
 .dropdown-content {
   position: absolute;
-  background-color: #f9f9f9; /* Белый фон */
-  min-width: 150px;         /* Минимальная ширина меню */
-  width: auto;              /* Ширина будет подстраиваться под содержимое */
+  background-color: #f9f9f9; 
+  min-width: 150px;         
+  width: auto;              
   box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
   z-index: 1;
   border-radius: 5px;
-  padding: 5px;             /* Внутренний отступ для меню */
+  padding: 5px;            
 
-  /* Скрываем меню изначально с помощью трансформации и прозрачности */
   transform: scaleY(0);
   transform-origin: top;
   opacity: 0;
   transition: transform 0.3s ease, opacity 0.3s ease;
-  pointer-events: none; /* Отключаем взаимодействие, когда меню скрыто */
+  pointer-events: none; 
 }
 
-/* Состояние при открытом меню */
 .dropdown-content.show {
   transform: scaleY(1);
   opacity: 1;
-  pointer-events: auto; /* Включаем взаимодействие */
+  pointer-events: auto; 
 }
 
-/* Кнопки внутри выпадающего меню */
 .dropdown-content button {
-  color: white;           /* Белый текст */
-  padding: 5px 10px;       /* Внутренние отступы */
+  color: white;         
+  padding: 5px 10px;      
   text-decoration: none;
   display: block;
-  width: 100%;            /* Занимают всю ширину меню */
+  width: 100%;            
   text-align: left;
   border: none;
-  background-color: #479C92; /* Фоновый цвет, как у кнопки меню */
+  background-color: #479C92;
   cursor: pointer;
-  height: 30px;           /* Фиксированная высота кнопки */
-  line-height: 20px;      /* Выравнивание текста по вертикали */
-  box-sizing: border-box; /* Учитываем padding и border в высоте */
-  border-radius: 3px;     /* Закругляем углы */
-  margin: 2px 0;          /* Отступы между кнопками */
+  height: 30px;          
+  line-height: 20px;     
+  box-sizing: border-box; 
+  border-radius: 3px;     
+  margin: 2px 0;          
 }
 
-/* Дополнительное состояние при наведении на кнопки */
 .dropdown-content button:hover {
   background-color: #2d5e58;
 }
@@ -153,12 +145,11 @@ html, body {
   0% {opacity: 0;}
   100% {opacity: 1;}
 }
-/* Изменение цвета кнопок при наведении */
+
 .dropdown-content button:hover {
-  background-color: #2d5e58; /* Цвет при наведении, как у кнопки меню */
+  background-color: #2d5e58; 
 }
 
-/* Показ выпадающего меню */
 .show {
   display: block;
 }
@@ -166,28 +157,26 @@ html, body {
   opacity: 0;
   animation: ani 2.5s forwards;
   display: grid;
-  grid-template-columns: repeat(3, minmax(100px, 1fr)); /* Не больше 3 колонок */
-  grid-auto-rows: minmax(165px, auto); /* Адаптивные строки */
-  gap: 50px 80px; /* Отступы между элементами */
+  grid-template-columns: repeat(3, minmax(100px, 1fr)); 
+  grid-auto-rows: minmax(165px, auto); 
+  gap: 50px 80px; 
   text-align: left;
   padding: 0px;
-  max-width: calc(3 * 380px + 2 * 80px); /* Максимальная ширина для 3 колонок */
+  max-width: calc(3 * 380px + 2 * 80px); 
   margin-left: 5%;
   margin-right: 5%;
- /* Центрируем сетку */
 }
 
-/* Медиазапросы для адаптации под разные экраны */
 @media (max-width: 1200px) {
   .grid {
-    grid-template-columns: repeat(2, minmax(250px, 1fr)); /* 2 колонки на средних экранах */
+    grid-template-columns: repeat(2, minmax(250px, 1fr)); 
     gap: 40px 60px;
   }
 }
 
 @media (max-width: 768px) {
   .grid {
-    grid-template-columns: repeat(1, minmax(200px, 1fr)); /* 1 колонка на маленьких экранах */
+    grid-template-columns: repeat(1, minmax(200px, 1fr)); 
     gap: 30px 40px;
   }
 }
