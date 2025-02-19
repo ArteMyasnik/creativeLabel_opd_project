@@ -65,6 +65,53 @@
       </a>
     </div>
 
-    <script src="/backend/main_page.js"></script>
+    <script>
+      //МЕНЮ
+      // Функция для показа/скрытия выпадающего меню
+      function toggleDropdown() {
+        const dropdownContent = document.getElementById("dropdownContent");
+        dropdownContent.classList.toggle("show");
+      }
+      
+      // Закрытие выпадающего меню при клике вне его области
+      window.onclick = function(event) {
+        if (!event.target.matches('.dropbtn')) {
+          const dropdowns = document.getElementsByClassName("dropdown-content");
+          for (let i = 0; i < dropdowns.length; i++) {
+            const openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+              openDropdown.classList.remove('show');
+            }
+          }
+        }
+      }
+      document.addEventListener('DOMContentLoaded', function() {
+        const loginButton = document.getElementById('login-button');
+        const registrationButton = document.getElementById('registration_button');
+        const logoutButton = document.getElementById('logout-button');
+        function updateAuthButtons() {
+          const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+      
+          if (isLoggedIn === 'true') {
+            loginButton.style.display = 'none';
+            registrationButton.style.display = 'none';
+            logoutButton.style.display = 'inline-block'; // Или 'block'
+          } else {
+            loginButton.style.display = 'inline-block'; // Или 'block'
+            registrationButton.style.display = 'inline-block'; // Или 'block'
+            logoutButton.style.display = 'none';
+          }
+        }
+      
+        // Изначальная проверка при загрузке страницы
+        updateAuthButtons();
+      
+        // Обработка выхода:
+        logoutButton.addEventListener('click', function() {
+          sessionStorage.removeItem('isLoggedIn'); // Удаляем информацию об аутентификации
+          updateAuthButtons(); // Обновляем отображение кнопок
+        });
+      });
+      </script>
   </body>
 </html>
