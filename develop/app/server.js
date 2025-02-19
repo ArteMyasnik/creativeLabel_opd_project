@@ -9,22 +9,23 @@ app.use(express.static(path.join(__dirname, 'public', 'frontend')));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use('/api', userRouter);
 app.get("/", (req, res) => {
     res.send('Перейдите по ссылке справа http://localhost:3000/main');
 });
-
+// Main ------------------------------------------------------------------------------------
 app.get('/main', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/frontend/Pages', 'main_page.html'));
 });
 
+// -----------------------------------------------------------------------------------------
+// Registration and login ------------------------------------------------------------------
 app.get('/registration', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/frontend/Pages', 'registration_page.html'));
+    res.sendFile(path.join(__dirname, 'public/frontend/Pages/auth', 'registration_page.html'));
 });
 
 app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/frontend/Pages', 'login_page.html'));
+    res.sendFile(path.join(__dirname, 'public/frontend/Pages/auth', 'login_page.html'));
 });
 
 app.post('/registration', (req, res) => {
@@ -38,7 +39,8 @@ app.post('/login', (req, res) => {
     console.log('Данные входа:', { login, password });
     res.status(200).json({ message: 'Вход выполнен успешно!' });
 });
-
+// -----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------------------
 // Pages HTML professions ------------------------------------------------------------------
@@ -54,16 +56,8 @@ app.get('/developer', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/frontend/Pages/professions', 'developer.html'));
 });
 
-app.get('/developers', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/frontend/Pages', 'developers.html'));
-});
-
 app.get('/gameDeveloper', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/frontend/Pages/professions', 'gameDeveloper.html'));
-});
-
-app.get('/goals', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/frontend/Pages', 'goals.html'));
 });
 
 app.get('/itSpecialist', (req, res) => {
@@ -73,6 +67,7 @@ app.get('/itSpecialist', (req, res) => {
 app.get('/operator', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/frontend/Pages/professions', 'operator.html'));
 });
+
 app.get('/programmer', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/frontend/Pages/professions', 'programmer.html'));
 });
@@ -80,9 +75,28 @@ app.get('/programmer', (req, res) => {
 app.get('/sysAdmin', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/frontend/Pages/professions', 'sysAdmin.html'));
 });
-
 app.get('/tester', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/frontend/Pages/professions', 'tester.html'));
+});
+// -----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------------------
+// Pages HTML menu -------------------------------------------------------------------------
+app.get('/aboutProject', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'aboutProject.html'));
+});
+
+app.get('/goals', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'goals.html'));
+});
+
+app.get('/profile', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'profile.html'));
+});
+
+app.get('/developers', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'developers.html'));
 });
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------

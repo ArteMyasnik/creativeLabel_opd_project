@@ -8,11 +8,15 @@ async function hashPassword(password) {
     const salt = await bcryptjs.genSalt(10);
     return await bcryptjs.hash(password, salt);
 }
-bcryptjs.setRandomFallback((len) => {
-    const buf = crypto.randomBytes(len);
+
+bcryptjs.setRandomFallback(() => {
+    const buf = crypto.randomBytes(60);
     return buf;
 });
 
+async function comparePassword(password, hashedPassword) {
+    return await bcryptjs.compare(password, hashedPassword);
+}
 
 class UserController {
     // async createUser(req, res) {
@@ -87,21 +91,21 @@ class UserController {
 
     async registration(req, res) {
         try {
-            const { login, email, password } = req.body;
+            const {login, email, password} = req.body;
             const hashedPassword = await hashPassword(password);
 
             const checkUser = await pool.query(
-                'SELECT COUNT(*) FROM users WHERE login = $1 AND password_hash = $2',
-                [login, hashedPassword]
+                'SELECT COUNT(*) FROM users WHERE login = $1',
+                [login]
             );
             if (checkUser === 0) {
-                res.status(400).json({ message: 'Логин или пароль введены неверно' });
+                res.status(400).json({message: 'Пользователь с таким логином уже зарегистрирован'});
             } else {
                 const registrationUser = await pool.query(
                     'INSERT INTO users (login, email, password_hash) VALUES ($1, $2, $3) RETURNING *',
                     [login, email, hashedPassword]
                 );
-                res.status(201).json({ message: 'Пользователь успешно зарегистрирован', user: registrationUser.rows[0] });
+                res.status(201).json({message: 'Пользователь успешно зарегистрирован', user: login});
             }
         } catch (err) {
             console.error(err.message);
@@ -109,18 +113,23 @@ class UserController {
         }
     }
 
-    async login (req, res) {
+    async login(req, res) {
         try {
-            const { login, password } = req.body;
-            const hashedPassword = await hashPassword(password);
-            const checkUser = await pool.query(
-                'SELECT COUNT(*) FROM users WHERE login = $1 AND password_hash = $2',
-                [login, hashedPassword]
+            const {login, password} = req.body;
+
+            // Получаем хэшированный пароль из базы данных
+            const result = await pool.query(
+                `SELECT password_hash FROM users WHERE login = $1`,
+                [login]
             );
-            if (checkUser === 0) {
-                res.status(400).json({ message: 'Логин или пароль введены неверно' });
+            const hashedPasswordDB = result.rows[0].password_hash;
+
+            // Проверяем пароли на соответствие
+            const isMatch = await comparePassword(password, hashedPasswordDB);
+            if (!isMatch) {
+                res.status(400).json({message: 'Логин или пароль введены неверно'});
             } else {
-                res.status(200).json({ message: 'Вход выполнен успешно', user: user.rows[0] });
+                res.status(200).json({message: 'Вход выполнен успешно', user: login});
             }
         } catch (err) {
             console.error(err.message);
