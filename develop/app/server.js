@@ -41,17 +41,17 @@ app.post('/login', (req, res) => {
 
 
 // -----------------------------------------------------------------------------------------
-// Pages HTML ------------------------------------------------------------------------------
+// Pages HTML professions ------------------------------------------------------------------
 app.get('/businessCompScientist', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/frontend/Pages', 'businessCompScientist.html'));
+    res.sendFile(path.join(__dirname, 'public/frontend/Pages/professions', 'businessCompScientist.html'));
 });
 
 app.get('/computerScientist', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/frontend/Pages', 'computerScientist.html'));
+    res.sendFile(path.join(__dirname, 'public/frontend/Pages/professions', 'computerScientist.html'));
 });
 
 app.get('/developer', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/frontend/Pages', 'developer.html'));
+    res.sendFile(path.join(__dirname, 'public/frontend/Pages/professions', 'developer.html'));
 });
 
 app.get('/developers', (req, res) => {
@@ -59,7 +59,7 @@ app.get('/developers', (req, res) => {
 });
 
 app.get('/gameDeveloper', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/frontend/Pages', 'gameDeveloper.html'));
+    res.sendFile(path.join(__dirname, 'public/frontend/Pages/professions', 'gameDeveloper.html'));
 });
 
 app.get('/goals', (req, res) => {
@@ -67,22 +67,22 @@ app.get('/goals', (req, res) => {
 });
 
 app.get('/itSpecialist', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/frontend/Pages', 'itSpecialist.html'));
+    res.sendFile(path.join(__dirname, 'public/frontend/Pages/professions', 'itSpecialist.html'));
 });
 
 app.get('/operator', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/frontend/Pages', 'operator.html'));
+    res.sendFile(path.join(__dirname, 'public/frontend/Pages/professions', 'operator.html'));
 });
 app.get('/programmer', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/frontend/Pages', 'programmer.html'));
+    res.sendFile(path.join(__dirname, 'public/frontend/Pages/professions', 'programmer.html'));
 });
 
 app.get('/sysAdmin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/frontend/Pages', 'sysAdmin.html'));
+    res.sendFile(path.join(__dirname, 'public/frontend/Pages/professions', 'sysAdmin.html'));
 });
 
 app.get('/tester', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/frontend/Pages', 'tester.html'));
+    res.sendFile(path.join(__dirname, 'public/frontend/Pages/professions', 'tester.html'));
 });
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------
