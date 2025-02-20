@@ -1,26 +1,106 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="../../Styles/developersStyles.css"> <!-- НЕОБОХОДИМО ИЗМЕНИТЬ -->
+    <title>Профиль</title>
+    <link rel="stylesheet" href="../../Styles/profileStyles.css"> <!-- НЕОБОХОДИМО ИЗМЕНИТЬ -->
 </head>
 <body>
 <button onclick="window.location.href='/main'">Главная страница</button>
 <h1>Профиль</h1>
-<p>Профиль.</p> <!-- НЕОБОХОДИМО ИЗМЕНИТЬ -->
-<div class="developer"> <!-- НЕОБОХОДИМО ИЗМЕНИТЬ дизайн профиля-->
-    <div class="image-container">
-        <img src="../../Images/ава.jpg"/><!-- НЕОБОХОДИМО ИЗМЕНИТЬ -->
-    </div>
-    <div class="info">ЛОГИН</div><!-- НЕОБОХОДИМО ИЗМЕНИТЬ. Будем подтягивать из базы данных всю инфу -->
-    <div class="aditional-info">
-        <p>Мои тесты</p> <!-- НЕОБОХОДИМО ИЗМЕНИТЬ из таблицы user_test  в бд -->
-        <p>Возраст:.</p> <!-- НЕОБОХОДИМО ИЗМЕНИТЬ из бд -->
-        <p>Пол:.</p> <!-- НЕОБОХОДИМО ИЗМЕНИТЬ из бд -->
-        <p>Выход из аккаунта.</p> <!-- НЕОБОХОДИМО ИЗМЕНИТЬ на выход из аккаунта и переброс на главную страницу -->
-    </div>
-</div>
+
+<main>
+    <section class="profile-info">
+        <h2>Мой профиль</h2>
+        <form>
+            <label for="login">Логин:</label>
+            <input type="text" id="login" name="login" value="User123" readonly>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="user@example.com">
+
+            <label>Пол:</label>
+            <div class="gender">
+                <label><input type="radio" name="gender" value="M" checked> М</label>
+                <label><input type="radio" name="gender" value="X"> X</label>
+            </div>
+
+            <label for="birthdate">Дата рождения:</label>
+            <input type="date" id="birthdate" name="birthdate" value="1990-01-01">
+
+            <button type="submit">Сохранить изменения</button>
+        </form>
+    </section>
+
+    <section class="test-results">
+        <h2>Результаты тестов</h2>
+        <div class="filters">
+            <label for="filter">Фильтр:</label>
+            <select id="filter">
+                <option value="all">Все</option>
+                <option value="attention">Внимательность</option>
+                <option value="reaction">Реакция</option>
+            </select>
+        </div>
+        <table>
+            <thead>
+            <tr>
+                <th>№</th>
+                <th>Тест</th>
+                <th>Время прохождения</th>
+                <th>Количество попыток</th>
+                <th>Результат</th>
+                <th>Закладки</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1</td>
+                <td>Внимательность</td>
+                <td>15:26</td>
+                <td>5</td>
+                <td>100</td>
+                <td><button>Добавить в закладки</button></td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Реакция</td>
+                <td>5:49</td>
+                <td>6</td>
+                <td>70</td>
+                <td><button>Добавить в закладки</button></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <aside class="customization">
+        <h2>Настройка внешнего вида</h2>
+        <div class="customization-options">
+            <h3>Головной убор</h3>
+            <select>
+                <option value="hat1">Шляпа 1</option>
+                <option value="hat2">Шляпа 2</option>
+            </select>
+
+            <h3>Одежда</h3>
+            <select>
+                <option value="clothes1">Одежда 1</option>
+                <option value="clothes2">Одежда 2</option>
+            </select>
+
+            <h3>Аксессуары</h3>
+            <select>
+                <option value="accessory1">Аксессуар 1</option>
+                <option value="accessory2">Аксессуар 2</option>
+            </select>
+        </div>
+    </aside>
+</main>
+
+<footer>
+    <p>&copy; 2023 Ваш сайт</p>
+</footer>
 </body>
 </html>
