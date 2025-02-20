@@ -94,14 +94,14 @@ CREATE INDEX idx_professions_name ON professions (name);
 
 -- Вставка начальных данных (опционально)
 INSERT INTO users (login, email, password_hash, isAdmin, isModerator)
-VALUES ('ArteMyasnik', 'artemyasnik@mail.ru', '$2b$10$2UvRowSUWNUnngP4H6Ws6.rPWjG0Wk7U/cntM4sEFLJRe8aIfB2mm', true, true),
-       ('everpr0g', 'everpr0g@mail.ru', '$2b$10$2UvRowSUWNUnngP4H6Ws6.rPWjG0Wk7U/cntM4sEFLJRe8aIfB2mm', true, true),
-       ('sdnssijxi', 'sdnssijxi@mail.ru', '$2b$10$2UvRowSUWNUnngP4H6Ws6.rPWjG0Wk7U/cntM4sEFLJRe8aIfB2mm', true, true),
-       ('tanunika', 'tanunika@mail.ru', '$2b$10$2UvRowSUWNUnngP4H6Ws6.rPWjG0Wk7U/cntM4sEFLJRe8aIfB2mm', true, true),
-       ('tisak142', 'tisak142@mail.ru', '$2b$10$2UvRowSUWNUnngP4H6Ws6.rPWjG0Wk7U/cntM4sEFLJRe8aIfB2mm', true, true),
-       ('xqzmy22', 'xqzmy22@mail.ru', '$2b$10$2UvRowSUWNUnngP4H6Ws6.rPWjG0Wk7U/cntM4sEFLJRe8aIfB2mm', true, true),
-       ('Barrrakyda', 'barrrakyda@mail.ru', '$2b$10$2UvRowSUWNUnngP4H6Ws6.rPWjG0Wk7U/cntM4sEFLJRe8aIfB2mm', true, true),
-       ('oleg-music', 'oleg_music@mail.ru', '$2b$10$2UvRowSUWNUnngP4H6Ws6.rPWjG0Wk7U/cntM4sEFLJRe8aIfB2mm', true, true);
+VALUES ('ArteMyasnik', 'artemyasnik@mail.ru', '$2b$10$61V2A10gT0xfEwrzB.dzCOg9diVbpmcRjjh6Jb90and4T02Zz66My', true, true),
+       ('everpr0g', 'everpr0g@mail.ru', '$2b$10$61V2A10gT0xfEwrzB.dzCOg9diVbpmcRjjh6Jb90and4T02Zz66My', true, true),
+       ('sdnssijxi', 'sdnssijxi@mail.ru', '$2b$10$61V2A10gT0xfEwrzB.dzCOg9diVbpmcRjjh6Jb90and4T02Zz66My', true, true),
+       ('tanunika', 'tanunika@mail.ru', '$2b$10$61V2A10gT0xfEwrzB.dzCOg9diVbpmcRjjh6Jb90and4T02Zz66My', true, true),
+       ('tisak142', 'tisak142@mail.ru', '$2b$10$61V2A10gT0xfEwrzB.dzCOg9diVbpmcRjjh6Jb90and4T02Zz66My', true, true),
+       ('xqzmy22', 'xqzmy22@mail.ru', '$2b$10$61V2A10gT0xfEwrzB.dzCOg9diVbpmcRjjh6Jb90and4T02Zz66My', true, true),
+       ('Barrrakyda', 'barrrakyda@mail.ru', '$2b$10$61V2A10gT0xfEwrzB.dzCOg9diVbpmcRjjh6Jb90and4T02Zz66My', true, true),
+       ('oleg-music', 'oleg_music@mail.ru', '$2b$10$61V2A10gT0xfEwrzB.dzCOg9diVbpmcRjjh6Jb90and4T02Zz66My', true, true);
 
 -- Распределение ролей
 DO
