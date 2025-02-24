@@ -135,7 +135,7 @@ class UserController {
         }
     }
 
-    async profile(req, res) {
+    async getProfile(req, res) {
         try {
             const { login } = req.body;
 
@@ -162,6 +162,49 @@ class UserController {
         } catch (err) {
             console.error(err.message);
             res.status(500).json({ message: "Server error" });
+        }
+    }
+
+    async updateUserEmail(req, res) {
+        try {
+            const { userId, newEmail } = req.body;
+
+            // Проверяем, существует ли пользователь с таким email
+            const checkEmail = await pool.query(
+                'SELECT COUNT(*) FROM users WHERE email = $1',
+                [newEmail]
+            );
+            const emailCount = parseInt(checkEmail.rows[0].count, 10);
+
+            if (emailCount > 0) {
+                // Если email уже существует, возвращаем ошибку
+                return res.status(409).json({
+                    message: 'Пользователь с таким email уже зарегистрирован'
+                });
+            }
+
+            // Обновляем email пользователя
+            const updatedUser = await pool.query(
+                'UPDATE users SET email = $1 WHERE id = $2 RETURNING *',
+                [newEmail, userId]
+            );
+
+            if (updatedUser.rows.length === 0) {
+                // Если пользователь не найден
+                return res.status(404).json({
+                    message: 'Пользователь не найден'
+                });
+            }
+
+            // Возвращаем успешный ответ
+            return res.status(200).json({
+                message: 'Email успешно обновлен',
+                user: updatedUser.rows[0]
+            });
+
+        } catch (err) {
+            console.error(err.message);
+            return res.status(500).json({ message: "Server error" });
         }
     }
 }
