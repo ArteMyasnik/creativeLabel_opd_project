@@ -7,7 +7,10 @@ router.post('/login', UserController.login);
 
 // Профиль пользователя
 router.put('/profile', UserController.updateProfile); // Новый маршрут для обновления профиля
-
+// Изменение пароля
+router.put('/profile', userController.changePassword);
+// Изменение логина
+router.put('/profile', userController.changeLogin);
 
 // router.get('/user/:id', UserController.getOneUser);
 // router.get('/user', UserController.getUsers);
