@@ -198,6 +198,166 @@ class UserController {
             res.status(500).json({ message: "Server error" });
         }
     }
+    
+    ///----------- старый + новый пароль
+    async changePassword(req, res) {
+        try {
+            const { login, oldPassword, newPassword, confirmNewPassword } = req.body;
+
+            // Проверка совпадения нового пароля и подтверждения
+            if (newPassword !== confirmNewPassword) {
+                return res.status(400).json({ message: 'Новый пароль и подтверждение не совпадают' });
+            }
+
+            // Получаем текущий хэш пароля из базы данных
+            const userResult = await pool.query(
+                'SELECT password_hash FROM users WHERE login = $1',
+                [login]
+            );
+
+            // Проверка существования пользователя
+            if (userResult.rows.length === 0) {
+                return res.status(404).json({ message: 'Пользователь не найден' });
+            }
+
+            const hashedPassword = userResult.rows[0].password_hash;
+
+            // Проверка старого пароля
+            const isOldPasswordValid = await comparePassword(oldPassword, hashedPassword);
+            if (!isOldPasswordValid) {
+                return res.status(400).json({ message: 'Неверный текущий пароль' });
+            }
+
+            // Проверка, что новый пароль отличается от старого
+            const isSamePassword = await comparePassword(newPassword, hashedPassword);
+            if (isSamePassword) {
+                return res.status(400).json({ message: 'Новый пароль должен отличаться от старого' });
+            }
+
+            // Хэширование нового пароля
+            const newHashedPassword = await hashPassword(newPassword);
+
+            // Обновление пароля в базе данных
+            await pool.query(
+                'UPDATE users SET password_hash = $1 WHERE login = $2',
+                [newHashedPassword, login]
+            );
+
+            res.status(200).json({ message: 'Пароль успешно изменен' });
+
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json({ message: "Server error" });
+        }
+    }
+
+
+    //// ----------- новый логин и пароль 
+    class UserController {
+    // ... остальные методы
+
+    async changeLogin(req, res) {
+        try {
+            const { oldLogin, newLogin, password } = req.body;
+
+            // Проверка существования старого логина
+            const userResult = await pool.query(
+                'SELECT password_hash FROM users WHERE login = $1',
+                [oldLogin]
+            );
+
+            // Если пользователь не найден
+            if (userResult.rows.length === 0) {
+                return res.status(404).json({ message: 'Пользователь не найден' });
+            }
+
+            // Проверка пароля
+            const hashedPassword = userResult.rows[0].password_hash;
+            const isPasswordValid = await comparePassword(password, hashedPassword);
+            if (!isPasswordValid) {
+                return res.status(400).json({ message: 'Неверный пароль' });
+            }
+
+            // Проверка доступности нового логина
+            const checkLogin = await pool.query(
+                'SELECT COUNT(*) FROM users WHERE login = $1',
+                [newLogin]
+            );
+
+            // Если логин уже занят
+            if (checkLogin.rows[0].count > 0) {
+                return res.status(409).json({ message: 'Этот логин уже занят' });
+            }
+
+            // Обновление логина
+            await pool.query(
+                'UPDATE users SET login = $1 WHERE login = $2',
+                [newLogin, oldLogin]
+            );
+
+            res.status(200).json({ 
+                message: 'Логин успешно изменен',
+                oldLogin,
+                newLogin 
+            });
+
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json({ message: "Server error" });
+        }
+    }
+
+    //// ----------------- новый логин и пароль
+    async changeLogin(req, res) {
+        try {
+            const { oldLogin, newLogin, password } = req.body;
+
+            // Проверка существования старого логина
+            const userResult = await pool.query(
+                'SELECT password_hash FROM users WHERE login = $1',
+                [oldLogin]
+            );
+
+            // Если пользователь не найден
+            if (userResult.rows.length === 0) {
+                return res.status(404).json({ message: 'Пользователь не найден' });
+            }
+
+            // Проверка пароля
+            const hashedPassword = userResult.rows[0].password_hash;
+            const isPasswordValid = await comparePassword(password, hashedPassword);
+            if (!isPasswordValid) {
+                return res.status(400).json({ message: 'Неверный пароль' });
+            }
+
+            // Проверка доступности нового логина
+            const checkLogin = await pool.query(
+                'SELECT COUNT(*) FROM users WHERE login = $1',
+                [newLogin]
+            );
+
+            // Если логин уже занят
+            if (checkLogin.rows[0].count > 0) {
+                return res.status(409).json({ message: 'Этот логин уже занят' });
+            }
+
+            // Обновление логина
+            await pool.query(
+                'UPDATE users SET login = $1 WHERE login = $2',
+                [newLogin, oldLogin]
+            );
+
+            res.status(200).json({ 
+                message: 'Логин успешно изменен',
+                oldLogin,
+                newLogin 
+            });
+
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json({ message: "Server error" });
+        }
+    }
 }
 
 module.exports = new UserController();
