@@ -39,9 +39,32 @@ app.post('/login', (req, res) => {
     console.log('Данные входа:', { login, password });
     res.status(200).json({ message: 'Вход выполнен успешно!' });
 });
+
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------
 
+// Профиль изменения возраста и пароля
+app.put('/profile', (req, res) => {
+    const { age, sex } = req.body;
+    console.log('Данные входа:', { age, sex });
+    res.status(200).json({ message: 'Изменения выполнены успешно!' });
+});
+
+// -----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
+// пароль
+app.put('/profile', (req, res) => {
+    const {oldPassword, newPassword, confirmNewPassword} = req.body;
+    console.log('Данные входа:', { oldPassword, newPassword, confirmNewPassword});
+    res.status(200).json({ message: 'Изменения выполнены успешно!' });
+});
+
+// логин
+app.put('/profile', (req, res) => {
+    const {oldLogin, newLogin} = req.body;
+    console.log('Данные входа:', {oldLogin, newLogin });
+    res.status(200).json({ message: 'Изменения выполнены успешно!' });
+});
 // -----------------------------------------------------------------------------------------
 // Pages HTML professions ------------------------------------------------------------------
 app.get('/businessCompScientist', (req, res) => {
