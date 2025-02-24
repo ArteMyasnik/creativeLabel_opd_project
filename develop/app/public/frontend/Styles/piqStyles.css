@@ -1,0 +1,104 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+.button-container {
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 5px;
+    background-repeat: no-repeat;
+    font-size: 0;
+}
+
+.button-container button {
+    margin: 0.5rem 0.5rem;
+    padding: 0.7rem 2rem;
+    font-size: 17px;
+    font-family: Montserrat;
+    cursor: pointer;
+    border: none;
+    border-radius: 20px;
+    background-color: #479C92;
+    color: white;
+}
+.button-container button:hover {
+    background-color: #2d5e58;
+    transition: all 0.3s ease;
+}
+
+body {
+    background-color: black;
+    color: white;
+    margin: 0;
+    padding: 0;
+    font-family: Montserrat;
+    min-height: 100vh;
+    position: relative;
+    overflow-y: auto;
+}
+
+body::before {
+    content: "";
+    background-image: url("../Images/фон.jpg");
+    background-size: cover;
+    background-position: center;
+    opacity: 0.2;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+.content {
+    position: relative;
+    padding: 20px;
+    text-align: left;
+    font-size: 10px;
+    opacity: 0;
+    animation: ani 2.5s forwards;
+}
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+.content h1 {
+    font-size: 50px;
+    margin-left: 5%;
+    text-align: left;
+    margin-left: 5%;
+    padding-bottom: -1%;
+}
+
+.left-button {
+    margin-right: auto;
+}
+.right-buttons {
+    display: flex;
+    z-index: 0;
+}
+@keyframes ani {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+}
+
+.assign-button {
+    margin-top: 15px;
+    width: 100%;
+}
+
+.simple-list {
+    list-style-type: disc;
+    margin-left: 5%;
+    margin-top: 10px;
+    font-family: Montserrat, sans-serif;
+    font-size: 25px;
+    color: white;
+    text-align: left;
+}
+
+.simple-list li {
+    margin-bottom: 10px;
+}
