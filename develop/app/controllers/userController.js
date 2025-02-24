@@ -164,6 +164,40 @@ class UserController {
             res.status(500).json({ message: "Server error" });
         }
     }
+
+    //// --------------------------------------------------------------
+    ///возраст
+    async updateProfile(req, res) {
+        try {
+            const { login, age, sex } = req.body;
+    
+            // Проверяем, существует ли пользователь с таким логином
+            const checkUser = await pool.query(
+                'SELECT * FROM users WHERE login = $1',
+                [login]
+            );
+    
+            if (checkUser.rows.length === 0) {
+                return res.status(404).json({ message: 'Пользователь не найден' });
+            }
+    
+            // Обновляем возраст и пол пользователя
+            const updatedUser = await pool.query(
+                'UPDATE users SET age = $1, sex = $2 WHERE login = $3 RETURNING *',
+                [age, sex, login]
+            );
+    
+            // Возвращаем обновленные данные пользователя
+            res.status(200).json({
+                message: 'Данные пользователя успешно обновлены',
+                user: updatedUser.rows[0]
+            });
+    
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json({ message: "Server error" });
+        }
+    }
 }
 
 module.exports = new UserController();
