@@ -1,0 +1,166 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+button {
+    margin: 1rem 0.5rem;
+    padding: 0.5rem 2rem;
+    font-size: 17px;
+    font-family: Montserrat;
+    cursor: pointer;
+    border: none;
+    border-radius: 20px;
+    background-color: #479C92;
+    color: white;
+}
+
+button:hover {
+    background-color: #2d5e58;
+}
+.imageContainer {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.imageContainer img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  object-fit: cover;
+}
+h1 {
+    font-family: Montserrat;
+    font-size: 65px;
+    text-align: left;
+    margin-left: 5%;
+}
+
+body {
+    background-color: black;  
+    color: white;
+    margin: 0;
+    padding: 0;
+    font-family: Montserrat;
+    position: relative; 
+    min-height: 100vh;
+}
+
+body::before {
+    content: "";
+    background-image: url("../Images/фон\ 2.jpg"); 
+    background-size: cover; 
+    background-position: center; 
+    opacity: 0.2;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin: 20px 5%;
+}
+
+.myProfile, .testResults, .appearanceSettings {
+    border: 2px solid #585858;
+    border-radius: 10px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.myProfile {
+    flex: 1;
+    min-width: 300px;
+}
+
+.testResults {
+    flex: 2;
+    min-width: 300px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table th, table td {
+    border: 1px solid #585858;
+    padding: 10px;
+    text-align: center;
+}
+
+table th {
+    background-color: #479C92;
+    color: white;
+}
+
+.appearanceSettings {
+    width: 100%;
+}
+
+.appearanceOptions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.option {
+    flex: 1;
+    text-align: center;
+    position: relative;
+}
+
+.squareButton {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #333;
+    border-radius: 10px;
+    margin: 5px;
+}
+
+.dropdownContent {
+    display: none;
+    position: absolute;
+    background-color: #444;
+    border-radius: 10px;
+    padding: 10px;
+    z-index: 1;
+    flex-direction: row;
+    gap: 10px;
+    top: 110px; /* Отступ от кнопки */
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .myProfile, .testResults {
+        flex: 1 1 100%;
+    }
+
+    .appearanceOptions {
+        flex-direction: column;
+    }
+
+    .dropdownContent {
+        flex-direction: column;
+    }
+}
