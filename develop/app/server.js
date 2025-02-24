@@ -13,6 +13,12 @@ app.use('/api', userRouter);
 app.get("/", (req, res) => {
     res.send('Перейдите по ссылке справа http://localhost:3000/main');
 });
+
+// Profile ---------------------------------------------------------------------------------
+app.get('/profile', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/frontend/Pages', 'profile.html'));
+});
+
 // Main ------------------------------------------------------------------------------------
 app.get('/main', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/frontend/Pages', 'main_page.html'));
@@ -75,6 +81,7 @@ app.get('/programmer', (req, res) => {
 app.get('/sysAdmin', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/frontend/Pages/professions', 'sysAdmin.html'));
 });
+
 app.get('/tester', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/frontend/Pages/professions', 'tester.html'));
 });
@@ -97,6 +104,14 @@ app.get('/profile', (req, res) => {
 
 app.get('/developers', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'developers.html'));
+});
+
+app.get('/experts', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'experts.html'));
+});
+
+app.get('/piq', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'piq.html'));
 });
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------
