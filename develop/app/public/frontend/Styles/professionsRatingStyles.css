@@ -1,0 +1,273 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* Общие стили для body */
+body {
+    background-color: black;
+    color: white;
+    margin: 0;
+    padding: 0;
+    font-family: 'Montserrat', sans-serif;
+    min-height: 100vh;
+    position: relative;
+    overflow-y: auto;
+}
+
+body::before {
+    content: "";
+    background-image: url("../Images/фон.jpg");
+    background-size: cover;
+    background-position: center;
+    opacity: 0.2;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Стили для контейнера кнопок */
+.button-container {
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 5px;
+    background-repeat: no-repeat;
+    font-size: 0;
+}
+
+.button-container button {
+    margin: 0.5rem 0.5rem;
+    padding: 0.7rem 2rem;
+    font-size: 17px;
+    font-family: 'Montserrat', sans-serif;
+    cursor: pointer;
+    border: none;
+    border-radius: 20px;
+    background-color: #479C92;
+    color: white;
+}
+
+.button-container button:hover {
+    background-color: #2d5e58;
+    transition: all 0.3s ease;
+}
+
+.left-button {
+    margin-right: auto;
+}
+
+.right-buttons {
+    display: flex;
+    z-index: 0;
+}
+
+/* Стили для контента */
+.content {
+    position: relative;
+    padding: 20px;
+    text-align: left;
+    font-size: 10px;
+    opacity: 0;
+    animation: ani 2.5s forwards;
+}
+
+.content h1 {
+    font-size: 50px;
+    margin-left: 5%;
+    text-align: left;
+    padding-bottom: -1%;
+}
+
+/* Стили для списков */
+.simple-list {
+    list-style-type: disc;
+    margin-left: 5%;
+    margin-top: 10px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 25px;
+    color: white;
+    text-align: left;
+}
+
+.simple-list li {
+    margin-bottom: 10px;
+}
+
+/* Анимация появления контента */
+@keyframes ani {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* Стили для модального окна */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #333;
+    margin: 10% auto;
+    padding: 40px 20px 20px;
+    border: 1px solid #888;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 400px;
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.close {
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: white;
+    text-decoration: none;
+}
+
+.modal-content input[type="text"],
+.modal-content textarea {
+    width: 100%;
+    max-width: 300px;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: #444;
+    color: white;
+    resize: none;
+}
+
+.modal-content button {
+    padding: 10px 20px;
+    background-color: #479C92;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    max-width: 300px;
+    margin-top: 10px;
+}
+
+.modal-content button:hover {
+    background-color: #2d5e58;
+}
+
+/* Стили для кнопок "Создать профессию" */
+.center-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 10%;
+    gap: 1rem;
+}
+
+.make_button {
+    margin: 0 1rem;
+    padding: 1rem 3rem;
+    font-size: 20px;
+    font-family: 'Montserrat', sans-serif;
+    cursor: pointer;
+    border: none;
+    border-radius: 20px;
+    background-color: #479C92;
+    color: white;
+    width: 200px;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.make_button:hover {
+    background-color: #2d5e58;
+    transition: all 0.3s ease;
+}
+
+/* Стили для кнопки "Провести оценку" */
+.evaluation-button {
+    font-family: 'Montserrat', sans-serif;
+    margin-top: 20px;
+    padding: 0.5rem 1rem;
+    font-size: 16px; /* Увеличим размер шрифта для соответствия */
+    background-color: #479C92; /* Цвет как у остальных кнопок */
+    color: white;
+    border: none;
+    border-radius: 20px; /* Скругление как у остальных кнопок */
+    cursor: pointer;
+    width: 200px; /* Ширина как у кнопки "Создать профессию" */
+    display: block;
+    text-align: center; /* Выравнивание текста по центру */
+}
+
+.evaluation-button:hover {
+    background-color: #2d5e58; /* Цвет при наведении */
+    transition: all 0.3s ease;
+}
+
+/* Стили для списка качеств */
+.evaluation-list {
+    display: none;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #333;
+    border-radius: 5px;
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
+}
+
+.evaluation-list label {
+    display: block;
+    margin: 5px 0;
+    color: white;
+    font-size: 16px;
+}
+
+/* Стили для кнопки "Сохранить выбор" */
+.save-selection-button {
+    margin-top: 10px;
+    padding: 0.5rem 1rem;
+    font-size: 14px;
+    background-color: #479C92;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.save-selection-button:hover {
+    background-color: #2d5e58;
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Выравнивание по центру */
+}

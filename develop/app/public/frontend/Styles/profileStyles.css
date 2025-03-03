@@ -1,7 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
-/* Кнопки */
-
 button {
     margin: 1rem 0.5rem;
     padding: 0.5rem 2rem;
@@ -17,7 +15,6 @@ button {
 button:hover {
     background-color: #2d5e58;
 }
-
 .imageContainer {
   width: 100%;
   max-width: 200px;
@@ -35,14 +32,12 @@ button:hover {
   border-radius: 10px;
   object-fit: cover;
 }
-
 h1 {
     font-family: Montserrat;
     font-size: 65px;
     text-align: left;
     margin-left: 5%;
 }
-
 
 body {
     background-color: black;  
@@ -95,6 +90,7 @@ html, body {
     flex: 2;
     min-width: 300px;
 }
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -111,7 +107,6 @@ table th {
     background-color: #479C92;
     color: white;
 }
-
 
 .appearanceSettings {
     width: 100%;

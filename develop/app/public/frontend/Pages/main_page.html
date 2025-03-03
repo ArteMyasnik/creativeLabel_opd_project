@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>main page</title>
+    <title>Main page</title>
     <link rel="stylesheet" href="../Styles/stylesMain.css">
 </head>
 <body>
@@ -15,17 +15,17 @@
             <button onclick="window.location.href='/goals'">Цели и задачи</button>
             <button onclick="window.location.href='/developers'">Разработчики</button>
             <button onclick="window.location.href='/aboutProject'">О проекте</button>
-            <button onclick="window.location.href='/experts'">Эксперты</button>
-            <button onclick="window.location.href='/piq'">Список ПВК</button>
+            <button id='expertButton' onclick="window.location.href='/experts'" style="display: none">Эксперты</button>
+            <button onclick="window.location.href='/pvk'">Список ПВК</button>
+            <button id='ratingButton' onclick="window.location.href='/professions_rating'" style="display: none">Оценка</button>
+            <button onclick="window.location.href='/results'">Результаты</button>
         </div>
     </div>
     <div class="right-buttons">
-        <a href="/registration">
-            <button id="registration_button">Зарегистрироваться</button>
-        </a>
         <a href="/login">
             <button id="login-button">Войти</button>
         </a>
+        <button id='profileButton' onclick="window.location.href='/profile/:login'" style="display: none">Профиль</button>
         <a href="/main">
             <button id="logout-button" style="display: none;">Выход</button>
         </a>
@@ -38,7 +38,7 @@
 
 <div class="grid">
     <a href="/programmer" class="object">Программист
-        <img src="..\Icons/coding_2828881.png" alt="Программист">
+        <img src="..\Icons\coding_2828881.png" alt="Программист">
 
     </a>
     <a href="/itSpecialist" class="object">IT-специалист
@@ -89,19 +89,26 @@
     }
     document.addEventListener('DOMContentLoaded', function () {
         const loginButton = document.getElementById('login-button');
-        const registrationButton = document.getElementById('registration_button');
         const logoutButton = document.getElementById('logout-button');
+        const expertButton = document.getElementById('expertButton');
+        const ratingButton = document.getElementById('ratingButton');
+        const profileButton = document.getElementById('profileButton');
 
         function updateAuthButtons() {
             const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+            const isAdmin = sessionStorage.getItem('isAdmin');
 
             if (isLoggedIn === 'true') {
+                profileButton.style.display = 'inline-block';
                 loginButton.style.display = 'none';
-                registrationButton.style.display = 'none';
                 logoutButton.style.display = 'inline-block'; // Или 'block'
+                console.log(sessionStorage.getItem('isAdmin'))
+                if (isAdmin === 'true') {
+                    expertButton.style.display = 'inline-block';
+                    ratingButton.style.display = 'inline-block';
+                }
             } else {
                 loginButton.style.display = 'inline-block'; // Или 'block'
-                registrationButton.style.display = 'inline-block'; // Или 'block'
                 logoutButton.style.display = 'none';
             }
         }

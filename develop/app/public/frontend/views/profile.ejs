@@ -8,7 +8,7 @@
 </head>
 <body>
     <button onclick="window.location.href='/main'">Главная страница</button>
-    <h1>Профиль</h1>
+    <h1>Профиль <%= login %></h1>
     <div class="container">
         
         <div class="myProfile">
@@ -16,9 +16,10 @@
                 <img src="../../Images/ава.jpg" alt="Аватар">
             </div>
             <h2>Мой профиль</h2>
-            <p>Логин: huebot52</p>
-            <p>Почта: huebot@mail.ru</p>
-            <p>Пол: h</p>
+            <p>Логин: <%= login %></p>
+            <p>Почта: <%= email %></p>
+            <p>Пол: <%= sex %></p>
+            <p>Возраст: <%= age %></p>
             <button>Редактировать</button>
         </div>
         <div class="testResults">
