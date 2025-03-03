@@ -25,7 +25,7 @@
         <a href="/login">
             <button id="login-button">Войти</button>
         </a>
-        <button id='profileButton' onclick="window.location.href='/profile/:login'" style="display: none">Профиль</button>
+        <button id='profileButton' onclick="window.location.href='/profile/<%= login %>'" style="display: none">Профиль</button>
         <a href="/main">
             <button id="logout-button" style="display: none;">Выход</button>
         </a>

@@ -1,0 +1,279 @@
+/*!* Основные стили для body и фона *!*/
+/*body {*/
+/*    background-color: black;*/
+/*    color: white;*/
+/*    margin: 0;*/
+/*    padding: 0;*/
+/*    font-family: 'Montserrat', sans-serif;*/
+/*    min-height: 100vh;*/
+/*    position: relative;*/
+/*    overflow-y: auto;*/
+/*}*/
+
+/*body::before {*/
+/*    content: "";*/
+/*    background-image: url("../Images/фон.jpg");*/
+/*    background-size: cover;*/
+/*    background-position: center;*/
+/*    opacity: 0.2;*/
+/*    position: absolute;*/
+/*    top: 0;*/
+/*    left: 0;*/
+/*    right: 0;*/
+/*    bottom: 0;*/
+/*    z-index: -1;*/
+/*    pointer-events: none;*/
+/*}*/
+
+/*!* Контейнер для кнопок *!*/
+/*.button-container {*/
+/*    padding-top: 10px;*/
+/*    display: flex;*/
+/*    justify-content: space-between;*/
+/*    align-items: center;*/
+/*    border-radius: 5px;*/
+/*    background-repeat: no-repeat;*/
+/*    font-size: 0;*/
+/*    width: 100%;*/
+/*}*/
+
+/*!* Стили для кнопок *!*/
+/*.button-container button {*/
+/*    margin: 0.5rem 0.5rem;*/
+/*    padding: 0.7rem 2rem;*/
+/*    font-size: 17px;*/
+/*    font-family: 'Montserrat', sans-serif;*/
+/*    cursor: pointer;*/
+/*    border: none;*/
+/*    border-radius: 20px;*/
+/*    background-color: #479C92;*/
+/*    color: white;*/
+/*}*/
+
+/*.button-container button:hover {*/
+/*    background-color: #2d5e58;*/
+/*    transition: all 0.3s ease;*/
+/*}*/
+
+/*!* Стили для контента *!*/
+/*.content {*/
+/*    position: relative;*/
+/*    padding: 20px;*/
+/*    text-align: left;*/
+/*    font-size: 10px;*/
+/*    opacity: 0;*/
+/*    animation: ani 2.5s forwards;*/
+/*    width: 50%;*/
+/*    margin: 0 auto;*/
+/*}*/
+
+/*@keyframes ani {*/
+/*    0% { opacity: 0; }*/
+/*    100% { opacity: 1; }*/
+/*}*/
+
+/*!* Заголовок страницы *!*/
+/*.content h1 {*/
+/*    font-size: 50px;*/
+/*    text-align: left;*/
+/*    padding-bottom: 10px;*/
+/*}*/
+
+/*!* Блок профессии *!*/
+/*.profession-block {*/
+/*    display: flex;*/
+/*    justify-content: space-between;*/
+/*    align-items: center;*/
+/*    padding: 20px;*/
+/*    background-color: rgba(71, 156, 146, 0.1);*/
+/*    border-radius: 10px;*/
+/*    width: 100%;*/
+/*    margin-bottom: 40px;*/
+/*}*/
+
+/*!* Левый блок: название и фото *!*/
+/*.profession-info {*/
+/*    width: 48%;*/
+/*    text-align: center;*/
+/*}*/
+
+/*.profession-info h2 {*/
+/*    font-size: 30px;*/
+/*    margin-bottom: 10px;*/
+/*}*/
+
+/*.profession-image {*/
+/*    width: 100%;*/
+/*    max-width: 200px;*/
+/*    height: auto;*/
+/*    border-radius: 10px;*/
+/*    margin-top: 10px;*/
+/*}*/
+
+/*!* Правый блок: описание *!*/
+/*.profession-description {*/
+/*    width: 48%;*/
+/*    font-size: 18px;*/
+/*    color: white;*/
+/*    line-height: 1.6;*/
+/*    text-align: left;*/
+/*}*/
+
+/*!* Контейнер для круговой диаграммы *!*/
+/*.chart-container {*/
+/*    width: 80%; !* Уменьшаем ширину контейнера *!*/
+/*    max-width: 600px; !* Ограничиваем максимальную ширину *!*/
+/*    margin: 0 auto; !* Центрируем контейнер *!*/
+/*    padding: 20px;*/
+/*    background-color: rgba(71, 156, 146, 0.1);*/
+/*    border-radius: 10px;*/
+/*    text-align: center;*/
+/*    margin-bottom: 40px; !* Уменьшаем отступ снизу *!*/
+/*}*/
+
+/*!* Стили для диаграммы *!*/
+/*canvas {*/
+/*    max-width: 400px; !* Максимальная ширина диаграммы *!*/
+/*    max-height: 400px; !* Максимальная высота диаграммы *!*/
+/*    width: 100% !important; !* Чтобы диаграмма адаптировалась под контейнер *!*/
+/*    height: auto !important; !* Сохраняет пропорции *!*/
+/*}*/
+
+/*@media (max-width: 768px) {*/
+/*    .chart-container {*/
+/*        width: 90%; !* Увеличиваем ширину на мобильных устройствах *!*/
+/*    }*/
+
+/*    canvas {*/
+/*        max-width: 300px; !* Уменьшаем размер диаграмм на мобильных устройствах *!*/
+/*    }*/
+/*}*/
+/* Основные стили для body и фона */
+body {
+    background-color: black;
+    color: white;
+    margin: 0;
+    padding: 0;
+    font-family: 'Montserrat', sans-serif;
+    min-height: 100vh;
+    position: relative;
+    overflow-y: auto;
+}
+
+body::before {
+    content: "";
+    background-image: url("../Images/фон.jpg");
+    background-size: cover;
+    background-position: center;
+    opacity: 0.2;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Контейнер для кнопок */
+.button-container {
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 5px;
+    background-repeat: no-repeat;
+    font-size: 0;
+    width: 100%;
+}
+
+/* Стили для кнопок */
+.button-container button {
+    margin: 0.5rem 0.5rem;
+    padding: 0.7rem 2rem;
+    font-size: 17px;
+    font-family: 'Montserrat', sans-serif;
+    cursor: pointer;
+    border: none;
+    border-radius: 20px;
+    background-color: #479C92;
+    color: white;
+}
+
+.button-container button:hover {
+    background-color: #2d5e58;
+    transition: all 0.3s ease;
+}
+
+/* Стили для контента */
+.content {
+    position: relative;
+    padding: 20px;
+    text-align: left;
+    font-size: 10px;
+    opacity: 0;
+    animation: ani 2.5s forwards;
+    width: 80%;
+    margin: 0 auto;
+}
+
+@keyframes ani {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* Заголовок страницы */
+.content h1 {
+    font-size: 50px;
+    text-align: left;
+    padding-bottom: 20px;
+}
+
+/* Блок профессии */
+.profession-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: rgba(71, 156, 146, 0.1);
+    border-radius: 10px;
+    width: 100%;
+    margin-bottom: 40px;
+}
+
+/* Левая часть: диаграмма */
+.profession-chart {
+    width: 45%;
+    text-align: center;
+}
+
+/* Правая часть: описание профессии */
+.profession-details {
+    width: 50%;
+    text-align: left;
+}
+
+.profession-details h2 {
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+
+.profession-image {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+.profession-details p {
+    font-size: 18px;
+    color: white;
+    line-height: 1.6;
+}
+
+/* Стили для диаграммы */
+canvas {
+    max-width: 100%;
+    height: auto;
+}

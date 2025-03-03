@@ -3,12 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Цели и задачи</title>
     <link rel="stylesheet" href="../../Styles/goalsStyles.css">
 </head>
 <body>
-    <button onclick="window.location.href='/main'">Главная страница</button>
-    <h1>Цели и задачи</h1>
-    <p>Оценка уровня развития профессионально важных качеств (ПВК) у программистов различных специализаций для ориентации в выборе профессии и выявления зон развития.</p>
+<div class="button-container">
+    <div class="left-button">
+        <button onclick="window.location.href='/main'">Главная страница</button>
+    </div>
+    <div class="right-buttons">
+        <button id='profileButton' onclick="window.location.href='/profile'" style="display: none">Профиль</button>
+        <button id='loginButton' onclick="window.location.href='/login'">Войти</button>
+    </div>
+</div>
+
+<!-- Основной контент -->
+<h1>Цели и задачи</h1>
+<p>Оценка уровня развития профессионально важных качеств (ПВК) у программистов различных специализаций для ориентации в выборе профессии и выявления зон развития.</p>
+
+<!-- Скрипт для отображения кнопки "Профиль" -->
+<script>
+    const profileButton = document.getElementById("profileButton");
+    const isLoggedIn = sessionStorage.getItem("isLoggedIn");
+    const loginButton = document.getElementById("loginButton");
+    if (isLoggedIn === "true") {
+        profileButton.style.display = 'inline-block';
+        loginButton.style.display = 'none';
+    }
+</script>
 </body>
-</html> 
+</html>

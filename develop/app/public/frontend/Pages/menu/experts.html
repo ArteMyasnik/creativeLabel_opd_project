@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Список экспертов</title>
-    <link rel="stylesheet" href="../../Styles/expertsStyles.css" />
+    <link rel="stylesheet" href="../../Styles/expertStyles.css" />
 </head>
 <body>
 <div class="button-container">
@@ -13,7 +13,7 @@
     </div>
     <div class="right-buttons">
         <button onclick="window.location.href='/profile'">Профиль</button>
-        <button onclick="window.location.href='/login'">Войти</button>
+        <button id="loginButton" onclick="window.location.href='/login'">Войти</button>
     </div>
 </div>
 
@@ -22,22 +22,92 @@
     <div class="experts-row">
         <div class="expert-card">
             <img src="..\Images/developer.jpg" alt="Эксперт 1">
-            <div class="expert-name">Мясников Артём</div>
-            <button class="assign-button">Назначить экспертом</button>
+            <div class="expert-name">Лебедев Алексей</div>
+            <button class="assign-button" data-user-id="1">Назначить экспертом</button>
         </div>
 
         <div class="expert-card">
             <img src="..\Images/developer.jpg" alt="Эксперт 2">
-            <div class="expert-name">Исаев Сергей</div>
-            <button class="assign-button">Назначить экспертом</button>
+            <div class="expert-name">Лебедев Александр</div>
+            <button class="assign-button" data-user-id="2">Назначить экспертом</button>
         </div>
 
         <div class="expert-card">
             <img src="..\Images/developer.jpg" alt="Эксперт 3">
-            <div class="expert-name">Лебедев Александр</div>
-            <button class="assign-button">Назначить экспертом</button>
+            <div class="expert-name">Мясников Артём</div>
+            <button class="assign-button" data-user-id="3">Назначить экспертом</button>
+        </div>
+
+        <div class="expert-card">
+            <img src="..\Images/developer.jpg" alt="Эксперт 3">
+            <div class="expert-name">Исаев Сергей</div>
+            <button class="assign-button" data-user-id="4">Назначить экспертом</button>
+        </div>
+
+        <div class="expert-card">
+            <img src="..\Images/developer.jpg" alt="Эксперт 3">
+            <div class="expert-name">Легостаев Данил</div>
+            <button class="assign-button" data-user-id="5">Назначить экспертом</button>
+        </div>
+
+        <div class="expert-card">
+            <img src="..\Images/developer.jpg" alt="Эксперт 3">
+            <div class="expert-name">Музыка Олег</div>
+            <button class="assign-button" data-user-id="6">Назначить экспертом</button>
+        </div>
+
+        <div class="expert-card">
+            <img src="..\Images/developer.jpg" alt="Эксперт 3">
+            <div class="expert-name">Немировская Татьяна</div>
+            <button class="assign-button" data-user-id="7">Назначить экспертом</button>
+        </div>
+
+        <div class="expert-card">
+            <img src="..\Images/developer.jpg" alt="Эксперт 3">
+            <div class="expert-name">Гнездилов Дмитрий</div>
+            <button class="assign-button" data-user-id="8">Назначить экспертом</button>
         </div>
     </div>
+    <button id="reset-experts-button"">Сбросить экспертов</button>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const buttons = document.querySelectorAll('.assign-button');
+
+        buttons.forEach(button => {
+            button.addEventListener('click', function () {
+                const userId = this.getAttribute('data-user-id');
+                assignExpert(userId);
+            });
+        });
+
+        function assignExpert(userId) {
+            fetch('/assign-expert', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userId }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(`Пользователь с ID ${userId} назначен экспертом.`);
+                        window.location.reload(); // Обновляем страницу для отображения изменений
+                    } else {
+                        alert('Ошибка при назначении эксперта.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                });
+        }
+    });
+    const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+    const loginButton = document.getElementById('loginButton');
+    if (isLoggedIn) {
+        loginButton.style.display = 'none';
+    }
+</script>
 </body>
 </html>

@@ -3,10 +3,10 @@
 .button-container {
     text-align: right;
     border-radius: 5px;
-
     background-repeat: 0;
-  }
-  .button-container button {
+}
+
+.button-container button {
     margin: 0.5rem 0.5rem;
     padding: 0.5rem 2rem;
     font-size: 17px;
@@ -16,35 +16,41 @@
     background-color: #479C92;
     color: white;
     font-family: Montserrat;
-  }
-  .button-container button:hover {
+}
+
+.button-container button:hover {
     background-color: #2d5e58;
-  }
-  body {
+}
+
+body {
     min-height: 100hv;
     background: linear-gradient(45deg, #191919 14%, #393939 52%, #6C6C6C 100%);
-  }
-  html, body {
+}
+
+html, body {
     margin: 0;
     padding: 0;
-    height: 100%; 
-  }
-  .login-container button {
+    height: 100%;
+}
+
+.login-container button {
     width: 100%;
     padding: 0.7rem;
     background-color: #479C92;
     color: white;
     border: none;
     border-radius: 10px;
-    font-size: 20px;
+    font-size: 17px;
     cursor: pointer;
     font-family: Montserrat;
     font-weight: medium;
-  }
-  .login-container button:hover {
+}
+
+.login-container button:hover {
     background-color: #2d5e58;
-  }
-  .login-container input {
+}
+
+.login-container input {
     width: 100%;
     padding: 0.7rem;
     margin-bottom: 1.5rem;
@@ -54,22 +60,23 @@
     box-sizing: border-box;
     border: solid #585858 2px;
     font-family: Montserrat;
-    color:white;
-    
-  }
-  .login-container h2 {
+    color: white;
+}
+
+.login-container h2 {
     margin-bottom: 2rem;
     margin-top: 1rem;
     font-size: 24px;
     font-family: Montserrat;
     color: white;
-  }
-  .login-container {
+}
+
+.login-container {
     background-color: black;
     width: 350px;
-    margin: 11rem auto;
+    margin: 3rem auto;
     padding: 2rem;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     text-align: center;
-  }
+}

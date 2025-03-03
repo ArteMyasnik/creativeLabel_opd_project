@@ -6,11 +6,11 @@ router.post('/registration', UserController.registration);
 router.post('/login', UserController.login);
 
 // Профиль пользователя
-router.put('/profile', UserController.updateProfile); // Новый маршрут для обновления профиля
+router.put('/profile/:login/update-info', UserController.updateProfile);
 // Изменение пароля
-router.put('/profile', userController.changePassword);
+router.put('/profile/:login/update-password', UserController.changePassword);
 // Изменение логина
-router.put('/profile', userController.changeLogin);
+router.put('/profile/:login/update-login', UserController.changeLogin);
 
 // router.get('/user/:id', UserController.getOneUser);
 // router.get('/user', UserController.getUsers);
