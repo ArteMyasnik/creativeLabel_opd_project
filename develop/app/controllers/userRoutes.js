@@ -11,6 +11,8 @@ router.put('/profile/:login/update-info', UserController.updateProfile);
 router.put('/profile/:login/update-password', UserController.changePassword);
 // Изменение логина
 router.put('/profile/:login/update-login', UserController.changeLogin);
+// Назначение эксперта
+router.put('/experts', UserController.assignExperts);
 
 // router.get('/user/:id', UserController.getOneUser);
 // router.get('/user', UserController.getUsers);

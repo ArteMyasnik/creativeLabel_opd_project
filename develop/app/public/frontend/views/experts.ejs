@@ -19,54 +19,15 @@
 
 <div class="content">
     <h1>Список экспертов</h1>
+
     <div class="experts-row">
-        <div class="expert-card">
-            <img src="..\Images/developer.jpg" alt="Эксперт 1">
-            <div class="expert-name">Лебедев Алексей</div>
-            <button class="assign-button" userLogin="everpr0g">Назначить экспертом</button>
-        </div>
-
-        <div class="expert-card">
-            <img src="..\Images/developer.jpg" alt="Эксперт 2">
-            <div class="expert-name">Лебедев Александр</div>
-            <button class="assign-button" userLogin="sdnssijxi">Назначить экспертом</button>
-        </div>
-
-        <div class="expert-card">
-            <img src="..\Images/developer.jpg" alt="Эксперт 3">
-            <div class="expert-name">Мясников Артём</div>
-            <button class="assign-button" data-user-id="ArteMyasnik">Назначить экспертом</button>
-        </div>
-
-        <div class="expert-card">
-            <img src="..\Images/developer.jpg" alt="Эксперт 3">
-            <div class="expert-name">Исаев Сергей</div>
-            <button class="assign-button" data-user-id="tisak142">Назначить экспертом</button>
-        </div>
-
-        <div class="expert-card">
-            <img src="..\Images/developer.jpg" alt="Эксперт 3">
-            <div class="expert-name">Легостаев Данил</div>
-            <button class="assign-button" data-user-id="xqzmy22">Назначить экспертом</button>
-        </div>
-
-        <div class="expert-card">
-            <img src="..\Images/developer.jpg" alt="Эксперт 3">
-            <div class="expert-name">Музыка Олег</div>
-            <button class="assign-button" data-user-id="oleg-music">Назначить экспертом</button>
-        </div>
-
-        <div class="expert-card">
-            <img src="..\Images/developer.jpg" alt="Эксперт 3">
-            <div class="expert-name">Немировская Татьяна</div>
-            <button class="assign-button" data-user-id="tanunika">Назначить экспертом</button>
-        </div>
-
-        <div class="expert-card">
-            <img src="..\Images/developer.jpg" alt="Эксперт 3">
-            <div class="expert-name">Гнездилов Дмитрий</div>
-            <button class="assign-button" data-user-id="Barrrakyda">Назначить экспертом</button>
-        </div>
+        <% users.forEach(function(user) { %>
+            <div class="expert-card">
+                <img src="..\Images/developer.jpg" alt="Эксперт <%= user.id %>">
+                <div class="expert-name"><%= user.login %></div>
+                <button class="assign-button" userLogin="<%= user.login %>">Назначить экспертом</button>
+            </div>
+        <% }); %>
     </div>
     <button id="reset-experts-button">Сбросить экспертов</button>
 </div>
