@@ -306,55 +306,35 @@ class UserController {
         }
     }
 
-    //// ----------------- новый логин и пароль
-    async changeLogin(req, res) {
+    async assignExperts(req, res) {
         try {
-            const { oldLogin, newLogin, password } = req.body;
-
-            // Проверка существования старого логина
-            const userResult = await pool.query(
-                'SELECT password_hash FROM users WHERE login = $1',
-                [oldLogin]
+            const { login } = req.body;
+            const user = await pool.query(
+                'SELECT * FROM users WHERE login = $1',
+                [login]
             );
 
-            // Если пользователь не найден
-            if (userResult.rows.length === 0) {
-                return res.status(404).json({ message: 'Пользователь не найден' });
+            if (user.rows.length === 0) {
+                return res.status(404).json({ message: 'Пользователь с таким логином не найден' });
             }
 
-            // Проверка пароля
-            const hashedPassword = userResult.rows[0].password_hash;
-            const isPasswordValid = await comparePassword(password, hashedPassword);
-            if (!isPasswordValid) {
-                return res.status(400).json({ message: 'Неверный пароль' });
-            }
-
-            // Проверка доступности нового логина
-            const checkLogin = await pool.query(
-                'SELECT COUNT(*) FROM users WHERE login = $1',
-                [newLogin]
+            const updatedUser = await pool.query(
+                'UPDATE users SET isExpert = true WHERE login = $1 RETURNING *',
+                [login]
             );
 
-            // Если логин уже занят
-            if (checkLogin.rows[0].count > 0) {
-                return res.status(409).json({ message: 'Этот логин уже занят' });
+            if (updatedUser.rows.length === 0) {
+                return res.status(500).json({ message: 'Не удалось обновить статус пользователя' });
             }
 
-            // Обновление логина
-            await pool.query(
-                'UPDATE users SET login = $1 WHERE login = $2',
-                [newLogin, oldLogin]
-            );
-
-            res.status(200).json({ 
-                message: 'Логин успешно изменен',
-                oldLogin,
-                newLogin 
+            res.status(200).json({
+                message: 'Пользователь назначен экспертом',
+                user: updatedUser.rows[0]
             });
 
         } catch (err) {
             console.error(err.message);
-            res.status(500).json({ message: "Server error" });
+            res.status(500).json({ message: "Ошибка сервера" });
         }
     }
 }

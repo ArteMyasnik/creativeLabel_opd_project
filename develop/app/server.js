@@ -154,12 +154,39 @@ app.get('/developers', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'developers.html'));
 });
 
-app.get('/pvk', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'pvk.html'));
+// app.get('/pvk', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'pvk.html'));
+// });
+
+app.get('/pvk', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM pvks LIMIT 10');
+        const pvks = result.rows;
+        res.render('pvk', { pvks: pvks });
+    } catch (err) {
+        console.error('Ошибка при выполнении запроса:', err);
+        res.status(500).send('Ошибка сервера');
+    }
 });
 
-app.get('/experts', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'experts.html'));
+// app.get('/experts', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'experts.html'));
+// });
+
+app.get('/experts', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM users');
+        const users = result.rows;
+        res.render('experts', { users: users });
+    } catch (err) {
+        console.error('Ошибка при выполнении запроса:', err);
+        res.status(500).send('Ошибка сервера');
+    }
+});
+
+app.put('/experts', (req, res) => {
+    const { login } = req.body;
+    res.status(200).json({ message: 'Логин обновлен успешно!' });
 });
 
 app.get('/professions_rating', (req, res) => {
