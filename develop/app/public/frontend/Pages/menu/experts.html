@@ -72,8 +72,6 @@
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const buttons = document.querySelectorAll('.assign-button');
-
         // Функция для отправки запроса на сервер
         function assignExpert(userLogin) {
             fetch('http://localhost:3000/api/experts', {
@@ -87,8 +85,10 @@
                 .then(data => {
                     if (data.message === 'Пользователь назначен экспертом') {
                         alert(`Пользователь с login ${userLogin} назначен экспертом.`);
-                        window.location.reload(); // Обновляем страницу для отображения изменений
+
+                        window.location.reload();// Обновляем страницу для отображения изменений
                     } else {
+                        console.log('dada');
                         alert('Ошибка при назначении эксперта.');
                     }
                 })
