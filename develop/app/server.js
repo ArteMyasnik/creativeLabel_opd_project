@@ -1,10 +1,22 @@
 const express = require('express');
+const session = require('express-session');
 const path = require('path');
 const app = express();
 const userRouter = require('./controllers/userRoutes');
 const actionRouter = require('./controllers/backend/actionRoutes');
 const PORT = process.env.PORT || 3000;
 const pool = require('./db/db');
+const crypto = require('crypto');
+
+
+const secretKey = crypto.randomBytes(64).toString('hex');
+
+app.use(session({
+    secret: secretKey,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }
+}));
 
 app.use(express.static(path.join(__dirname, 'public', 'frontend')));
 
@@ -24,8 +36,8 @@ app.get("/", (req, res) => {
 // });
 
 app.get('/main', (req, res) => {
-    const login = req.user ? res.user.login : null; // Логин пользователя
-    console.log(login)
+    const login = req.session.login || null;
+    console.log(login);
     res.render('main_page', { login });
 });
 // -----------------------------------------------------------------------------------------
@@ -50,6 +62,23 @@ app.post('/login', (req, res) => {
     res.status(200).json({ message: 'Вход выполнен успешно!' });
 });
 
+app.get('/check-auth', (req, res) => {
+    res.json({
+        isLoggedIn: !!req.session.isLoggedIn,
+        isAdmin: !!req.session.isAdmin,
+        login: req.session.login || null
+    });
+});
+
+app.post('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Ошибка при выходе:', err);
+            return res.status(500).json({ message: 'Ошибка сервера' });
+        }
+        res.status(200).json({ message: 'Выход выполнен успешно!' });
+    });
+});
 // -----------------------------------------------------------------------------------------
 // Profile changes -------------------------------------------------------------------------
 app.put('/profile/:login/update-info', (req, res) => {
