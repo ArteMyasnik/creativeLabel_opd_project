@@ -7,25 +7,28 @@
     <link rel="stylesheet" href="../Styles/stylesMain.css">
 </head>
 <body>
-
 <div class="button-container">
     <div class="dropdown">
         <button class="dropbtn" onclick="toggleDropdown()">Меню</button>
         <div class="dropdown-content" id="dropdownContent">
+            <button onclick="window.location.href='/pvk'">Список ПВК</button>
+            <button onclick="window.location.href='/results'">Результаты</button>
+            <button id='expertButton' onclick="window.location.href='/experts'" style="display: none">Эксперты</button>
+            <button id='ratingButton' onclick="window.location.href='/professions_rating'" style="display: none">Оценка</button>
             <button onclick="window.location.href='/goals'">Цели и задачи</button>
             <button onclick="window.location.href='/developers'">Разработчики</button>
             <button onclick="window.location.href='/aboutProject'">О проекте</button>
-            <button id='expertButton' onclick="window.location.href='/experts'" style="display: none">Эксперты</button>
-            <button onclick="window.location.href='/pvk'">Список ПВК</button>
-            <button id='ratingButton' onclick="window.location.href='/professions_rating'" style="display: none">Оценка</button>
-            <button onclick="window.location.href='/results'">Результаты</button>
         </div>
     </div>
     <div class="right-buttons">
         <a href="/login">
             <button id="login-button">Войти</button>
         </a>
-        <button id='profileButton' onclick="window.location.href='/profile/<%= login %>'" style="display: none">Профиль</button>
+        <% if (login) { %>
+            <button id='profileButton' onclick="window.location.href='/profile/<%= login %>'" style="display: none">Профиль</button>
+        <% } else { %>
+            <button id='profileButton' style="display: none">Профиль</button>
+        <% } %>
         <a href="/main">
             <button id="logout-button" style="display: none;">Выход</button>
         </a>
@@ -35,7 +38,6 @@
 <div class="content">
     <h1>IT-профессии</h1>
 </div>
-
 <div class="grid">
     <a href="/programmer" class="object">Программист
         <img src="..\Icons\coding_2828881.png" alt="Программист">
@@ -66,9 +68,7 @@
         <img src="..\Icons\joystick_1588363.png" alt="Разработчик игр">
     </a>
 </div>
-
 <script>
-    //МЕНЮ
     // Функция для показа/скрытия выпадающего меню
     function toggleDropdown() {
         const dropdownContent = document.getElementById("dropdownContent");
@@ -87,6 +87,8 @@
             }
         }
     }
+
+    // Обновление кнопок при загрузке страницы
     document.addEventListener('DOMContentLoaded', function () {
         const loginButton = document.getElementById('login-button');
         const logoutButton = document.getElementById('logout-button');
@@ -94,32 +96,33 @@
         const ratingButton = document.getElementById('ratingButton');
         const profileButton = document.getElementById('profileButton');
 
-        function updateAuthButtons() {
-            const isLoggedIn = sessionStorage.getItem('isLoggedIn');
-            const isAdmin = sessionStorage.getItem('isAdmin');
-
-            if (isLoggedIn === 'true') {
-                profileButton.style.display = 'inline-block';
-                loginButton.style.display = 'none';
-                logoutButton.style.display = 'inline-block'; // Или 'block'
-                console.log(sessionStorage.getItem('isAdmin'))
-                if (isAdmin === 'true') {
-                    expertButton.style.display = 'inline-block';
-                    ratingButton.style.display = 'inline-block';
+        // Проверка статуса авторизации
+        fetch('http://localhost:3000/check-auth')
+            .then(response => response.json())
+            .then(data => {
+                if (data.isLoggedIn) {
+                    profileButton.style.display = 'inline-block';
+                    loginButton.style.display = 'none';
+                    logoutButton.style.display = 'inline-block';
+                    if (data.isAdmin) {
+                        expertButton.style.display = 'inline-block';
+                        ratingButton.style.display = 'inline-block';
+                    }
+                } else {
+                    loginButton.style.display = 'inline-block';
+                    logoutButton.style.display = 'none';
                 }
-            } else {
-                loginButton.style.display = 'inline-block'; // Или 'block'
-                logoutButton.style.display = 'none';
-            }
-        }
+            });
 
-        // Изначальная проверка при загрузке страницы
-        updateAuthButtons();
-
-        // Обработка выхода:
+        // Обработка выхода
         logoutButton.addEventListener('click', function () {
-            sessionStorage.removeItem('isLoggedIn'); // Удаляем информацию об аутентификации
-            updateAuthButtons(); // Обновляем отображение кнопок
+            fetch('http://localhost:3000/logout', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === 'Выход выполнен успешно!') {
+                        window.location.href = '/main';
+                    }
+                });
         });
     });
 </script>

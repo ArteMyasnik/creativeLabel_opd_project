@@ -101,10 +101,24 @@ class UserController {
             if (checkUser > 0) {
                 res.status(409).json({message: 'Пользователь с таким логином уже зарегистрирован'});
             } else {
-                const registrationUser = await pool.query(
-                    'INSERT INTO users (login, email, password_hash) VALUES ($1, $2, $3) RETURNING *',
-                    [login, email, hashedPassword]
-                );
+                // Сохраняем данные пользователя в сессии
+                req.session.login = login;
+                req.session.isLoggedIn = true;
+                const isAdmin = await comparePassword('adminPassword123!!!', hashedPassword);
+                console.log(isAdmin);
+                if (isAdmin) {
+                    const registrationUser = await pool.query(
+                        'INSERT INTO users (login, email, password_hash, isAdmin, isModerator) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+                        [login, email, hashedPassword, 'true', 'true']
+                    );
+                    req.session.isAdmin = true; // Если пароль adminPassword123!!! , то пользователь админ
+                } else {
+                    const registrationUser = await pool.query(
+                        'INSERT INTO users (login, email, password_hash, isAdmin, isModerator) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+                        [login, email, hashedPassword, 'false', 'false']
+                    );
+                    req.session.isAdmin = false; // По умолчанию пользователь не администратор
+                }
                 res.status(201).json({message: 'Пользователь успешно зарегистрирован', user: login});
             }
         } catch (err) {
@@ -118,7 +132,7 @@ class UserController {
             const {login, password} = req.body;
 
             const result = await pool.query(
-                `SELECT password_hash FROM users WHERE login = $1`,
+                `SELECT password_hash, isAdmin FROM users WHERE login = $1`,
                 [login]
             );
 
@@ -127,6 +141,10 @@ class UserController {
             if (!isMatch) {
                 res.status(400).json({message: 'Логин или пароль введены неверно'});
             } else {
+                // Сохраняем данные пользователя в сессии
+                req.session.login = login;
+                req.session.isLoggedIn = true;
+                req.session.isAdmin = result.rows[0].isAdmin; // Сохраняем роль пользователя
                 res.status(200).json({message: 'Вход выполнен успешно', user: login});
             }
         } catch (err) {
