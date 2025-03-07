@@ -104,7 +104,6 @@
         if (response.ok) {
           const result = await response.json();
           console.log('Успешно зарегистрирован!', result);
-          sessionStorage.setItem('isLoggedIn', 'true'); // Сохраняем информацию о входе
           if (passwordValue === 'adminPassword123!!!') {
             sessionStorage.setItem('isAdmin', 'true');
           }

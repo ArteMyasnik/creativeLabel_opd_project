@@ -91,7 +91,6 @@
         if (response.ok) {
           const result = await response.json();
           console.log('Вход выполнен успешно!', result);
-          sessionStorage.setItem('isLoggedIn', 'true');
           if (passwordValue == 'adminPassword123!!!') {
             sessionStorage.setItem('isAdmin', 'true');
           } else {

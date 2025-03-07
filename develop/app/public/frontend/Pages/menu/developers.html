@@ -11,10 +11,6 @@
   <div class="left-button">
     <button onclick="window.location.href='/main'">Главная страница</button>
   </div>
-  <div class="right-buttons">
-    <button id='profileButton' onclick="window.location.href='/profile'" style="display: none">Профиль</button>
-    <button id='loginButton' onclick="window.location.href='/login'">Войти</button>
-  </div>
 </div>
 <h1>Наша команда разработчиков</h1>
 <div class="grid">
@@ -109,14 +105,5 @@
     </div>
   </div>
 </div>
-<script>
-  const profileButton = document.getElementById('profileButton');
-  const isLoggedIn = sessionStorage.getItem('isLoggedIn');
-  const loginButton = document.getElementById('loginButton');
-  if (isLoggedIn === 'true') {
-    profileButton.style.display = 'inline-block';
-    loginButton.style.display = 'none';
-  }
-</script>
 </body>
 </html>

@@ -11,10 +11,6 @@
     <div class="left-button">
         <button onclick="window.location.href='/main'">Главная страница</button>
     </div>
-    <div class="right-buttons">
-        <button onclick="window.location.href='/profile'" style="display: none">Профиль</button>
-        <button id='loginButton' onclick="window.location.href='/login'">Войти</button>
-    </div>
 </div>
 
 <div class="center-buttons">
@@ -165,19 +161,12 @@
     const evaluationButton1 = document.getElementById('evaluationButton1');
     const evaluationButton2 = document.getElementById('evaluationButton2');
     const evaluationButton3 = document.getElementById('evaluationButton3');
-    const isLoggedIn = sessionStorage.getItem('isLoggedIn');
-    const loginButton = document.getElementById('loginButton');
     const isAdmin = sessionStorage.getItem('isAdmin');
-    if (isLoggedIn === 'true') {
-        loginButton.style.display = 'none';
-        if (isAdmin === 'true') {
-            evaluationButton1.style.display = 'block';
-            evaluationButton2.style.display = 'block';
-            evaluationButton3.style.display = 'block';
-        }
+    if (isAdmin === 'true') {
+        evaluationButton1.style.display = 'block';
+        evaluationButton2.style.display = 'block';
+        evaluationButton3.style.display = 'block';
     }
-
-
 </script>
 </body>
 </html>

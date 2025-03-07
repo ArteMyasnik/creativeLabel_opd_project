@@ -103,7 +103,6 @@ class UserController {
             } else {
                 // Сохраняем данные пользователя в сессии
                 req.session.login = login;
-                req.session.isLoggedIn = true;
                 const isAdmin = await comparePassword('adminPassword123!!!', hashedPassword);
                 if (isAdmin) {
                     const registrationUser = await pool.query(
@@ -142,7 +141,6 @@ class UserController {
             } else {
                 // Сохраняем данные пользователя в сессии
                 req.session.login = login;
-                req.session.isLoggedIn = true;
                 req.session.isAdmin = result.rows[0].isAdmin; // Сохраняем роль пользователя
                 res.status(200).json({message: 'Вход выполнен успешно', user: login});
             }

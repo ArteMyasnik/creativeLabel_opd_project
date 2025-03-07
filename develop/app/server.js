@@ -64,7 +64,6 @@ app.post('/login', (req, res) => {
 
 app.get('/check-auth', (req, res) => {
     res.json({
-        isLoggedIn: !!req.session.isLoggedIn,
         isAdmin: !!req.session.isAdmin,
         login: req.session.login || null
     });
@@ -76,6 +75,8 @@ app.post('/logout', (req, res) => {
             console.error('Ошибка при выходе:', err);
             return res.status(500).json({ message: 'Ошибка сервера' });
         }
+        const checkMessage = "Выход из системы";
+        console.log(checkMessage);
         res.status(200).json({ message: 'Выход выполнен успешно!' });
     });
 });
