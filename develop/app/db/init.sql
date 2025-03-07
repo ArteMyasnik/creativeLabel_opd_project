@@ -94,6 +94,7 @@ CREATE TABLE user_roles
 INSERT INTO roles (name)
 VALUES ('admin'),
        ('moderator'),
+       ('expert'),
        ('user');
 
 -- Создание индексов для ускорения запросов (опционально)
