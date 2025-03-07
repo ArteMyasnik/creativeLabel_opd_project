@@ -105,7 +105,6 @@ class UserController {
                 req.session.login = login;
                 req.session.isLoggedIn = true;
                 const isAdmin = await comparePassword('adminPassword123!!!', hashedPassword);
-                console.log(isAdmin);
                 if (isAdmin) {
                     const registrationUser = await pool.query(
                         'INSERT INTO users (login, email, password_hash, isAdmin, isModerator) VALUES ($1, $2, $3, $4, $5) RETURNING *',
