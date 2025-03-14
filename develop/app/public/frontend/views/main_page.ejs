@@ -100,7 +100,7 @@
         fetch('http://localhost:3000/check-auth')
             .then(response => response.json())
             .then(data => {
-                if (data.isLoggedIn) {
+                if (data.login != null) {
                     profileButton.style.display = 'inline-block';
                     loginButton.style.display = 'none';
                     logoutButton.style.display = 'inline-block';

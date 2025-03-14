@@ -53,6 +53,7 @@ CREATE TABLE profession_pvk
     id            SERIAL PRIMARY KEY,
     profession_id INT REFERENCES professions (id) ON DELETE CASCADE,
     pvk_id        INT REFERENCES pvks (id) ON DELETE CASCADE,
+    mark        INT[],
     UNIQUE (profession_id, pvk_id)
 );
 
