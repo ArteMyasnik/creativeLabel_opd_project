@@ -141,7 +141,7 @@ class UserController {
             } else {
                 // Сохраняем данные пользователя в сессии
                 req.session.login = login;
-                req.session.isAdmin = result.rows[0].isAdmin; // Сохраняем роль пользователя
+                req.session.isAdmin = result.rows[0].isadmin; // Сохраняем роль пользователя
                 res.status(200).json({message: 'Вход выполнен успешно', user: login});
             }
         } catch (err) {
