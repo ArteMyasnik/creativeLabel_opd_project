@@ -91,11 +91,6 @@
         if (response.ok) {
           const result = await response.json();
           console.log('Вход выполнен успешно!', result);
-          if (passwordValue == 'adminPassword123!!!') {
-            sessionStorage.setItem('isAdmin', 'true');
-          } else {
-            sessionStorage.setItem('isAdmin', 'false');
-          }
           window.location.href = "/main"; // Перенаправляем на главную страницу
         } else {
           const errorData = await response.json();

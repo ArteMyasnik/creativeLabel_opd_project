@@ -37,8 +37,9 @@ app.get("/", (req, res) => {
 
 app.get('/main', (req, res) => {
     const login = req.session.login || null;
-    console.log(login);
-    res.render('main_page', { login });
+    const isAdmin = req.session.isAdmin || false;
+    console.log(login, isAdmin);
+    res.render('main_page', { login, isAdmin });
 });
 // -----------------------------------------------------------------------------------------
 // Registration and login ------------------------------------------------------------------
@@ -219,8 +220,19 @@ app.put('/experts', (req, res) => {
     res.status(200).json({ message: 'Логин обновлен успешно!' });
 });
 
-app.get('/professions_rating', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'professions_rating.html'));
+// app.get('/professions_rating', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'professions_rating.html'));
+// });
+
+app.get('/professions_rating', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM pvks LIMIT 20');
+        const pvks = result.rows;
+        res.render('professions_rating', { pvks: pvks });
+    } catch (err) {
+        console.error('Ошибка при выполнении запроса:', err);
+        res.status(500).send('Ошибка сервера');
+    }
 });
 
 app.get('/results', (req, res) => {

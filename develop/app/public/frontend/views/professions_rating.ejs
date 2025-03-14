@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание профессии</title>
+    <link rel="stylesheet" href="../../Styles/professionsRatingStyles.css" />
+</head>
+<body>
+<div class="button-container">
+    <div class="left-button">
+        <button onclick="window.location.href='/main'">Главная страница</button>
+    </div>
+</div>
+
+<div class="center-buttons">
+    <div class="button-group">
+        <button class="make_button" id="professionButton1" onclick="openModal('professionButton1')">Создать профессию</button>
+        <button id='evaluationButton1' class="evaluation-button" onclick="toggleEvaluationList('evaluationList1')" style="display: none">Провести оценку</button>
+        <div id="evaluationList1" class="evaluation-list">
+            <% pvks.forEach(function(pvk) { %>
+                <label><input type="checkbox"> <%= pvk.pvk %></label>
+            <% }); %>
+            <button class="save-selection-button" onclick="saveSelection('evaluationList1')">Сохранить выбор</button>
+        </div>
+    </div>
+    <div class="button-group">
+        <button class="make_button" id="professionButton2" onclick="openModal('professionButton2')">Создать профессию</button>
+        <button id='evaluationButton2' class="evaluation-button" onclick="toggleEvaluationList('evaluationList2')" style="display: none">Провести оценку</button>
+        <div id="evaluationList2" class="evaluation-list">
+            <% pvks.forEach(function(pvk) { %>
+                <label><input type="checkbox"> <%= pvk.pvk %></label>
+            <% }); %>
+            <button class="save-selection-button" onclick="saveSelection('evaluationList2')">Сохранить выбор</button>
+        </div>
+    </div>
+    <div class="button-group">
+        <button class="make_button" id="professionButton3" onclick="openModal('professionButton3')">Создать профессию</button>
+        <button id='evaluationButton3' class="evaluation-button" onclick="toggleEvaluationList('evaluationList3')" style="display: none">Провести оценку</button>
+
+        <div id="evaluationList3" class="evaluation-list">
+            <% pvks.forEach(function(pvk) { %>
+                <label><input type="checkbox"> <%= pvk.pvk %></label>
+            <% }); %>
+            <button class="save-selection-button" onclick="saveSelection('evaluationList3')">Сохранить выбор</button>
+        </div>
+    </div>
+</div>
+
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Создание профессии</h2>
+        <input type="text" id="professionName" placeholder="Название профессии">
+        <textarea id="professionDescription" placeholder="Краткое описание"></textarea>
+        <button onclick="saveProfession()">Сохранить</button>
+    </div>
+</div>
+
+<script>
+    let currentButtonId = null;
+
+    function openModal(buttonId) {
+        currentButtonId = buttonId;
+        document.getElementById('myModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('myModal').style.display = 'none';
+    }
+
+    function saveProfession() {
+        const name = document.getElementById('professionName').value;
+        const description = document.getElementById('professionDescription').value;
+
+        if (name && description) {
+            const button = document.getElementById(currentButtonId);
+            button.innerHTML = `<strong>${name}</strong><div class="profession-info">${description}</div>`;
+            closeModal();
+        } else {
+            alert('Пожалуйста, заполните все поля.');
+        }
+    }
+
+    function toggleEvaluationList(listId) {
+        const list = document.getElementById(listId);
+        list.style.display = list.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function saveSelection(listId) {
+        const list = document.getElementById(listId);
+        const checkboxes = list.querySelectorAll('input[type="checkbox"]');
+        const selectedQualities = [];
+
+        checkboxes.forEach((checkbox, index) => {
+            if (checkbox.checked) {
+                selectedQualities.push(`Качество ${index + 1}`);
+            }
+        });
+
+        alert(`Выбранные качества для ${listId}:\n${selectedQualities.join(', ')}`);
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('myModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    }
+
+    const evaluationButton1 = document.getElementById('evaluationButton1');
+    const evaluationButton2 = document.getElementById('evaluationButton2');
+    const evaluationButton3 = document.getElementById('evaluationButton3');
+    const isAdmin = sessionStorage.getItem('isAdmin');
+    // Проверка статуса авторизации
+    fetch('http://localhost:3000/check-auth')
+        .then(response => response.json())
+        .then(data => {
+            if (data.isAdmin) {
+                evaluationButton1.style.display = 'block';
+                evaluationButton2.style.display = 'block';
+                evaluationButton3.style.display = 'block';
+            }
+        });
+</script>
+</body>
+</html>
