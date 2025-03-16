@@ -83,10 +83,16 @@ app.post('/logout', (req, res) => {
 });
 // -----------------------------------------------------------------------------------------
 // Profile changes -------------------------------------------------------------------------
-app.put('/profile/:login/update-info', (req, res) => {
+app.put('/profile/:login/update-sex', (req, res) => {
     const { login } = req.params;
-    const { age, sex } = req.body;
-    res.status(200).json({ message: 'Возраст и пол обновлены успешно!' });
+    const { sex } = req.body;
+    res.status(200).json({ message: 'Пол обновлены успешно!' });
+});
+
+app.put('/profile/:login/update-age', (req, res) => {
+    const { login } = req.params;
+    const { age } = req.body;
+    res.status(200).json({ message: 'Возрасты обновлены успешно!' });
 });
 
 app.put('/profile/:login/update-password', (req, res) => {
@@ -95,9 +101,9 @@ app.put('/profile/:login/update-password', (req, res) => {
     res.status(200).json({ message: 'Пароль обновлен успешно!' });
 });
 
-app.put('/profile/:login/update-login', (req, res) => {
+app.put('/profile/:login/update-email', (req, res) => {
     const { login } = req.params;
-    const { oldLogin, newLogin } = req.body;
+    const { email } = req.body;
     res.status(200).json({ message: 'Логин обновлен успешно!' });
 });
 // -----------------------------------------------------------------------------------------
@@ -226,7 +232,7 @@ app.put('/experts', (req, res) => {
 
 app.get('/professions_rating', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM pvks LIMIT 20');
+        const result = await pool.query('SELECT * FROM pvks');
         const pvks = result.rows;
         res.render('professions_rating', { pvks: pvks });
     } catch (err) {

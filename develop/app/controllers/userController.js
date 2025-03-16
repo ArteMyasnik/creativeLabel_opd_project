@@ -87,6 +87,36 @@ class UserController {
     //         console.error(err.message);
     //         res.status(500).send('Server Error');
     //     }
+    // async getProfile(req, res) {
+    //     try {
+    //         const { login } = req.body;
+    //
+    //         const profileUser = await pool.query(
+    //             `SELECT email, age, sex FROM users WHERE login = $1`,
+    //             [login]
+    //         );
+    //
+    //         if (profileUser.rows.length === 0) {
+    //             return res.status(404).json({ message: 'Пользователь не найден' });
+    //         }
+    //
+    //         const userInfo = profileUser.rows[0];
+    //
+    //         const { email, age, sex } = userInfo;
+    //
+    //         // Возвращаем из этой функции все данные пользователя.
+    //         // Пароль мы не будем возвращать, так как пароль хранится в захэшированном состоянии.
+    //         res.status(200).json({
+    //             message: 'Данные получены успешно',
+    //             user: { login, email, age, sex }
+    //         });
+    //
+    //     } catch (err) {
+    //         console.error(err.message);
+    //         res.status(500).json({ message: "Server error" });
+    //     }
+    // }
+
     // }
 
     async registration(req, res) {
@@ -150,92 +180,89 @@ class UserController {
         }
     }
 
-    async getProfile(req, res) {
+    async updateAge(req, res) {
         try {
-            const { login } = req.body;
+            const { login } = req.params;
+            const { age } = req.body;
 
-            const profileUser = await pool.query(
-                `SELECT email, age, sex FROM users WHERE login = $1`,
-                [login]
-            );
-
-            if (profileUser.rows.length === 0) {
-                return res.status(404).json({ message: 'Пользователь не найден' });
-            }
-
-            const userInfo = profileUser.rows[0];
-
-            const { email, age, sex } = userInfo;
-
-            // Возвращаем из этой функции все данные пользователя.
-            // Пароль мы не будем возвращать, так как пароль хранится в захэшированном состоянии.
-            res.status(200).json({
-                message: 'Данные получены успешно',
-                user: { login, email, age, sex }
-            });
-
-        } catch (err) {
-            console.error(err.message);
-            res.status(500).json({ message: "Server error" });
-        }
-    }
-
-    //// --------------------------------------------------------------
-    ///возраст
-    async updateProfile(req, res) {
-        try {
-            const { login, age, sex } = req.body;
-    
             // Проверяем, существует ли пользователь с таким логином
             const checkUser = await pool.query(
-                'SELECT * FROM users WHERE login = $1',
+                'SELECT COUNT(*) FROM users WHERE login = $1',
                 [login]
             );
-    
-            if (checkUser.rows.length === 0) {
-                return res.status(404).json({ message: 'Пользователь не найден' });
+
+            if (checkUser.rows[0].count > 0) {
+                const updatedUser = await pool.query(
+                    'UPDATE users SET age = $1 WHERE login = $2 RETURNING *',
+                    [age, login]
+                );
+
+                res.status(200).json({
+                    success: true,
+                    message: 'Возраст пользователя успешно обновлен',
+                    user: updatedUser.rows[0]
+                });
+            } else {
+                res.status(404).json({ message: 'Пользователь с таким логином не найден' });
             }
-    
-            // Обновляем возраст и пол пользователя
-            const updatedUser = await pool.query(
-                'UPDATE users SET age = $1, sex = $2 WHERE login = $3 RETURNING *',
-                [age, sex, login]
+
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json({ message: "Server error" });
+        }
+    }
+
+    async updateSex(req, res) {
+        try {
+            const { login } = req.params;
+            const { sex } = req.body;
+
+            // Проверяем, существует ли пользователь с таким логином
+            const checkUser = await pool.query(
+                'SELECT COUNT(*) FROM users WHERE login = $1',
+                [login]
             );
-    
-            // Возвращаем обновленные данные пользователя
-            res.status(200).json({
-                message: 'Данные пользователя успешно обновлены',
-                user: updatedUser.rows[0]
-            });
-    
+
+            if (checkUser.rows[0].count > 0) {
+                const updatedUser = await pool.query(
+                    'UPDATE users SET sex = $1 WHERE login = $2 RETURNING *',
+                    [sex, login]
+                );
+
+                res.status(200).json({
+                    success: true,
+                    message: 'Пол пользователя успешно обновлен',
+                    user: updatedUser.rows[0]
+                });
+            } else {
+                res.status(404).json({ message: 'Пользователь с таким логином не найден' });
+            }
+
         } catch (err) {
             console.error(err.message);
             res.status(500).json({ message: "Server error" });
         }
     }
     
-    ///----------- старый + новый пароль
     async changePassword(req, res) {
         try {
-            const { login, oldPassword, newPassword, confirmNewPassword } = req.body;
+            const { login } = req.params;
+            const { oldPassword, newPassword, confirmNewPassword } = req.body;
 
-            // Проверка совпадения нового пароля и подтверждения
             if (newPassword !== confirmNewPassword) {
                 return res.status(400).json({ message: 'Новый пароль и подтверждение не совпадают' });
             }
 
-            // Получаем текущий хэш пароля из базы данных
-            const userResult = await pool.query(
-                'SELECT password_hash FROM users WHERE login = $1',
+            // Проверяем, существует ли пользователь с таким логином
+            const checkUser = await pool.query(
+                'SELECT COUNT(*), password_hash FROM users WHERE login = $1',
                 [login]
             );
-
-            // Проверка существования пользователя
-            if (userResult.rows.length === 0) {
-                return res.status(404).json({ message: 'Пользователь не найден' });
+            if (checkUser > 0) {
+                res.status(409).json({message: 'Пользователь с таким логином уже зарегистрирован'});
             }
 
-            const hashedPassword = userResult.rows[0].password_hash;
+            const hashedPassword = checkUser.rows[0].password_hash;
 
             // Проверка старого пароля
             const isOldPasswordValid = await comparePassword(oldPassword, hashedPassword);
@@ -249,7 +276,6 @@ class UserController {
                 return res.status(400).json({ message: 'Новый пароль должен отличаться от старого' });
             }
 
-            // Хэширование нового пароля
             const newHashedPassword = await hashPassword(newPassword);
 
             // Обновление пароля в базе данных
@@ -258,7 +284,10 @@ class UserController {
                 [newHashedPassword, login]
             );
 
-            res.status(200).json({ message: 'Пароль успешно изменен' });
+            res.status(200).json({
+                success: true,
+                message: 'Пароль успешно изменен'
+            });
 
         } catch (err) {
             console.error(err.message);
@@ -266,53 +295,31 @@ class UserController {
         }
     }
 
-
-    //// ----------- новый логин и пароль
-    // ... остальные методы
-
-    async changeLogin(req, res) {
+    async changeEmail(req, res) {
         try {
-            const { oldLogin, newLogin, password } = req.body;
-
-            // Проверка существования старого логина
-            const userResult = await pool.query(
-                'SELECT password_hash FROM users WHERE login = $1',
-                [oldLogin]
-            );
-
-            // Если пользователь не найден
-            if (userResult.rows.length === 0) {
-                return res.status(404).json({ message: 'Пользователь не найден' });
-            }
-
-            // Проверка пароля
-            const hashedPassword = userResult.rows[0].password_hash;
-            const isPasswordValid = await comparePassword(password, hashedPassword);
-            if (!isPasswordValid) {
-                return res.status(400).json({ message: 'Неверный пароль' });
-            }
+            const { login } = req.params;
+            const { email } = req.body;
 
             // Проверка доступности нового логина
             const checkLogin = await pool.query(
                 'SELECT COUNT(*) FROM users WHERE login = $1',
-                [newLogin]
+                [login]
             );
 
             // Если логин уже занят
             if (checkLogin.rows[0].count > 0) {
-                return res.status(409).json({ message: 'Этот логин уже занят' });
+                return res.status(409).json({ message: 'Этот email уже занят' });
             }
 
             // Обновление логина
             await pool.query(
-                'UPDATE users SET login = $1 WHERE login = $2',
-                [newLogin, oldLogin]
+                'UPDATE users SET email = $1 WHERE login = $2',
+                [email, login]
             );
 
-            res.status(200).json({ 
-                message: 'Логин успешно изменен',
-                oldLogin,
-                newLogin 
+            res.status(200).json({
+                success: true,
+                message: 'Email успешно изменен'
             });
 
         } catch (err) {
