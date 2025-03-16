@@ -4,8 +4,8 @@ const UserController = require('./userController');
 
 router.post('/registration', UserController.registration);
 router.post('/login', UserController.login);
-
 // Изменение возраста
+
 router.put('/profile/:login/update-age', UserController.updateAge);
 // Изменение пола
 router.put('/profile/:login/update-sex', UserController.updateSex);
@@ -14,7 +14,16 @@ router.put('/profile/:login/update-password', UserController.changePassword);
 // Изменение email
 router.put('/profile/:login/update-email', UserController.changeEmail);
 // Назначение эксперта
-router.put('/experts', UserController.assignExperts);
+router.put('/experts', UserController.assignExperts)
+
+
+// Тесты
+// Тест на реакцию
+router.post('/test_visual_signal', UserController.testVisualSignal);
+// Тест на цвета
+router.post('/test_color_signal', UserController.testColorSignal);
+// Тест на звук
+router.post('/test_digital_signal', UserController.testDigitalSignal);
 
 // router.get('/user/:id', UserController.getOneUser);
 // router.get('/user', UserController.getUsers);

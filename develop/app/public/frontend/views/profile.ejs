@@ -17,7 +17,7 @@
         </div>
         <h2>Мой профиль</h2>
         <p>Логин: <%= login %></p>
-        <p>Почта: <%= email %> <button onclick="editEmail()">Изменить</button></p>
+        <p>Почта: <%= email %></p>
         <p>Пол: <%= sex %> <button onclick="editSex()">Изменить</button></p>
         <p>Возраст: <%= age %> <button onclick="editAge()">Изменить</button></p>
         <button onclick="changePassword()">Изменить пароль</button>
@@ -98,28 +98,29 @@
         }
     }
 
-    function editEmail() {
-        const login = "<%= login %>";
-        const newEmail = prompt("Введите новый email:");
-        if (newEmail) {
-            // Отправка запроса на сервер для изменения email
-            fetch(`http://localhost:3000/api/profile/${login}/update-email`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email: newEmail }),
-            }).then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert("Email успешно изменен!");
-                        window.location.reload();
-                    } else {
-                        alert("Ошибка при изменении email.");
-                    }
-                });
-        }
-    }
+    // <button onclick="editEmail()">Изменить</button>
+    // function editEmail() {
+    <!--    const login = "<%= login %>";-->
+        // const newEmail = prompt("Введите новый email:");
+        // if (newEmail) {
+        //     Отправка запроса на сервер для изменения email
+        //     fetch(`http://localhost:3000/api/profile/${login}/update-email`, {
+        //         method: 'PUT',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //         },
+        //         body: JSON.stringify({ email: newEmail }),
+        //     }).then(response => response.json())
+        //         .then(data => {
+        //             if (data.success) {
+        //                 alert("Email успешно изменен!");
+        //                 window.location.reload();
+        //             } else {
+        //                 alert("Ошибка при изменении email.");
+        //             }
+        //         });
+        // }
+    // }
 
     function editSex() {
         const login = "<%= login %>";
