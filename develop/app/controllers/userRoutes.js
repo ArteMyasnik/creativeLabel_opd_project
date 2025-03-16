@@ -5,12 +5,14 @@ const UserController = require('./userController');
 router.post('/registration', UserController.registration);
 router.post('/login', UserController.login);
 
-// Профиль пользователя
-router.put('/profile/:login/update-info', UserController.updateProfile);
+// Изменение возраста
+router.put('/profile/:login/update-age', UserController.updateAge);
+// Изменение пола
+router.put('/profile/:login/update-sex', UserController.updateSex);
 // Изменение пароля
 router.put('/profile/:login/update-password', UserController.changePassword);
-// Изменение логина
-router.put('/profile/:login/update-login', UserController.changeLogin);
+// Изменение email
+router.put('/profile/:login/update-email', UserController.changeEmail);
 // Назначение эксперта
 router.put('/experts', UserController.assignExperts);
 
