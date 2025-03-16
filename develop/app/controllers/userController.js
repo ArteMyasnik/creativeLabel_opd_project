@@ -255,14 +255,19 @@ class UserController {
 
             // Проверяем, существует ли пользователь с таким логином
             const checkUser = await pool.query(
-                'SELECT COUNT(*), password_hash FROM users WHERE login = $1',
+                'SELECT COUNT(*) FROM users WHERE login = $1',
                 [login]
             );
             if (checkUser > 0) {
                 res.status(409).json({message: 'Пользователь с таким логином уже зарегистрирован'});
             }
 
-            const hashedPassword = checkUser.rows[0].password_hash;
+            const userPassword = await pool.query(
+                'SELECT password_hash FROM users WHERE login = $1',
+                [login]
+            );
+
+            const hashedPassword = userPassword.rows[0].password_hash;
 
             // Проверка старого пароля
             const isOldPasswordValid = await comparePassword(oldPassword, hashedPassword);
@@ -357,6 +362,84 @@ class UserController {
         } catch (err) {
             console.error(err.message);
             res.status(500).json({ message: "Ошибка сервера" });
+        }
+    }
+
+    async testVisualSignal(req, res) {
+        try {
+            const { login, averageReactionTime, standardDeviation, missedSignals } = req.body;
+
+            console.log(login, averageReactionTime, standardDeviation, missedSignals)
+
+            // Сохраняем результаты теста в базу данных
+            // const result = await pool.query(
+            //     'INSERT INTO reaction_tests (login, average_time, std_dev, missed_signals) VALUES ($1, $2, $3, $4) RETURNING *',
+            //     [login, averageTime, stdDev, missedSignals]
+            // );
+
+            res.status(200).json({
+                success: true,
+                message: 'Результаты теста успешно сохранены',
+                data: result.rows[0]
+            });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json({
+                success: false,
+                message: "Ошибка сервера"
+            });
+        }
+    }
+
+    async testColorSignal(req, res) {
+        try {
+            const { login, averageReactionTime, standardDeviation, correctAnswers, missedClicks, wrongClicks } = req.body;
+
+            console.log(login, averageReactionTime, standardDeviation, correctAnswers, missedClicks, wrongClicks)
+
+            // Сохраняем результаты теста в базу данных
+            // const result = await pool.query(
+            //     'INSERT INTO reaction_tests (login, average_time, std_dev, missed_signals) VALUES ($1, $2, $3, $4) RETURNING *',
+            //     [login, averageTime, stdDev, missedSignals]
+            // );
+
+            res.status(200).json({
+                success: true,
+                message: 'Результаты теста успешно сохранены',
+                data: result.rows[0]
+            });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json({
+                success: false,
+                message: "Ошибка сервера"
+            });
+        }
+    }
+
+    async testDigitalSignal(req, res) {
+        try {
+            const { login, averageReactionTime, standardDeviation, correctAnswers, wrongAnswers, missedAttempts, accuracy } = req.body;
+
+            console.log(login, averageReactionTime, standardDeviation, correctAnswers, wrongAnswers, missedAttempts, accuracy)
+
+            // Сохраняем результаты теста в базу данных
+            // const result = await pool.query(
+            //     'INSERT INTO reaction_tests (login, average_time, std_dev, missed_signals) VALUES ($1, $2, $3, $4) RETURNING *',
+            //     [login, averageTime, stdDev, missedSignals]
+            // );
+
+            res.status(200).json({
+                success: true,
+                message: 'Результаты теста успешно сохранены',
+                data: result.rows[0]
+            });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json({
+                success: false,
+                message: "Ошибка сервера"
+            });
         }
     }
 }

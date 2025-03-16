@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест на сенсомоторную реакцию</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .signal {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+        }
+        .buttons {
+            display: flex;
+            gap: 20px;
+        }
+        .button {
+            width: 100px;
+            height: 50px;
+        }
+        .button.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        #results {
+            margin-top: 20px;
+            display: none; /* Скрываем результаты по умолчанию */
+            padding: 20px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<h1>Тест на сенсомоторную реакцию</h1>
+<div class="signal" id="signal"></div>
+<div class="buttons">
+    <button class="button red disabled">Красный</button>
+    <button class="button blue disabled">Синий</button>
+    <button class="button green disabled">Зеленый</button>
+</div>
+<button id="startButton" onclick="startTest()">Начать тест</button>
+<div id="results"></div>
+<script>
+    const colors = ['red', 'blue', 'green'];
+    let currentColor = '';
+    let startTime = 0;
+    let reactionTimes = [];
+    let correctAnswers = 0;
+    let missedClicks = 0;
+    let wrongClicks = 0;
+    let testTimeout;
+    let signalTimeout;
+
+    function startSignal() {
+        const signalElement = document.getElementById('signal');
+        currentColor = colors[Math.floor(Math.random() * colors.length)];
+        signalElement.style.backgroundColor = currentColor;
+        startTime = Date.now();
+        signalTimeout = setTimeout(() => {
+            if (!reactionTimes.includes(Date.now() - startTime)) {
+                missedClicks++;
+            }
+            signalElement.style.backgroundColor = 'transparent';
+            startSignal(); // Начинаем новый цикл после истечения времени
+        }, 5000);
+    }
+
+    function checkAnswer(answer) {
+        clearTimeout(signalTimeout); // Останавливаем таймер сигнала
+
+        const endTime = Date.now();
+        const reactionTime = endTime - startTime;
+
+        if (answer === currentColor) {
+            correctAnswers++;
+            reactionTimes.push(reactionTime);
+        } else {
+            wrongClicks++;
+        }
+
+        startSignal(); // Начинаем новый цикл после ответа
+    }
+
+    function showResults() {
+        let averageReactionTime = 0;
+        let standardDeviation = 0;
+
+        if (reactionTimes.length > 0) {
+            averageReactionTime = reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length;
+            const variance = reactionTimes.map(x => Math.pow(x - averageReactionTime, 2)).reduce((a, b) => a + b, 0) / reactionTimes.length;
+            standardDeviation = Math.sqrt(variance);
+        }
+
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = `
+                <p>Среднее время реакции: ${averageReactionTime.toFixed(2)} мс</p>
+                <p>Стандартное отклонение: ${standardDeviation.toFixed(2)} мс</p>
+                <p>Точность ответов: ${correctAnswers}</p>
+                <p>Количество пропусков: ${missedClicks}</p>
+                <p>Количество ошибок - неправильное нажатие: ${wrongClicks}</p>
+            `;
+        resultsDiv.style.display = 'block'; // Показываем результаты
+    }
+
+    function saveSensorimotorResults(averageReactionTime, standardDeviation, correctAnswers, missedClicks, wrongClicks) {
+        const login = "<%= login %>"; // Логин пользователя из EJS
+
+        fetch('http://localhost:3000/api/testColorSignal', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                login: login,
+                averageReactionTime: averageReactionTime,
+                standardDeviation: standardDeviation,
+                correctAnswers: correctAnswers,
+                missedClicks: missedClicks,
+                wrongClicks: wrongClicks
+            }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Результаты теста успешно сохранены!");
+                } else {
+                    alert("Ошибка при сохранении результатов: " + data.message);
+                }
+            })
+            .catch(error => {
+                alert("Ошибка сети: " + error.message);
+            });
+    }
+
+    function finishTest() {
+        console.log("Function finishTest called"); // Проверка вызова функции
+        clearTimeout(testTimeout); // Останавливаем таймер теста
+        clearTimeout(signalTimeout); // Останавливаем таймер сигнала
+        showResults();
+
+        // Сохраняем результаты теста на сервере
+        let averageReactionTime = 0;
+        let standardDeviation = 0;
+
+        if (reactionTimes.length > 0) {
+            averageReactionTime = reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length;
+            const variance = reactionTimes.map(x => Math.pow(x - averageReactionTime, 2)).reduce((a, b) => a + b, 0) / reactionTimes.length;
+            standardDeviation = Math.sqrt(variance);
+        }
+
+        saveSensorimotorResults(averageReactionTime, standardDeviation, correctAnswers, missedClicks, wrongClicks);
+
+        resetTest();
+    }
+
+    function resetTest() {
+        console.log("Test reset");
+        const startButton = document.getElementById('startButton');
+        startButton.disabled = false; // Включаем кнопку "Начать тест"
+        reactionTimes = [];
+        correctAnswers = 0;
+        missedClicks = 0;
+        wrongClicks = 0;
+        const signalElement = document.getElementById('signal');
+        signalElement.style.backgroundColor = 'transparent';
+        const buttons = document.querySelectorAll('.button');
+        buttons.forEach(button => button.classList.add('disabled')); // Отключаем кнопки
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.style.display = 'none'; // Скрываем результаты
+    }
+
+    function startTest() {
+        console.log("Test started");
+        resetTest(); // Сбрасываем тест перед началом нового
+        const startButton = document.getElementById('startButton');
+        startButton.disabled = true; // Отключаем кнопку после начала теста
+
+        const buttons = document.querySelectorAll('.button');
+        buttons.forEach(button => {
+            button.classList.remove('disabled'); // Включаем кнопки
+            button.addEventListener('click', function() {
+                checkAnswer(this.className.split(' ')[1]);
+            });
+        });
+
+        startSignal();
+        testTimeout = setTimeout(finishTest, 0.3 * 60 * 1000); // Завершаем тест через 2 минуты
+    }
+</script>
+</body>
+</html>

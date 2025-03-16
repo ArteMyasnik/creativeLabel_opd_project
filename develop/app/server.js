@@ -101,10 +101,39 @@ app.put('/profile/:login/update-password', (req, res) => {
     res.status(200).json({ message: 'Пароль обновлен успешно!' });
 });
 
-app.put('/profile/:login/update-email', (req, res) => {
+// app.put('/profile/:login/update-email', (req, res) => {
+//     const { login } = req.params;
+//     const { email } = req.body;
+//     res.status(200).json({ message: 'Логин обновлен успешно!' });
+// });
+
+// app.get('/profile/:login', (req, res) => {
+//     const { login } = req.params;
+//     res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'profile.html'));
+// });
+
+app.get('/profile/:login', async (req, res) => {
     const { login } = req.params;
-    const { email } = req.body;
-    res.status(200).json({ message: 'Логин обновлен успешно!' });
+
+    try {
+        // Получение данных пользователя из базы данных
+        const user = await pool.query('SELECT * FROM users WHERE login = $1', [login]);
+
+        if (user.rows.length === 0) {
+            return res.status(404).send('Пользователь не найден');
+        }
+
+        // Передача данных в шаблон
+        res.render('profile', {
+            login: user.rows[0].login,
+            email: user.rows[0].email,
+            sex: user.rows[0].sex,
+            age: user.rows[0].age
+        });
+    } catch (err) {
+        console.error('Ошибка при получении данных пользователя:', err);
+        res.status(500).send('Ошибка сервера');
+    }
 });
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------
@@ -158,33 +187,8 @@ app.get('/goals', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'goals.html'));
 });
 
-// app.get('/profile/:login', (req, res) => {
-//     const { login } = req.params;
-//     res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'profile.html'));
-// });
-
-app.get('/profile/:login', async (req, res) => {
-    const { login } = req.params;
-
-    try {
-        // Получение данных пользователя из базы данных
-        const user = await pool.query('SELECT * FROM users WHERE login = $1', [login]);
-
-        if (user.rows.length === 0) {
-            return res.status(404).send('Пользователь не найден');
-        }
-
-        // Передача данных в шаблон
-        res.render('profile', {
-            login: user.rows[0].login,
-            email: user.rows[0].email,
-            sex: user.rows[0].sex,
-            age: user.rows[0].age
-        });
-    } catch (err) {
-        console.error('Ошибка при получении данных пользователя:', err);
-        res.status(500).send('Ошибка сервера');
-    }
+app.get('/tests', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'tests.html'));
 });
 
 app.get('/developers', (req, res) => {
@@ -197,7 +201,7 @@ app.get('/developers', (req, res) => {
 
 app.get('/pvk', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM pvks LIMIT 10');
+        const result = await pool.query('SELECT * FROM pvks');
         const pvks = result.rows;
         res.render('pvk', { pvks: pvks });
     } catch (err) {
@@ -243,6 +247,37 @@ app.get('/professions_rating', async (req, res) => {
 
 app.get('/results', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'results.html'));
+});
+// -----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------------------
+// Pages HTML tests ------------------------------------------------------------------------
+// app.get('/test_visual_signal', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'public/frontend/Pages/tests', 'test_visual_signal.html'));
+// });
+
+app.get('/test_visual_signal', (req, res) => {
+    const login = req.session.login || null;
+    res.render('tests/test_visual_signal', { login });
+});
+
+// app.get('/test_color_signal', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'public/frontend/Pages/tests', 'test_color_signal.html'));
+// });
+
+app.get('/test_color_signal', (req, res) => {
+    const login = req.session.login || null;
+    res.render('tests/test_color_signal', { login });
+});
+
+// app.get('/test_digital_signal', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'public/frontend/Pages/tests', 'test_digital_signal.html'));
+// });
+
+app.get('/test_digital_signal', (req, res) => {
+    const login = req.session.login || null;
+    res.render('tests/test_digital_signal', { login });
 });
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------

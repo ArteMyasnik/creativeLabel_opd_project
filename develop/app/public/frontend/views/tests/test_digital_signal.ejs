@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Тест на чётность суммы</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            margin: 50px;
+        }
+        .numbers {
+            font-size: 80px;
+            margin: 30px;
+            letter-spacing: 20px;
+            color: #2c3e50;
+            min-height: 120px;
+        }
+        button {
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+        #startBtn {
+            background: #27ae60;
+            color: white;
+        }
+        .answerBtn {
+            background: #3498db;
+            color: white;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+            display: none;
+        }
+        .active {
+            opacity: 1;
+            cursor: pointer;
+        }
+        #results {
+            margin-top: 30px;
+            font-size: 18px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<h2>Определите чётность суммы чисел</h2>
+<button id="startBtn">Старт</button>
+<div class="numbers" id="numbers"></div>
+<button class="answerBtn" id="evenBtn">Чётная сумма</button>
+<button class="answerBtn" id="oddBtn">Нечётная сумма</button>
+<div id="results"></div>
+
+<script>
+    let startTime;
+    let reactionTimes = [];
+    let correctAnswers = 0;
+    let wrongAnswers = 0;
+    let missedAttempts = 0;
+    let currentNumbers = [0, 0];
+    let testActive = false;
+    let timeoutId;
+    const totalTrials = 20;
+
+    const startBtn = document.getElementById('startBtn');
+    const numbersElement = document.getElementById('numbers');
+    const evenBtn = document.getElementById('evenBtn');
+    const oddBtn = document.getElementById('oddBtn');
+    const resultsElement = document.getElementById('results');
+
+    function startTest() {
+        testActive = true;
+        startBtn.disabled = true;
+        reactionTimes = [];
+        correctAnswers = 0;
+        wrongAnswers = 0;
+        missedAttempts = 0;
+
+        resultsElement.style.display = 'none';
+        evenBtn.style.display = 'inline-block';
+        oddBtn.style.display = 'inline-block';
+
+        showNextNumbers();
+    }
+
+    function generateNumbers() {
+        currentNumbers = [
+            Math.floor(Math.random() * 10),
+            Math.floor(Math.random() * 10)
+        ];
+        return currentNumbers;
+    }
+
+    function showNextNumbers() {
+        if (reactionTimes.length + missedAttempts >= totalTrials) {
+            endTest();
+            return;
+        }
+
+        if (timeoutId) clearTimeout(timeoutId);
+        generateNumbers();
+        numbersElement.textContent = currentNumbers.join(' ');
+        startTime = Date.now();
+
+        evenBtn.classList.add('active');
+        oddBtn.classList.add('active');
+
+        timeoutId = setTimeout(() => {
+            handleMissedAttempt();
+        }, 5000);
+    }
+
+    function handleMissedAttempt() {
+        if (!testActive) return;
+
+        missedAttempts++;
+        numbersElement.textContent = '';
+        evenBtn.classList.remove('active');
+        oddBtn.classList.remove('active');
+
+        setTimeout(() => {
+            showNextNumbers();
+        }, 1000);
+    }
+
+    function handleAnswer(isEven) {
+        if (!testActive || !evenBtn.classList.contains('active')) return;
+
+        clearTimeout(timeoutId);
+        const sum = currentNumbers[0] + currentNumbers[1];
+        const reactionTime = Date.now() - startTime;
+        reactionTimes.push(reactionTime);
+
+        if ((sum % 2 === 0) === isEven) {
+            correctAnswers++;
+        } else {
+            wrongAnswers++;
+        }
+
+        numbersElement.textContent = '';
+        evenBtn.classList.remove('active');
+        oddBtn.classList.remove('active');
+
+        setTimeout(() => {
+            showNextNumbers();
+        }, 1000);
+    }
+
+    function saveTestResults(averageReactionTime, standardDeviation, correctAnswers, wrongAnswers, missedAttempts, accuracy) {
+        const login = "<%= login %>"; // Логин пользователя из EJS
+
+        fetch('http://localhost:3000/api/test_digital_signal', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                login: login,
+                averageReactionTime: averageReactionTime,
+                standardDeviation: standardDeviation,
+                correctAnswers: correctAnswers,
+                wrongAnswers: wrongAnswers,
+                missedAttempts: missedAttempts,
+                accuracy: accuracy
+            }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Результаты теста успешно сохранены!");
+                } else {
+                    alert("Ошибка при сохранении результатов: " + data.message);
+                }
+            })
+            .catch(error => {
+                alert("Ошибка сети: " + error.message);
+            });
+    }
+
+    function endTest() {
+        testActive = false;
+        startBtn.disabled = false;
+        evenBtn.style.display = 'none';
+        oddBtn.style.display = 'none';
+        showResults();
+
+        // Сохраняем результаты теста на сервере
+        const average = reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length || 0;
+        const variance = reactionTimes.reduce((a, b) => a + Math.pow(b - average, 2), 0) / reactionTimes.length || 0;
+        const stdDev = Math.sqrt(variance);
+        const accuracy = (correctAnswers / totalTrials) * 100;
+
+        saveTestResults(average, stdDev, correctAnswers, wrongAnswers, missedAttempts, accuracy);
+    }
+
+    function showResults() {
+        const average = reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length || 0;
+        const variance = reactionTimes.reduce((a, b) => a + Math.pow(b - average, 2), 0) / reactionTimes.length || 0;
+        const stdDev = Math.sqrt(variance);
+
+        resultsElement.innerHTML = `
+                <h3>Результаты теста:</h3>
+                <p>Среднее время реакции: ${average.toFixed(2)} мс</p>
+                <p>Стандартное отклонение: ${stdDev.toFixed(2)} мс</p>
+                <p>Правильные ответы: ${correctAnswers}</p>
+                <p>Ошибки: ${wrongAnswers}</p>
+                <p>Пропущенные попытки: ${missedAttempts}</p>
+                <p>Точность: ${((correctAnswers / totalTrials) * 100).toFixed(1)}%</p>
+            `;
+        resultsElement.style.display = 'block';
+    }
+
+    startBtn.addEventListener('click', startTest);
+    evenBtn.addEventListener('click', () => handleAnswer(true));
+    oddBtn.addEventListener('click', () => handleAnswer(false));
+</script>
+</body>
+</html>
