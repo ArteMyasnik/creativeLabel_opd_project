@@ -105,12 +105,12 @@
                     profileButton.style.display = 'inline-block';
                     loginButton.style.display = 'none';
                     logoutButton.style.display = 'inline-block';
-                    if (data.isAdmin) {
-                        expertButton.style.display = 'inline-block';
-                        ratingButton.style.display = 'inline-block';
-                    }
                     if (data.isExpert) {
                         expertButton.style.display = 'none';
+                        ratingButton.style.display = 'inline-block';
+                    }
+                    if (data.isAdmin) {
+                        expertButton.style.display = 'inline-block';
                         ratingButton.style.display = 'inline-block';
                     }
                 } else {

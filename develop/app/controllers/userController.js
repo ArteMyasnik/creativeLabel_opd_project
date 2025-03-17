@@ -133,6 +133,7 @@ class UserController {
             } else {
                 // Сохраняем данные пользователя в сессии
                 req.session.login = login;
+                req.session.isExpert = false;
                 const isAdmin = await comparePassword('adminPassword123!!!', hashedPassword);
                 if (isAdmin) {
                     const registrationUser = await pool.query(
@@ -160,7 +161,7 @@ class UserController {
             const {login, password} = req.body;
 
             const result = await pool.query(
-                `SELECT password_hash, isAdmin FROM users WHERE login = $1`,
+                `SELECT password_hash, isAdmin, isExpert FROM users WHERE login = $1`,
                 [login]
             );
 
@@ -172,6 +173,7 @@ class UserController {
                 // Сохраняем данные пользователя в сессии
                 req.session.login = login;
                 req.session.isAdmin = result.rows[0].isadmin; // Сохраняем роль пользователя
+                req.session.isExpert = result.rows[0].isexpert; // Сохраняем роль пользователя
                 res.status(200).json({message: 'Вход выполнен успешно', user: login});
             }
         } catch (err) {
