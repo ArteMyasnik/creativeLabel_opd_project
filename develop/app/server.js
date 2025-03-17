@@ -35,7 +35,16 @@ app.get('/main', async (req, res) => {
         const login = req.session.login || null;
         const isAdmin = req.session.isAdmin || false;
         const user = await pool.query('SELECT * FROM users WHERE login = $1', [login]);
-        res.render('main_page', {login, isAdmin, isExpert});
+        console.log(user);
+        if (user.rows.length === 0) {
+            const isExpert = false;
+            console.log(login, isAdmin, isExpert);
+            res.render('main_page', {login, isAdmin, isExpert});
+        } else {
+            const isExpert = user.rows[0].isexpert;
+            console.log(login, isAdmin, isExpert);
+            res.render('main_page', {login, isAdmin, isExpert});
+        }
     } catch (err) {
         console.error('Ошибка при получении данных пользователя:', err);
         res.status(500).send('Ошибка сервера');
@@ -66,7 +75,8 @@ app.post('/login', (req, res) => {
 app.get('/check-auth', (req, res) => {
     res.json({
         isAdmin: !!req.session.isAdmin,
-        login: req.session.login || null
+        login: req.session.login || null,
+        isExpert: !!req.session.isExpert
     });
 });
 
