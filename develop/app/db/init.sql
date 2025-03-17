@@ -44,7 +44,8 @@ CREATE TABLE professions
 (
     id          SERIAL PRIMARY KEY,
     name        VARCHAR(255) NOT NULL UNIQUE,
-    description TEXT
+    description TEXT,
+    expert_count INT DEFAULT 0
 );
 
 -- Создание таблицы profession_pvk (Связь профессий и PVK)
@@ -52,8 +53,9 @@ CREATE TABLE profession_pvk
 (
     id            SERIAL PRIMARY KEY,
     profession_id INT REFERENCES professions (id) ON DELETE CASCADE,
+    user_id       INT REFERENCES users (id) ON DELETE CASCADE,
     pvk_id        INT REFERENCES pvks (id) ON DELETE CASCADE,
-    mark        INT[],
+    mark          INT,
     UNIQUE (profession_id, pvk_id)
 );
 
