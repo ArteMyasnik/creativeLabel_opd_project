@@ -109,6 +109,10 @@
                         expertButton.style.display = 'inline-block';
                         ratingButton.style.display = 'inline-block';
                     }
+                    if (data.isExpert) {
+                        expertButton.style.display = 'none';
+                        ratingButton.style.display = 'inline-block';
+                    }
                 } else {
                     loginButton.style.display = 'inline-block';
                     logoutButton.style.display = 'none';

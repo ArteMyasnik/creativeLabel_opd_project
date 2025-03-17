@@ -111,12 +111,14 @@
     const evaluationButton1 = document.getElementById('evaluationButton1');
     const evaluationButton2 = document.getElementById('evaluationButton2');
     const evaluationButton3 = document.getElementById('evaluationButton3');
-    const isAdmin = sessionStorage.getItem('isAdmin');
+    const isAdmin = "<% isAdmin %>";
+    const login = "<% login %>";
+    const isExpert = "<% isExpert %>";
     // Проверка статуса авторизации
     fetch('http://localhost:3000/check-auth')
         .then(response => response.json())
         .then(data => {
-            if (data.isAdmin) {
+            if (data.isAdmin || data.isExpert) {
                 evaluationButton1.style.display = 'block';
                 evaluationButton2.style.display = 'block';
                 evaluationButton3.style.display = 'block';
