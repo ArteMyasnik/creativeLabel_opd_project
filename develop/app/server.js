@@ -261,6 +261,11 @@ app.get('/test_digital_signal', (req, res) => {
     const login = req.session.login || null;
     res.render('tests/test_digital_signal', { login });
 });
+
+app.get('/test_simple_rdo', (req, res) => {
+    const login = req.session.login || null;
+    res.render('tests/test_simple_rdo', { login });
+});
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------
 
