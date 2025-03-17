@@ -8,7 +8,6 @@ const PORT = process.env.PORT || 3000;
 const pool = require('./db/db');
 const crypto = require('crypto');
 
-
 const secretKey = crypto.randomBytes(64).toString('hex');
 
 app.use(session({
@@ -31,15 +30,16 @@ app.get("/", (req, res) => {
     res.send('Перейдите по ссылке справа http://localhost:3000/main');
 });
 // Main ------------------------------------------------------------------------------------
-// app.get('/main', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'public/frontend/Pages', 'main_page.html'));
-// });
-
-app.get('/main', (req, res) => {
-    const login = req.session.login || null;
-    const isAdmin = req.session.isAdmin || false;
-    console.log(login, isAdmin);
-    res.render('main_page', { login, isAdmin });
+app.get('/main', async (req, res) => {
+    try {
+        const login = req.session.login || null;
+        const isAdmin = req.session.isAdmin || false;
+        const user = await pool.query('SELECT * FROM users WHERE login = $1', [login]);
+        res.render('main_page', {login, isAdmin, isExpert});
+    } catch (err) {
+        console.error('Ошибка при получении данных пользователя:', err);
+        res.status(500).send('Ошибка сервера');
+    }
 });
 // -----------------------------------------------------------------------------------------
 // Registration and login ------------------------------------------------------------------
@@ -105,11 +105,6 @@ app.put('/profile/:login/update-password', (req, res) => {
 //     const { login } = req.params;
 //     const { email } = req.body;
 //     res.status(200).json({ message: 'Логин обновлен успешно!' });
-// });
-
-// app.get('/profile/:login', (req, res) => {
-//     const { login } = req.params;
-//     res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'profile.html'));
 // });
 
 app.get('/profile/:login', async (req, res) => {
@@ -195,10 +190,6 @@ app.get('/developers', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'developers.html'));
 });
 
-// app.get('/pvk', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'pvk.html'));
-// });
-
 app.get('/pvk', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM pvks');
@@ -209,10 +200,6 @@ app.get('/pvk', async (req, res) => {
         res.status(500).send('Ошибка сервера');
     }
 });
-
-// app.get('/experts', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'experts.html'));
-// });
 
 app.get('/experts', async (req, res) => {
     try {
@@ -230,15 +217,12 @@ app.put('/experts', (req, res) => {
     res.status(200).json({ message: 'Логин обновлен успешно!' });
 });
 
-// app.get('/professions_rating', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'professions_rating.html'));
-// });
-
 app.get('/professions_rating', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM pvks');
         const pvks = result.rows;
-        res.render('professions_rating', { pvks: pvks });
+        const isExpert = await pool.query('SELECT isExpert from users WHERE login = $1, [login]')
+        res.render('professions_rating', { pvks: pvks, isAdmin: !!req.session.isAdmin, login: req.session.login || null, isExpert: isExpert });
     } catch (err) {
         console.error('Ошибка при выполнении запроса:', err);
         res.status(500).send('Ошибка сервера');
@@ -253,27 +237,15 @@ app.get('/results', (req, res) => {
 
 // -----------------------------------------------------------------------------------------
 // Pages HTML tests ------------------------------------------------------------------------
-// app.get('/test_visual_signal', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'public/frontend/Pages/tests', 'test_visual_signal.html'));
-// });
-
 app.get('/test_visual_signal', (req, res) => {
     const login = req.session.login || null;
     res.render('tests/test_visual_signal', { login });
 });
 
-// app.get('/test_color_signal', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'public/frontend/Pages/tests', 'test_color_signal.html'));
-// });
-
 app.get('/test_color_signal', (req, res) => {
     const login = req.session.login || null;
     res.render('tests/test_color_signal', { login });
 });
-
-// app.get('/test_digital_signal', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'public/frontend/Pages/tests', 'test_digital_signal.html'));
-// });
 
 app.get('/test_digital_signal', (req, res) => {
     const login = req.session.login || null;
