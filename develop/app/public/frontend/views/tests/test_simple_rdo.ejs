@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест реакции</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f5f5dc;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        #test-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            background: brown;
+            border-radius: 50%;
+            border: 3px solid black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #divider {
+            position: absolute;
+            width: 3px;
+            height: 100%;
+            background: black;
+        }
+
+        .side {
+            position: absolute;
+            width: 50%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: white;
+        }
+
+        #left-side {
+            left: 0;
+        }
+
+        #right-side {
+            right: 0;
+        }
+
+        #ball {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: red;
+            border-radius: 50%;
+            top: 10px;
+        }
+
+        #star {
+            position: absolute;
+            top: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 30px;
+            color: gold;
+        }
+
+        button {
+            margin: 5px;
+            padding: 10px 15px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        /* Таблица результатов */
+        #results {
+            width: 90%;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        table, th, td {
+            border: 1px solid #000;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .result-block {
+            margin-top: 20px;
+            text-align: left;
+            width: 100%;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+<div id="test-container">
+    <div id="divider"></div>
+    <div id="left-side" class="side">+</div>
+    <div id="right-side" class="side">-</div>
+    <div id="ball"></div>
+    <div id="star">★</div>
+</div>
+<div>
+    <button onclick="startTest()">Начать тест</button>
+    <button onclick="stopTest()">Нажмите на кнопку</button>
+</div>
+<div id="results"></div>
+
+<script>
+    // Массив для хранения результатов каждой попытки:
+    // Каждый элемент: { attempt, signedError, absoluteError }
+    let results = [];
+    let testRunning = false;
+    let angle = 180;
+    let interval;
+    const radius = 130;
+    const centerX = 150, centerY = 150;
+    let stoppedAngle = null;
+    let startTime;
+    let bestResult = null;
+    let testTimeout;
+    const starAngle = 90; // Целевой угол
+
+    function startTest() {
+        if (testRunning) return;
+        testRunning = true;
+        angle = 180;
+        stoppedAngle = null;
+        startTime = Date.now();
+        bestResult = null;
+        results = [];
+        document.getElementById("results").innerHTML = "";
+        clearInterval(interval);
+        clearTimeout(testTimeout);
+        interval = setInterval(moveBall, 20);
+
+        testTimeout = setTimeout(() => {
+            clearInterval(interval);
+            testRunning = false;
+            showFinalResults();
+        }, 120000); // Завершить тест через 2 минуты
+    }
+
+    function moveBall() {
+        // Если тест приостановлен (пользователь уже нажал кнопку), не обновляем позицию
+        if (stoppedAngle !== null) return;
+        let ball = document.getElementById("ball");
+        let radian = angle * (Math.PI / 180);
+        let x = centerX + radius * Math.cos(radian);
+        let y = centerY - radius * Math.sin(radian);
+        ball.style.left = x + "px";
+        ball.style.top = y + "px";
+        angle -= 2;
+
+        // Если угол стал меньше 0, сбрасываем его для непрерывного движения
+        if (angle < 0) {
+            angle = 360;
+        }
+    }
+
+    function stopTest() {
+        // Если тест не запущен или уже остановлен, выходим
+        if (!testRunning || stoppedAngle !== null) return;
+        stoppedAngle = angle;
+        clearInterval(interval);
+        // Вычисляем подписанную ошибку: разница между текущим углом и целевым
+        let signedError = stoppedAngle - starAngle;
+        let absoluteError = Math.abs(signedError);
+
+        // Сохраняем результат
+        results.push({
+            attempt: results.length + 1,
+            signedError: signedError,
+            absoluteError: absoluteError
+        });
+
+        if (bestResult === null || absoluteError < bestResult) {
+            bestResult = absoluteError;
+        }
+
+        // Если время теста ещё не истекло, возобновляем движение через 1 секунду
+        if (Date.now() - startTime < 120000) {
+            setTimeout(() => {
+                stoppedAngle = null;
+                interval = setInterval(moveBall, 20);
+            }, 1000);
+        } else {
+            testRunning = false;
+            showFinalResults();
+        }
+    }
+
+    // Функции для вычисления среднего и стандартного отклонения
+    function average(arr) {
+        if (arr.length === 0) return 0;
+        return arr.reduce((sum, val) => sum + val, 0) / arr.length;
+    }
+
+    function stdDeviation(arr) {
+        if (arr.length === 0) return 0;
+        let avg = average(arr);
+        let squareDiffs = arr.map(val => Math.pow(val - avg, 2));
+        let avgSquareDiff = average(squareDiffs);
+        return Math.sqrt(avgSquareDiff);
+    }
+
+    function showFinalResults() {
+        let resultDiv = document.getElementById("results");
+        let html = "<h2>Результаты теста</h2>";
+
+        if (results.length === 0) {
+            html += "<p>Нет результатов.</p>";
+            resultDiv.innerHTML = html;
+            return;
+        }
+
+        // Подготовка данных для агрегированных показателей
+        let premature = results.filter(r => r.signedError > 0).map(r => r.signedError);
+        let delayed = results.filter(r => r.signedError < 0).map(r => r.signedError);
+        let absErrors = results.map(r => r.absoluteError);
+        let avgPremature = premature.length ? average(premature).toFixed(2) : "N/A";
+        let avgDelayed = delayed.length ? average(delayed).toFixed(2) : "N/A";
+        let avgAbsolute = average(absErrors).toFixed(2);
+        let stdAbs = stdDeviation(absErrors).toFixed(2);
+        let stdSigned = stdDeviation(results.map(r => r.signedError)).toFixed(2);
+
+        // Определяем знак ответа по среднему подписанному значению
+        let avgSigned = average(results.map(r => r.signedError));
+        let signResponse = avgSigned > 0 ? "+" : (avgSigned < 0 ? "–" : "0");
+
+        // Таблица с результатами каждой попытки
+        html += `<table>
+                <tr>
+                  <th>Попытка</th>
+                  <th>Подписанная ошибка (°)</th>
+                  <th>Абсолютная ошибка (°)</th>
+                </tr>`;
+        results.forEach(r => {
+            // Отображаем знак непосредственно: если ошибка положительная – это преждевременный ответ, если отрицательная – запаздывание
+            let sign = r.signedError > 0 ? "+" : (r.signedError < 0 ? "–" : "0");
+            html += `<tr>
+                  <td>${r.attempt}</td>
+                  <td>${sign} ${Math.abs(r.signedError).toFixed(2)}</td>
+                  <td>${r.absoluteError.toFixed(2)}</td>
+                </tr>`;
+        });
+        html += `</table>`;
+
+        // Блок агрегированных показателей
+        html += `<div class="result-block">
+                <h3>Оценка:</h3>
+                <p><strong>1. Точность ответов:</strong></p>
+                <ul>
+                  <li>Время преждевременного ответа (знак "+"): ${avgPremature}</li>
+                  <li>Время запаздывания ответа (знак "–"): ${avgDelayed}</li>
+                </ul>
+                <p><strong>2. Значение по модулю:</strong> ${avgAbsolute}°</p>
+                <p><strong>3. Знак ответа:</strong> ${signResponse}</p>
+                <p><strong>4. Стандартное отклонение (абсолютное):</strong> ${stdAbs}</p>
+                <p><strong>5. Стандартное отклонение (с учётом знака):</strong> ${stdSigned}</p>
+              </div>`;
+
+        resultDiv.innerHTML = html;
+    }
+</script>
+</body>
+</html>
