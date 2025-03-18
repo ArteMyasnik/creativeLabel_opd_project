@@ -116,7 +116,6 @@ class UserController {
     //         res.status(500).json({ message: "Server error" });
     //     }
     // }
-
     // }
 
     async registration(req, res) {
@@ -424,6 +423,58 @@ class UserController {
             const { login, averageReactionTime, standardDeviation, correctAnswers, wrongAnswers, missedAttempts, accuracy } = req.body;
 
             console.log(login, averageReactionTime, standardDeviation, correctAnswers, wrongAnswers, missedAttempts, accuracy)
+
+            // Сохраняем результаты теста в базу данных
+            // const result = await pool.query(
+            //     'INSERT INTO reaction_tests (login, average_time, std_dev, missed_signals) VALUES ($1, $2, $3, $4) RETURNING *',
+            //     [login, averageTime, stdDev, missedSignals]
+            // );
+
+            res.status(200).json({
+                success: true,
+                message: 'Результаты теста успешно сохранены',
+                data: result.rows[0]
+            });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json({
+                success: false,
+                message: "Ошибка сервера"
+            });
+        }
+    }
+
+    async testSimpleRdo(req, res) {
+        try {
+            const { login, avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned } = req.body;
+
+            console.log(login, avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned)
+
+            // Сохраняем результаты теста в базу данных
+            // const result = await pool.query(
+            //     'INSERT INTO reaction_tests (login, average_time, std_dev, missed_signals) VALUES ($1, $2, $3, $4) RETURNING *',
+            //     [login, averageTime, stdDev, missedSignals]
+            // );
+
+            res.status(200).json({
+                success: true,
+                message: 'Результаты теста успешно сохранены',
+                data: result.rows[0]
+            });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json({
+                success: false,
+                message: "Ошибка сервера"
+            });
+        }
+    }
+
+    async testComplexRdo(req, res) {
+        try {
+            const { login, circle1, circle2, circle3, overall } = req.body;
+
+            console.log(login, circle1, circle2, circle3, overall)
 
             // Сохраняем результаты теста в базу данных
             // const result = await pool.query(

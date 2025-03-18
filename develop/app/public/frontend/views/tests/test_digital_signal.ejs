@@ -4,17 +4,23 @@
     <meta charset="UTF-8">
     <title>Тест на чётность суммы</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
         body {
             text-align: center;
             font-family: Arial, sans-serif;
             margin: 50px;
+            background-color: black;
+            font-family: Montserrat;
+            color: white;
         }
         .numbers {
             font-size: 80px;
             margin: 30px;
             letter-spacing: 20px;
-            color: #2c3e50;
+            color: #007ffd;
             min-height: 120px;
+            font-family: Montserrat;
         }
         button {
             padding: 15px 30px;
@@ -25,15 +31,17 @@
             border-radius: 5px;
         }
         #startBtn {
-            background: #27ae60;
+            background: #479C92;
             color: white;
+            font-family: Montserrat;
         }
         .answerBtn {
-            background: #3498db;
+            background: #479C92;
             color: white;
             opacity: 0.5;
             transition: opacity 0.3s;
             display: none;
+            font-family: Montserrat;
         }
         .active {
             opacity: 1;
@@ -43,6 +51,10 @@
             margin-top: 30px;
             font-size: 18px;
             display: none;
+            font-family: Montserrat;
+        }
+        .disabled{
+            opacity:0.5;
         }
     </style>
 </head>

@@ -35,7 +35,6 @@ app.get('/main', async (req, res) => {
         const login = req.session.login || null;
         const isAdmin = req.session.isAdmin || false;
         const user = await pool.query('SELECT * FROM users WHERE login = $1', [login]);
-        console.log(user);
         if (user.rows.length === 0) {
             const isExpert = false;
             console.log(login, isAdmin, isExpert);
@@ -231,8 +230,7 @@ app.get('/professions_rating', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM pvks');
         const pvks = result.rows;
-        const isExpert = await pool.query('SELECT isExpert from users WHERE login = $1, [login]')
-        res.render('professions_rating', { pvks: pvks, isAdmin: !!req.session.isAdmin, login: req.session.login || null, isExpert: isExpert });
+        res.render('professions_rating', { pvks: pvks, isAdmin: !!req.session.isAdmin, login: req.session.login || null, isExpert: !!req.session.isExpert });
     } catch (err) {
         console.error('Ошибка при выполнении запроса:', err);
         res.status(500).send('Ошибка сервера');
@@ -265,6 +263,10 @@ app.get('/test_digital_signal', (req, res) => {
 app.get('/test_simple_rdo', (req, res) => {
     const login = req.session.login || null;
     res.render('tests/test_simple_rdo', { login });
+});
+app.get('/test_complex_rdo', (req, res) => {
+    const login = req.session.login || null;
+    res.render('tests/test_complex_rdo', { login });
 });
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------

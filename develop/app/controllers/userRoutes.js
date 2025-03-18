@@ -24,6 +24,10 @@ router.post('/test_visual_signal', UserController.testVisualSignal);
 router.post('/test_color_signal', UserController.testColorSignal);
 // Тест на звук
 router.post('/test_digital_signal', UserController.testDigitalSignal);
+// Тест на реакцию(шарик)
+router.post('/test_simple_rdo', UserController.testSimpleRdo);
+// Тест на реакцию(шарик)
+router.post('/test_complex_rdo', UserController.testComplexRdo);
 
 // router.get('/user/:id', UserController.getOneUser);
 // router.get('/user', UserController.getUsers);

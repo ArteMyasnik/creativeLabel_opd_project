@@ -5,16 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Тест реакции</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
         body {
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            font-family: Arial, sans-serif;
+            font-family: Montserrat;
             text-align: center;
             flex-direction: column;
             position: relative;
+            background-color: black;
+            color: white;
         }
         #signal {
             width: 100px;
@@ -33,13 +37,34 @@
             padding: 10px 20px;
             font-size: 18px;
             cursor: pointer;
+            font-family: Montserrat;
+            background: #479C92;
+            color: white;
+            border-color: #479C92;
+            border-radius: 10px;
         }
         #results {
             display: none;
             margin-top: 20px;
+            font-family: Montserrat;
         }
         h1, p {
             margin: 10px 0;
+            font-family: Montserrat;
+        }
+
+        #startButton {
+            background: #479C92;
+            color: white;
+            font-family: Montserrat;
+            border-color: #479C92;
+            border-radius: 10px;
+            font-size: 18px;
+
+
+        }
+        .disabled{
+            opacity:0.5;
         }
     </style>
 </head>
