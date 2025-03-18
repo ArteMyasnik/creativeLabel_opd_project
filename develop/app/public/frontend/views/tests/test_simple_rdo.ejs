@@ -402,6 +402,39 @@
               </div>`;
 
         resultDiv.innerHTML = html;
+
+        saveReactionBallResults(avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned);
+    }
+
+    function saveReactionBallResults(avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned) {
+        const login = "<%= login %>";
+
+        fetch('http://localhost:3000/api/test_simple_rdo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                login: login,
+                avgPremature: avgPremature,
+                avgDelayed: avgDelayed,
+                avgAbsolute: avgAbsolute,
+                signResponse: signResponse,
+                stdAbs: stdAbs,
+                stdSigned: stdSigned
+            }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Результаты теста успешно сохранены!");
+                } else {
+                    alert("Ошибка при сохранении результатов: " + data.message);
+                }
+            })
+            .catch(error => {
+                alert("Ошибка сети: " + error.message);
+            });
     }
 </script>
 </body>

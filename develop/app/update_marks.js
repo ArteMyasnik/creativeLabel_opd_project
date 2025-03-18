@@ -40,7 +40,7 @@ await pool.query(insertQuery, [professionId, pvkId, mark]);
 
 }
 
-console.log('Оценки успешно добавлены!хуйпиздахуйпизда');
+console.log('Оценки успешно добавлены!');
 } catch (error) {
 console.error('Ошибка при добавлении оценок:', error);
 } 

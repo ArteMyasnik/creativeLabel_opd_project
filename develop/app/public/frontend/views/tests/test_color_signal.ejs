@@ -5,14 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Тест на сенсомоторную реакцию</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: Montserrat;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             margin: 0;
+            background-color: black;
+            color: white;
+
         }
         .signal {
             width: 200px;
@@ -27,6 +32,12 @@
         .button {
             width: 100px;
             height: 50px;
+            background-color: #479C92; /* Цвет кнопок */
+            color: white; /* Белый текст на кнопках */
+            border-color: #479C92;
+            border-radius: 10px;
+            font-family: Montserrat;
+            opacity: 0.96;
         }
         .button.disabled {
             opacity: 0.5;
@@ -42,6 +53,29 @@
             width: 300px;
             text-align: center;
         }
+        h1 {
+            color: white;
+            font-family: 'Montserrat', Arial, sans-serif;
+        }
+
+        #startButton {
+            margin-top: 20px; /* Отступ сверху для кнопки "Начать тест" */
+            background-color: #479C92; /* Цвет кнопки */
+            color: white; /* Белый текст */
+            border: none;
+            border-radius: 10px; /* Закругление углов */
+            padding: 10px 20px;
+            font-family: 'Montserrat', Arial, sans-serif; /* Шрифт Montserrat */
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #startButton.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+
     </style>
 </head>
 <body>
