@@ -125,6 +125,14 @@ html, body {
     transition: all 0.7s ease;
 }
 
+.expert-label {
+    color: green; /* Цвет текста */
+    font-weight: bold; /* Жирный шрифт */
+    font-size: 18px; /* Размер текста (можно увеличить или уменьшить) */
+    margin-top: 10px; /* Отступ сверху */
+    text-transform: uppercase; /* Опционально: сделать текст заглавными буквами */
+}
+
 .expert-card:hover {
     background-color: #2d5e58;
     transform: scale(1.05);
@@ -142,3 +150,4 @@ html, body {
     margin-top: 15px;
     width: 100%;
 }
+

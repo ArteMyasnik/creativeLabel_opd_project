@@ -86,7 +86,6 @@ app.post('/logout', (req, res) => {
             return res.status(500).json({ message: 'Ошибка сервера' });
         }
         const checkMessage = "Выход из системы";
-        console.log(checkMessage);
         res.status(200).json({ message: 'Выход выполнен успешно!' });
     });
 });
@@ -212,9 +211,10 @@ app.get('/pvk', async (req, res) => {
 
 app.get('/experts', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM users');
-        const users = result.rows;
-        res.render('experts', { users: users });
+        const users = await pool.query('SELECT * FROM users');
+        const experts = await pool.query('SELECT * FROM users WHERE isExpert = true');
+        const expertCount = experts.rows.length;
+        res.render('experts', { users: users.rows, expertCount });
     } catch (err) {
         console.error('Ошибка при выполнении запроса:', err);
         res.status(500).send('Ошибка сервера');

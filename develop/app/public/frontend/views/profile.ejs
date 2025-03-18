@@ -18,9 +18,9 @@
         <h2>Мой профиль</h2>
         <p>Логин: <%= login %></p>
         <p>Почта: <%= email %></p>
-        <p>Пол: <%= sex %> <button onclick="editSex()">Изменить</button></p>
-        <p>Возраст: <%= age %> <button onclick="editAge()">Изменить</button></p>
-        <button onclick="changePassword()">Изменить пароль</button>
+        <p>Пол: <%= sex %> <button class="edit-button" onclick="editSex()">Изменить</button></p>
+        <p>Возраст: <%= age %> <button class="edit-button" onclick="editAge()">Изменить</button></p>
+        <button class="edit-button" onclick="changePassword()">Изменить пароль</button>
     </div>
     <div class="testResults">
         <h2>Результаты тестов</h2>
@@ -97,6 +97,26 @@
             currentDropdown.style.display = 'flex';
         }
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const profileLogin = "<%= login %>"; // Логин профиля, который просматривается
+
+        // Проверка статуса авторизации
+        fetch('http://localhost:3000/check-auth')
+            .then(response => response.json())
+            .then(data => {
+                if (data.login !== profileLogin) {
+                    // Если логин не совпадает, скрываем кнопки редактирования
+                    const editButtons = document.querySelectorAll('.edit-button');
+                    editButtons.forEach(button => {
+                        button.style.display = 'none';
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при проверке авторизации:', error);
+            });
+    });
 
     // <button onclick="editEmail()">Изменить</button>
     // function editEmail() {

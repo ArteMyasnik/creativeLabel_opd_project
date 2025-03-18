@@ -21,7 +21,12 @@
             <div class="expert-card">
                 <img src="..\Images/developer.jpg" alt="Эксперт <%= user.id %>">
                 <div class="expert-name"><%= user.login %></div>
-                <button class="assign-button" userLogin="<%= user.login %>">Назначить экспертом</button>
+
+                <% if (user.isexpert) { %>
+                    <div class="expert-label">Эксперт</div>
+                <% } else if (expertCount < 8) { %>
+                    <button class="assign-button" userLogin="<%= user.login %>">Назначить экспертом</button>
+                <% } %>
             </div>
         <% }); %>
     </div>
@@ -60,6 +65,25 @@
                 const userLogin = this.getAttribute('userLogin');
                 assignExpert(userLogin); // Вызов функции для назначения эксперта
             });
+        });
+
+        document.getElementById('reset-experts-button').addEventListener('click', function () {
+            fetch('http://localhost:3000/api/experts/reset', {
+                method: 'POST',
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === 'Эксперты сброшены') {
+                        alert('Все эксперты сброшены.');
+                        window.location.reload();
+                    } else {
+                        alert('Ошибка при сбросе экспертов.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert('Произошла ошибка при отправке запроса.');
+                });
         });
 
 
