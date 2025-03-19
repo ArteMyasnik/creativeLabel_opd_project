@@ -18,14 +18,6 @@ async function comparePassword(password, hashedPassword) {
     return await bcryptjs.compare(password, hashedPassword);
 }
 
-async function getUserByLogin(login) {
-    const user = await pool.query('SELECT id FROM users WHERE login = $1', [login]);
-    if (user.rows.length === 0) {
-        throw new Error('Пользователь с таким логином не найден');
-    }
-    return user.rows[0].id;
-}
-
 class UserController {
     // async createUser(req, res) {
     //     try {
@@ -606,6 +598,64 @@ class UserController {
         }
     }
 
+    // async saveProfessionsRating(req, res) {
+    //     try {
+    //         const {professionName, professionDescription, userlogin, finalOrder} = req.body;
+    //         const checkProfession = await pool.query(
+    //             'SELECT COUNT(*) FROM professions WHERE name = $1',
+    //             [professionName]
+    //         );
+    //
+    //         if (checkProfession.rows.length === 0) {
+    //             const insertProfession = await pool.query(
+    //                 'INSERT INTO professions (name, description) VALUES ($1, $2) RETURNING *',
+    //                 [professionName, professionDescription]
+    //             );
+    //         } else {
+    //             // Увеличиваем счётчик экспертов для профессии
+    //             const updateProfessionQuery = await pool.query(
+    //                 'UPDATE professions SET expert_count = expert_count + 1 WHERE id = $1',
+    //                 [professionName]
+    //             );
+    //         }
+    //
+    //
+    //         // Проходим по каждому качеству и его оценке
+    //         for (const pvkMark of pvkMarks) {
+    //             const {pvkId, mark} = pvkMark;
+    //
+    //             // Проверяем, существует ли запись для данной профессии и PVK
+    //             const checkResult = await pool.query('SELECT mark FROM profession_pvk WHERE profession_id = $1 AND pvk_id = $2 AND user_id = $3',
+    //                 [professionId, pvkId, userId]
+    //             );
+    //
+    //             if (checkResult.rows.length > 0) {
+    //                 // Если запись существует, обновляем оценку
+    //                 const updateQuery = `
+    //                     UPDATE profession_pvk
+    //                     SET mark = $1
+    //                     WHERE profession_id = $2
+    //                       AND pvk_id = $3
+    //                       AND user_id = $4;
+    //                 `;
+    //                 await pool.query(updateQuery, [mark, professionId, pvkId, userId]);
+    //             } else {
+    //                 // Если записи нет, создаем новую запись
+    //                 const insertQuery = `
+    //                     INSERT INTO profession_pvk (profession_id, pvk_id, user_id, mark)
+    //                     VALUES ($1, $2, $3, $4);
+    //                 `;
+    //                 await pool.query(insertQuery, [professionId, pvkId, userId, mark]);
+    //             }
+    //         }
+    //
+    //         res.status(200).json({message: 'Оценки успешно добавлены!'});
+    //     } catch (error) {
+    //         console.error('Ошибка при добавлении оценок:', error);
+    //         res.status(500).json({message: 'Ошибка сервера'});
+    //     }
+    // }
+
     // async calculateStats(req, res) {
     //     try {
     //         const { professionId, pvkId } = req.body;
@@ -649,53 +699,8 @@ class UserController {
     //     }
     // }
     //
-    // async addPvkMarks(req, res) {
-    //     try {
-    //         const { professionId, userId, pvkMarks } = req.body;
-    //
-    //         // Увеличиваем счётчик экспертов для профессии
-    //         const updateProfessionQuery = `
-    //         UPDATE professions
-    //         SET expert_count = expert_count + 1
-    //         WHERE id = $1;
-    //     `;
-    //         await pool.query(updateProfessionQuery, [professionId]);
-    //
-    //         // Проходим по каждому качеству и его оценке
-    //         for (const pvkMark of pvkMarks) {
-    //             const { pvkId, mark } = pvkMark;
-    //
-    //             // Проверяем, существует ли запись для данной профессии и PVK
-    //             const checkQuery = `
-    //             SELECT mark FROM profession_pvk
-    //             WHERE profession_id = $1 AND pvk_id = $2 AND user_id = $3;
-    //         `;
-    //             const checkResult = await pool.query(checkQuery, [professionId, pvkId, userId]);
-    //
-    //             if (checkResult.rows.length > 0) {
-    //                 // Если запись существует, обновляем оценку
-    //                 const updateQuery = `
-    //                 UPDATE profession_pvk
-    //                 SET mark = $1
-    //                 WHERE profession_id = $2 AND pvk_id = $3 AND user_id = $4;
-    //             `;
-    //                 await pool.query(updateQuery, [mark, professionId, pvkId, userId]);
-    //             } else {
-    //                 // Если записи нет, создаем новую запись
-    //                 const insertQuery = `
-    //                 INSERT INTO profession_pvk (profession_id, pvk_id, user_id, mark)
-    //                 VALUES ($1, $2, $3, $4);
-    //             `;
-    //                 await pool.query(insertQuery, [professionId, pvkId, userId, mark]);
-    //             }
-    //         }
-    //
-    //         res.status(200).json({ message: 'Оценки успешно добавлены!' });
-    //     } catch (error) {
-    //         console.error('Ошибка при добавлении оценок:', error);
-    //         res.status(500).json({ message: 'Ошибка сервера' });
-    //     }
-    // }
+
+
 }
 
 module.exports = new UserController();
