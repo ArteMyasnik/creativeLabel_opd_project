@@ -27,6 +27,28 @@ body::before {
     pointer-events: none;
 }
 
+#orderModal .modal-content {
+    max-width: 500px;
+}
+
+#orderedList {
+    list-style-type: none;
+    padding: 0;
+    width: 100%;
+}
+
+#orderedList li {
+    padding: 10px;
+    background-color: #444;
+    margin: 5px 0;
+    border-radius: 5px;
+    cursor: grab;
+}
+
+#orderedList li:hover {
+    background-color: #555;
+}
+
 /* Стили для контейнера кнопок */
 .button-container {
     padding-top: 10px;
@@ -106,7 +128,7 @@ body::before {
 .modal {
     display: none;
     position: fixed;
-    z-index: 1;
+    z-index: 1000; /* Убедитесь, что это значение выше других элементов */
     left: 0;
     top: 0;
     width: 100%;
