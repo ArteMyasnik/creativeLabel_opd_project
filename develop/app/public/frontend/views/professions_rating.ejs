@@ -21,10 +21,10 @@
     <div class="button-group">
         <button class="make_button" id="professionButton1" onclick="openModal('professionButton1')">Создать профессию</button>
         <button id='evaluationButton1' class="evaluation-button" onclick="toggleEvaluationList('evaluationList1')" style="display: none">Провести оценку</button>
-        <div id="evaluationList1" class="evaluation-list sortable-list">
-            <label><input type="checkbox"> Качество 1</label>
-            <label><input type="checkbox"> Качество 2</label>
-            <label><input type="checkbox"> Качество 3</label>
+        <div id="evaluationList1" class="evaluation-list">
+            <% pvks.forEach(function(pvk) { %>
+                <label><input type="checkbox"> <%= pvk.pvk %></label>
+            <% }); %>
             <button class="save-selection-button" onclick="saveSelection('evaluationList1')">Сохранить выбор</button>
         </div>
     </div>
@@ -41,20 +41,20 @@
     <div class="button-group">
         <button class="make_button" id="professionButton2" onclick="openModal('professionButton2')">Создать профессию</button>
         <button id='evaluationButton2' class="evaluation-button" onclick="toggleEvaluationList('evaluationList2')" style="display: none">Провести оценку</button>
-        <div id="evaluationList2" class="evaluation-list sortable-list">
-            <label><input type="checkbox"> Качество 1</label>
-            <label><input type="checkbox"> Качество 2</label>
-            <label><input type="checkbox"> Качество 3</label>
+        <div id="evaluationList2" class="evaluation-list">
+            <% pvks.forEach(function(pvk) { %>
+                <label><input type="checkbox"> <%= pvk.pvk %></label>
+            <% }); %>
             <button class="save-selection-button" onclick="saveSelection('evaluationList2')">Сохранить выбор</button>
         </div>
     </div>
     <div class="button-group">
         <button class="make_button" id="professionButton3" onclick="openModal('professionButton3')">Создать профессию</button>
         <button id='evaluationButton3' class="evaluation-button" onclick="toggleEvaluationList('evaluationList3')" style="display: none">Провести оценку</button>
-        <div id="evaluationList3" class="evaluation-list sortable-list">
-            <label><input type="checkbox"> Качество 1</label>
-            <label><input type="checkbox"> Качество 2</label>
-            <label><input type="checkbox"> Качество 3</label>
+        <div id="evaluationList3" class="evaluation-list">
+            <% pvks.forEach(function(pvk) { %>
+                <label><input type="checkbox"> <%= pvk.pvk %></label>
+            <% }); %>
             <button class="save-selection-button" onclick="saveSelection('evaluationList3')">Сохранить выбор</button>
         </div>
     </div>

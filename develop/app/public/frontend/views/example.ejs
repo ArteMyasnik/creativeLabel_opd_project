@@ -17,42 +17,32 @@
     <div class="button-group">
         <button class="make_button" id="professionButton1" onclick="openModal('professionButton1')">Создать профессию</button>
         <button id='evaluationButton1' class="evaluation-button" onclick="toggleEvaluationList('evaluationList1')" style="display: none">Провести оценку</button>
-        <div id="evaluationList1" class="evaluation-list sortable-list">
+        <div id="evaluationList1" class="evaluation-list">
             <% pvks.forEach(function(pvk) { %>
-            <label><input type="checkbox"> <%= pvk.pvk %></label>
+                <label><input type="checkbox"> <%= pvk.pvk %></label>
             <% }); %>
             <button class="save-selection-button" onclick="saveSelection('evaluationList1')">Сохранить выбор</button>
-        </div>
-    </div>
-    <div id="orderModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeOrderModal()">&times;</span>
-            <h2>Упорядочить выбранные качества</h2>
-            <ul id="orderedList" class="sortable-list">
-                <!-- Сюда будут добавляться выбранные качества -->
-            </ul>
-            <button onclick="saveOrder()">Сохранить порядок</button>
         </div>
     </div>
     <div class="button-group">
         <button class="make_button" id="professionButton2" onclick="openModal('professionButton2')">Создать профессию</button>
         <button id='evaluationButton2' class="evaluation-button" onclick="toggleEvaluationList('evaluationList2')" style="display: none">Провести оценку</button>
-        <div id="evaluationList2" class="evaluation-list sortable-list">
+        <div id="evaluationList2" class="evaluation-list">
             <% pvks.forEach(function(pvk) { %>
-            <label><input type="checkbox"> <%= pvk.pvk %></label>
+                <label><input type="checkbox"> <%= pvk.pvk %></label>
             <% }); %>
-            <button class="save-selection-button" onclick="saveSelection('evaluationList1')">Сохранить выбор</button>
+            <button class="save-selection-button" onclick="saveSelection('evaluationList2')">Сохранить выбор</button>
         </div>
     </div>
     <div class="button-group">
         <button class="make_button" id="professionButton3" onclick="openModal('professionButton3')">Создать профессию</button>
         <button id='evaluationButton3' class="evaluation-button" onclick="toggleEvaluationList('evaluationList3')" style="display: none">Провести оценку</button>
 
-        <div id="evaluationList3" class="evaluation-list sortable-list">
+        <div id="evaluationList3" class="evaluation-list">
             <% pvks.forEach(function(pvk) { %>
-            <label><input type="checkbox"> <%= pvk.pvk %></label>
+                <label><input type="checkbox"> <%= pvk.pvk %></label>
             <% }); %>
-            <button class="save-selection-button" onclick="saveSelection('evaluationList1')">Сохранить выбор</button>
+            <button class="save-selection-button" onclick="saveSelection('evaluationList3')">Сохранить выбор</button>
         </div>
     </div>
 </div>
@@ -67,65 +57,12 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js">
-    document.addEventListener('DOMContentLoaded', function () {
-        const lists = document.querySelectorAll('.sortable-list');
-        lists.forEach(list => {
-            new Sortable(list, {
-                animation: 150, // Анимация перетаскивания
-                ghostClass: 'sortable-ghost', // Класс для элемента, который перетаскивается
-                chosenClass: 'sortable-chosen', // Класс для выбранного элемента
-                dragClass: 'sortable-drag', // Класс для элемента, который перемещается
-            });
-        });
-    });
-
+<script>
     let currentButtonId = null;
 
     function openModal(buttonId) {
         currentButtonId = buttonId;
         document.getElementById('myModal').style.display = 'block';
-    }
-
-    function openOrderModal(qualities) {
-        const orderedList = document.getElementById('orderedList');
-        orderedList.innerHTML = ''; // Очищаем список
-
-        qualities.forEach(quality => {
-            const li = document.createElement('li');
-            li.textContent = quality.text;
-            orderedList.appendChild(li);
-        });
-
-        // Инициализация SortableJS для нового списка
-        new Sortable(orderedList, {
-            animation: 150,
-            ghostClass: 'sortable-ghost',
-            chosenClass: 'sortable-chosen',
-            dragClass: 'sortable-drag',
-        });
-
-        document.getElementById('orderModal').style.display = 'block';
-    }
-
-    function closeOrderModal() {
-        document.getElementById('orderModal').style.display = 'none';
-    }
-
-    function saveOrder() {
-        const orderedList = document.getElementById('orderedList');
-        const items = orderedList.querySelectorAll('li');
-        const finalOrder = [];
-
-        items.forEach((item, index) => {
-            finalOrder.push({
-                text: item.textContent.trim(),
-                order: index + 1
-            });
-        });
-
-        alert('Порядок сохранен:\n' + finalOrder.map(q => `${q.order}. ${q.text}`).join('\n'));
-        closeOrderModal();
     }
 
     function closeModal() {
@@ -152,21 +89,16 @@
 
     function saveSelection(listId) {
         const list = document.getElementById(listId);
-        const items = list.querySelectorAll('label');
+        const checkboxes = list.querySelectorAll('input[type="checkbox"]');
         const selectedQualities = [];
 
-        items.forEach((item, index) => {
-            const checkbox = item.querySelector('input[type="checkbox"]');
+        checkboxes.forEach((checkbox, index) => {
             if (checkbox.checked) {
-                selectedQualities.push({
-                    text: item.textContent.trim(),
-                    order: index + 1
-                });
+                selectedQualities.push(`${index + 1}`);
             }
         });
 
-        // Открываем модальное окно с выбранными качествами
-        openOrderModal(selectedQualities);
+        alert(`Выбранные качества для ${listId}:\n${selectedQualities.join(', ')}`);
     }
 
     window.onclick = function(event) {
