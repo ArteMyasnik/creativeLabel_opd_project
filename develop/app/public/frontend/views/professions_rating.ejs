@@ -71,6 +71,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+</body>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const lists = document.querySelectorAll('.sortable-list');
@@ -129,7 +130,42 @@
         });
 
         alert('Порядок сохранен:\n' + finalOrder.map(q => `${q.order}. ${q.text}`).join('\n'));
+        saveResults(finalOrder);
         closeOrderModal();
+    }
+
+    let professionName = '';
+    let professionDescription = '';
+
+    // Функция для сохранения результатов теста
+    function saveResults(finalOrder) {
+        const dataToSend = {
+            profession_name: professionName,
+            profession_description: professionDescription,
+            login: "<% login %>",
+            finalOrder: finalOrder
+        };
+        // Получаем profession_name и login (предположим, что они уже сохранены в глобальных переменных)
+        fetch('http://localhost:3000/api/profession_rating', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(dataToSend),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Порядок успешно сохранен на сервере!');
+                    closeOrderModal();
+                } else {
+                    alert("Ошибка при сохранении результатов: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при сохранении порядка:', error);
+                alert('Произошла ошибка при сохранении порядка.');
+            });
     }
 
     function closeModal() {
@@ -143,6 +179,8 @@
         if (name && description) {
             const button = document.getElementById(currentButtonId);
             button.innerHTML = `<strong>${name}</strong><div class="profession-info">${description}</div>`;
+            professionName = name;
+            professionDescription = description;
             closeModal();
         } else {
             alert('Пожалуйста, заполните все поля.');
@@ -197,5 +235,4 @@
             }
         });
 </script>
-</body>
 </html>

@@ -228,6 +228,19 @@ app.put('/experts', (req, res) => {
 
 app.get('/professions_rating', async (req, res) => {
     try {
+        const result_pvk = await pool.query('SELECT * FROM pvks');
+        const pvks = result_pvk.rows;
+        const result_profession = await pool.query('SELECT * FROM professions');
+        const professions = result_profession.rows;
+        res.render('professions_rating', { pvks: pvks, professions: professions, isAdmin: !!req.session.isAdmin, login: req.session.login || null, isExpert: !!req.session.isExpert });
+    } catch (err) {
+        console.error('Ошибка при выполнении запроса:', err);
+        res.status(500).send('Ошибка сервера');
+    }
+});
+
+app.post('/profession_rating', async (req, res) => {
+    try {
         const result = await pool.query('SELECT * FROM pvks');
         const pvks = result.rows;
         res.render('professions_rating', { pvks: pvks, isAdmin: !!req.session.isAdmin, login: req.session.login || null, isExpert: !!req.session.isExpert });

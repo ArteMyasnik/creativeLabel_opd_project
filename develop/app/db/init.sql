@@ -120,7 +120,7 @@ CREATE TABLE profession_pvk
     user_id       INT REFERENCES users (id) ON DELETE CASCADE,
     pvk_id        INT REFERENCES pvks (id) ON DELETE CASCADE,
     mark          INT,
-    UNIQUE (profession_id, pvk_id)
+    UNIQUE (profession_id, pvk_id, user_id)
 );
 
 -- Создание таблицы test_pvk (Связь тестов и PVK)
