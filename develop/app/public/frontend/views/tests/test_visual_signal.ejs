@@ -181,7 +181,7 @@
 
         // Функция для сохранения результатов теста
         function saveTestResults(averageReactionTime, standardDeviation, missedSignals) {
-            const login = "<%= login %>"; // Логин пользователя из EJS
+            const login = "<%= login %>";
 
             fetch('http://localhost:3000/api/test_visual_signal', {
                 method: 'POST',
