@@ -151,7 +151,7 @@
     }
 
     function saveTestResults(averageReactionTime, standardDeviation, correctAnswers, missedClicks, wrongClicks) {
-        const login = "<%= login %>"; // Логин пользователя из EJS
+        const login = "<%= login %>";
 
         fetch('http://localhost:3000/api/test_color_signal', {
             method: 'POST',

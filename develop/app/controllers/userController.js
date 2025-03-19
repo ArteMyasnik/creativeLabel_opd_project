@@ -18,6 +18,14 @@ async function comparePassword(password, hashedPassword) {
     return await bcryptjs.compare(password, hashedPassword);
 }
 
+async function getUserByLogin(login) {
+    const user = await pool.query('SELECT id FROM users WHERE login = $1', [login]);
+    if (user.rows.length === 0) {
+        throw new Error('Пользователь с таким логином не найден');
+    }
+    return user.rows[0].id;
+}
+
 class UserController {
     // async createUser(req, res) {
     //     try {
@@ -160,7 +168,9 @@ class UserController {
             const {login, password} = req.body;
 
             const result = await pool.query(
-                `SELECT password_hash, isAdmin, isExpert FROM users WHERE login = $1`,
+                `SELECT password_hash, isAdmin, isExpert
+                 FROM users
+                 WHERE login = $1`,
                 [login]
             );
 
@@ -183,8 +193,8 @@ class UserController {
 
     async updateAge(req, res) {
         try {
-            const { login } = req.params;
-            const { age } = req.body;
+            const {login} = req.params;
+            const {age} = req.body;
 
             // Проверяем, существует ли пользователь с таким логином
             const checkUser = await pool.query(
@@ -204,19 +214,19 @@ class UserController {
                     user: updatedUser.rows[0]
                 });
             } else {
-                res.status(404).json({ message: 'Пользователь с таким логином не найден' });
+                res.status(404).json({message: 'Пользователь с таким логином не найден'});
             }
 
         } catch (err) {
             console.error(err.message);
-            res.status(500).json({ message: "Server error" });
+            res.status(500).json({message: "Server error"});
         }
     }
 
     async updateSex(req, res) {
         try {
-            const { login } = req.params;
-            const { sex } = req.body;
+            const {login} = req.params;
+            const {sex} = req.body;
 
             // Проверяем, существует ли пользователь с таким логином
             const checkUser = await pool.query(
@@ -236,22 +246,22 @@ class UserController {
                     user: updatedUser.rows[0]
                 });
             } else {
-                res.status(404).json({ message: 'Пользователь с таким логином не найден' });
+                res.status(404).json({message: 'Пользователь с таким логином не найден'});
             }
 
         } catch (err) {
             console.error(err.message);
-            res.status(500).json({ message: "Server error" });
+            res.status(500).json({message: "Server error"});
         }
     }
-    
+
     async changePassword(req, res) {
         try {
-            const { login } = req.params;
-            const { oldPassword, newPassword, confirmNewPassword } = req.body;
+            const {login} = req.params;
+            const {oldPassword, newPassword, confirmNewPassword} = req.body;
 
             if (newPassword !== confirmNewPassword) {
-                return res.status(400).json({ message: 'Новый пароль и подтверждение не совпадают' });
+                return res.status(400).json({message: 'Новый пароль и подтверждение не совпадают'});
             }
 
             // Проверяем, существует ли пользователь с таким логином
@@ -273,13 +283,13 @@ class UserController {
             // Проверка старого пароля
             const isOldPasswordValid = await comparePassword(oldPassword, hashedPassword);
             if (!isOldPasswordValid) {
-                return res.status(400).json({ message: 'Неверный текущий пароль' });
+                return res.status(400).json({message: 'Неверный текущий пароль'});
             }
 
             // Проверка, что новый пароль отличается от старого
             const isSamePassword = await comparePassword(newPassword, hashedPassword);
             if (isSamePassword) {
-                return res.status(400).json({ message: 'Новый пароль должен отличаться от старого' });
+                return res.status(400).json({message: 'Новый пароль должен отличаться от старого'});
             }
 
             const newHashedPassword = await hashPassword(newPassword);
@@ -297,14 +307,14 @@ class UserController {
 
         } catch (err) {
             console.error(err.message);
-            res.status(500).json({ message: "Server error" });
+            res.status(500).json({message: "Server error"});
         }
     }
 
     async changeEmail(req, res) {
         try {
-            const { login } = req.params;
-            const { email } = req.body;
+            const {login} = req.params;
+            const {email} = req.body;
 
             // Проверка доступности нового логина
             const checkLogin = await pool.query(
@@ -314,7 +324,7 @@ class UserController {
 
             // Если логин уже занят
             if (checkLogin.rows[0].count > 0) {
-                return res.status(409).json({ message: 'Этот email уже занят' });
+                return res.status(409).json({message: 'Этот email уже занят'});
             }
 
             // Обновление логина
@@ -330,18 +340,18 @@ class UserController {
 
         } catch (err) {
             console.error(err.message);
-            res.status(500).json({ message: "Server error" });
+            res.status(500).json({message: "Server error"});
         }
     }
 
     async assignExperts(req, res) {
         try {
-            const { login } = req.body;
+            const {login} = req.body;
 
             // Проверяем количество экспертов
             const experts = await pool.query('SELECT * FROM users WHERE isExpert = true');
             if (experts.rows.length >= 8) {
-                return res.status(400).json({ message: 'Достигнуто максимальное количество экспертов' });
+                return res.status(400).json({message: 'Достигнуто максимальное количество экспертов'});
             }
 
             const user = await pool.query(
@@ -350,7 +360,7 @@ class UserController {
             );
 
             if (user.rows.length === 0) {
-                return res.status(404).json({ message: 'Пользователь с таким логином не найден' });
+                return res.status(404).json({message: 'Пользователь с таким логином не найден'});
             }
 
             const updatedUser = await pool.query(
@@ -359,7 +369,7 @@ class UserController {
             );
 
             if (updatedUser.rows.length === 0) {
-                return res.status(500).json({ message: 'Не удалось обновить статус пользователя' });
+                return res.status(500).json({message: 'Не удалось обновить статус пользователя'});
             }
 
             res.status(200).json({
@@ -369,7 +379,7 @@ class UserController {
 
         } catch (err) {
             console.error(err.message);
-            res.status(500).json({ message: "Ошибка сервера" });
+            res.status(500).json({message: "Ошибка сервера"});
         }
     }
 
@@ -384,27 +394,39 @@ class UserController {
             });
         } catch (err) {
             console.error(err.message);
-            res.status(500).json({ message: "Ошибка сервера" });
+            res.status(500).json({message: "Ошибка сервера"});
         }
     }
 
     async testVisualSignal(req, res) {
         try {
-            const { login, averageReactionTime, standardDeviation, missedSignals } = req.body;
+            const {login, average_reaction_time, standard_deviation, missed_signals} = req.body;
 
-            console.log(login, averageReactionTime, standardDeviation, missedSignals)
+            const checkUser = await pool.query(
+                'SELECT COUNT(*) FROM users WHERE login = $1',
+                [login]
+            );
 
-            // Сохраняем результаты теста в базу данных
-            // const result = await pool.query(
-            //     'INSERT INTO reaction_tests (login, average_time, std_dev, missed_signals) VALUES ($1, $2, $3, $4) RETURNING *',
-            //     [login, averageTime, stdDev, missedSignals]
-            // );
+            if (checkUser.rows[0].count === 0) {
+                res.status(404).json({message: 'Пользователь с таким логином не найден'});
+            } else {
+                const user = await pool.query(
+                    'SELECT id FROM users WHERE login = $1',
+                    [login]
+                )
 
-            res.status(200).json({
-                success: true,
-                message: 'Результаты теста успешно сохранены',
-                data: result.rows[0]
-            });
+                // Сохраняем результаты теста в базу данных
+                const result = await pool.query(
+                    'INSERT INTO test_visual_signal (user_id, average_reaction_time, standard_deviation, missed_signals) VALUES ($1, $2, $3, $4) RETURNING *',
+                    [user.rows[0].id, average_reaction_time, standard_deviation, missed_signals]
+                );
+
+                res.status(200).json({
+                    success: true,
+                    message: 'Результаты теста успешно сохранены',
+                    data: result.rows[0]
+                });
+            }
         } catch (err) {
             console.error(err.message);
             res.status(500).json({
@@ -416,21 +438,41 @@ class UserController {
 
     async testColorSignal(req, res) {
         try {
-            const { login, averageReactionTime, standardDeviation, correctAnswers, missedClicks, wrongClicks } = req.body;
+            const {
+                login,
+                average_reaction_time,
+                standard_deviation,
+                correct_answers,
+                missed_clicks,
+                wrong_clicks
+            } = req.body;
 
-            console.log(login, averageReactionTime, standardDeviation, correctAnswers, missedClicks, wrongClicks)
+            const checkUser = await pool.query(
+                'SELECT COUNT(*) FROM users WHERE login = $1',
+                [login]
+            );
 
-            // Сохраняем результаты теста в базу данных
-            // const result = await pool.query(
-            //     'INSERT INTO reaction_tests (login, average_time, std_dev, missed_signals) VALUES ($1, $2, $3, $4) RETURNING *',
-            //     [login, averageTime, stdDev, missedSignals]
-            // );
+            if (checkUser.rows[0].count === 0) {
+                res.status(404).json({message: 'Пользователь с таким логином не найден'});
+            } else {
 
-            res.status(200).json({
-                success: true,
-                message: 'Результаты теста успешно сохранены',
-                data: result.rows[0]
-            });
+                const user = await pool.query(
+                    'SELECT id FROM users WHERE login = $1',
+                    [login]
+                )
+
+                // Сохраняем результаты теста в базу данных
+                const result = await pool.query(
+                    'INSERT INTO test_color_signal (user_id, average_reaction_time, standard_deviation, correct_answers, missed_clicks, wrong_clicks) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+                    [user.rows[0].id, average_reaction_time, standard_deviation, correct_answers, missed_clicks, wrong_clicks]
+                );
+
+                res.status(200).json({
+                    success: true,
+                    message: 'Результаты теста успешно сохранены',
+                    data: result.rows[0]
+                });
+            }
         } catch (err) {
             console.error(err.message);
             res.status(500).json({
@@ -442,21 +484,42 @@ class UserController {
 
     async testDigitalSignal(req, res) {
         try {
-            const { login, averageReactionTime, standardDeviation, correctAnswers, wrongAnswers, missedAttempts, accuracy } = req.body;
+            const {
+                login,
+                average_reaction_time,
+                standard_deviation,
+                correct_answers,
+                wrong_answers,
+                missed_attempts,
+                accuracy
+            } = req.body;
 
-            console.log(login, averageReactionTime, standardDeviation, correctAnswers, wrongAnswers, missedAttempts, accuracy)
+            const checkUser = await pool.query(
+                'SELECT COUNT(*) FROM users WHERE login = $1',
+                [login]
+            );
 
-            // Сохраняем результаты теста в базу данных
-            // const result = await pool.query(
-            //     'INSERT INTO reaction_tests (login, average_time, std_dev, missed_signals) VALUES ($1, $2, $3, $4) RETURNING *',
-            //     [login, averageTime, stdDev, missedSignals]
-            // );
+            if (checkUser.rows[0].count === 0) {
+                res.status(404).json({message: 'Пользователь с таким логином не найден'});
+            } else {
 
-            res.status(200).json({
-                success: true,
-                message: 'Результаты теста успешно сохранены',
-                data: result.rows[0]
-            });
+                const user = await pool.query(
+                    'SELECT id FROM users WHERE login = $1',
+                    [login]
+                )
+
+                // Сохраняем результаты теста в базу данных
+                const result = await pool.query(
+                    'INSERT INTO test_digital_signal (user_id, average_reaction_time, standard_deviation, correct_answers, wrong_answers, missed_attempts, accuracy) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+                    [user.rows[0].id, average_reaction_time, standard_deviation, correct_answers, wrong_answers, missed_attempts, accuracy]
+                );
+
+                res.status(200).json({
+                    success: true,
+                    message: 'Результаты теста успешно сохранены',
+                    data: result.rows[0]
+                });
+            }
         } catch (err) {
             console.error(err.message);
             res.status(500).json({
@@ -468,21 +531,34 @@ class UserController {
 
     async testSimpleRdo(req, res) {
         try {
-            const { login, avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned } = req.body;
+            const {login, avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned} = req.body;
 
-            console.log(login, avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned)
+            const checkUser = await pool.query(
+                'SELECT COUNT(*) FROM users WHERE login = $1',
+                [login]
+            );
 
-            // Сохраняем результаты теста в базу данных
-            // const result = await pool.query(
-            //     'INSERT INTO reaction_tests (login, average_time, std_dev, missed_signals) VALUES ($1, $2, $3, $4) RETURNING *',
-            //     [login, averageTime, stdDev, missedSignals]
-            // );
+            if (checkUser.rows[0].count === 0) {
+                res.status(404).json({message: 'Пользователь с таким логином не найден'});
+            } else {
 
-            res.status(200).json({
-                success: true,
-                message: 'Результаты теста успешно сохранены',
-                data: result.rows[0]
-            });
+                const user = await pool.query(
+                    'SELECT id FROM users WHERE login = $1',
+                    [login]
+                )
+
+                // Сохраняем результаты теста в базу данных
+                const result = await pool.query(
+                    'INSERT INTO test_simple_rdo (user_id, avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+                    [user.rows[0].id, avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned]
+                );
+
+                res.status(200).json({
+                    success: true,
+                    message: 'Результаты теста успешно сохранены',
+                    data: result.rows[0]
+                });
+            }
         } catch (err) {
             console.error(err.message);
             res.status(500).json({
@@ -494,21 +570,33 @@ class UserController {
 
     async testComplexRdo(req, res) {
         try {
-            const { login, circle1, circle2, circle3, overall } = req.body;
+            const {login, circle1, circle2, circle3, overall} = req.body;
 
-            console.log(login, circle1, circle2, circle3, overall)
+            const checkUser = await pool.query(
+                'SELECT COUNT(*) FROM users WHERE login = $1',
+                [login]
+            );
 
-            // Сохраняем результаты теста в базу данных
-            // const result = await pool.query(
-            //     'INSERT INTO reaction_tests (login, average_time, std_dev, missed_signals) VALUES ($1, $2, $3, $4) RETURNING *',
-            //     [login, averageTime, stdDev, missedSignals]
-            // );
+            if (checkUser.rows[0].count === 0) {
+                res.status(404).json({message: 'Пользователь с таким логином не найден'});
+            } else {
+                const user = await pool.query(
+                    'SELECT id FROM users WHERE login = $1',
+                    [login]
+                )
 
-            res.status(200).json({
-                success: true,
-                message: 'Результаты теста успешно сохранены',
-                data: result.rows[0]
-            });
+                // Сохраняем результаты теста в базу данных
+                const result = await pool.query(
+                    'INSERT INTO test_complex_rdo (user_id, circle1, circle2, circle3, overall) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+                    [user.rows[0].id, circle1, circle2, circle3, overall]
+                );
+
+                res.status(200).json({
+                    success: true,
+                    message: 'Результаты теста успешно сохранены',
+                    data: result.rows[0]
+                });
+            }
         } catch (err) {
             console.error(err.message);
             res.status(500).json({
@@ -517,7 +605,7 @@ class UserController {
             });
         }
     }
-    //
+
     // async calculateStats(req, res) {
     //     try {
     //         const { professionId, pvkId } = req.body;

@@ -162,7 +162,7 @@
     }
 
     function saveTestResults(averageReactionTime, standardDeviation, correctAnswers, wrongAnswers, missedAttempts, accuracy) {
-        const login = "<%= login %>"; // Логин пользователя из EJS
+        const login = "<%= login %>";
 
         fetch('http://localhost:3000/api/test_digital_signal', {
             method: 'POST',

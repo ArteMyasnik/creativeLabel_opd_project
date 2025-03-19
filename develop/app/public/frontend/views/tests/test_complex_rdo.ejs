@@ -358,7 +358,6 @@
       html += "</table>";
       resDiv.innerHTML = html;
 
-      // Сохраняем результаты теста на сервере
       saveReactionCircleResults(circleResults[1], circleResults[2], circleResults[3], {
         responses: allErrors.length,
         avgError: overallAvg.toFixed(1),
@@ -369,7 +368,7 @@
     }
 
     function saveReactionCircleResults(circle1, circle2, circle3, overall) {
-      const login = "<%= login %>"; // Логин пользователя из EJS
+      const login = "<%= login %>";
 
       fetch('http://localhost:3000/api/test_complex_rdo', {
         method: 'POST',
