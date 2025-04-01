@@ -111,6 +111,9 @@
 </div>
 
 <script>
+    // Глобальная переменная для отслеживания открытого списка
+    let currentlyOpenListId = null;
+
     // Функция для обработки изменения чекбоксов
     function handleCheckboxChange(listId) {
         const list = document.getElementById(listId);
@@ -122,7 +125,6 @@
         counter.textContent = checked.length;
 
         if (checked.length >= MAX_SELECTION) {
-            // Скрываем невыбранные элементы при достижении лимита
             checkboxes.forEach(checkbox => {
                 if (!checkbox.checked) {
                     checkbox.closest('.pvk-label').classList.add('hidden');
@@ -130,7 +132,6 @@
             });
             counter.classList.add('limit-reached');
         } else if (checked.length <= 9) {
-            // Показываем все элементы при уменьшении до 9 или меньше
             checkboxes.forEach(checkbox => {
                 checkbox.closest('.pvk-label').classList.remove('hidden');
             });
@@ -138,7 +139,44 @@
         }
     }
 
-    // Остальные функции без изменений
+    function toggleEvaluationList(listId) {
+        const list = document.getElementById(listId);
+
+        // Если кликнули по уже открытой таблице - закрываем её
+        if (currentlyOpenListId === listId) {
+            list.style.display = 'none';
+            currentlyOpenListId = null;
+            return;
+        }
+
+        // Закрываем предыдущую открытую таблицу (если есть)
+        if (currentlyOpenListId) {
+            const prevList = document.getElementById(currentlyOpenListId);
+            if (prevList) {
+                prevList.style.display = 'none';
+                // Сбрасываем состояние чекбоксов в предыдущей таблице
+                prevList.querySelectorAll('.pvk-label').forEach(label => {
+                    label.classList.remove('hidden');
+                });
+                prevList.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                prevList.querySelector('.checkbox-counter span').textContent = '0';
+                prevList.querySelector('.checkbox-counter span').classList.remove('limit-reached');
+            }
+        }
+
+        // Открываем новую таблицу
+        list.style.display = 'block';
+        currentlyOpenListId = listId;
+
+        // Сбрасываем состояние чекбоксов в новой таблице
+        list.querySelectorAll('.pvk-label').forEach(label => {
+            label.classList.remove('hidden');
+        });
+        list.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+        list.querySelector('.checkbox-counter span').textContent = '0';
+        list.querySelector('.checkbox-counter span').classList.remove('limit-reached');
+    }
+
     let currentProfession = {
         id: null,
         name: '',
@@ -196,24 +234,10 @@
         list.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
 
         list.style.display = 'none';
+        currentlyOpenListId = null;
         openOrderModal(selectedQualities);
     }
 
-    function toggleEvaluationList(listId) {
-        const list = document.getElementById(listId);
-        list.style.display = list.style.display === 'block' ? 'none' : 'block';
-
-        if (list.style.display === 'block') {
-            list.querySelectorAll('.pvk-label').forEach(label => {
-                label.classList.remove('hidden');
-            });
-            list.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-            list.querySelector('.checkbox-counter span').textContent = '0';
-            list.querySelector('.checkbox-counter span').classList.remove('limit-reached');
-        }
-    }
-
-    // Все остальные ваши функции остаются без изменений
     function selectExistingProfession(id, name, description, buttonId) {
         currentProfession = {
             id: id,
@@ -229,6 +253,12 @@
 
         document.getElementById('professionName').disabled = true;
         document.getElementById('professionDescription').disabled = true;
+
+        // Закрываем открытый список оценок при выборе профессии
+        if (currentlyOpenListId) {
+            document.getElementById(currentlyOpenListId).style.display = 'none';
+            currentlyOpenListId = null;
+        }
     }
 
     function openNewProfessionModal(buttonId) {
@@ -246,6 +276,12 @@
         document.getElementById('professionDescription').disabled = false;
 
         document.getElementById('professionModal').style.display = 'block';
+
+        // Закрываем открытый список оценок при создании новой профессии
+        if (currentlyOpenListId) {
+            document.getElementById(currentlyOpenListId).style.display = 'none';
+            currentlyOpenListId = null;
+        }
     }
 
     function handleProfessionSave() {
