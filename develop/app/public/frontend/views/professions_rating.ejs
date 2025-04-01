@@ -27,6 +27,17 @@
         .checkbox-counter .limit-reached {
             color: red;
         }
+        /* Новые стили для вынесенных элементов */
+        .checkbox-controls {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px; /* Добавлено расстояние между элементами */
+        }
+        .evaluation-list {
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -64,7 +75,7 @@
 
             <button id='evaluationButton<%= i + 1 %>'
                     class="evaluation-button"
-                    onclick="toggleEvaluationList('evaluationList<%= i + 1 %>')"
+                    onclick="toggleEvaluationList('evaluationList<%= i + 1 %>', 'checkboxControls<%= i + 1 %>')"
                     style="display: none">
                 Провести оценку
             </button>
@@ -75,13 +86,17 @@
                         <input type="checkbox"
                                data-pvk-id="<%= pvk.id %>"
                                data-pvk-name="<%= pvk.pvk %>"
-                               onchange="handleCheckboxChange('evaluationList<%= i + 1 %>')">
+                               onchange="handleCheckboxChange('checkboxControls<%= i + 1 %>')">
                         <%= pvk.pvk %>
                     </label>
                 <% }); %>
+            </div>
+
+            <!-- Вынесенные элементы управления -->
+            <div id="checkboxControls<%= i + 1 %>" class="checkbox-controls" style="display: none">
                 <div class="checkbox-counter">Выбрано: <span>0</span>/10</div>
                 <button class="save-selection-button"
-                        onclick="saveSelection('professionButton<%= i + 1 %>', 'evaluationList<%= i + 1 %>')">
+                        onclick="saveSelection('professionButton<%= i + 1 %>', 'evaluationList<%= i + 1 %>', 'checkboxControls<%= i + 1 %>')">
                     Сохранить выбор
                 </button>
             </div>
@@ -113,13 +128,16 @@
 <script>
     // Глобальная переменная для отслеживания открытого списка
     let currentlyOpenListId = null;
+    let currentlyOpenControlsId = null;
 
     // Функция для обработки изменения чекбоксов
-    function handleCheckboxChange(listId) {
+    function handleCheckboxChange(controlsId) {
+        const controls = document.getElementById(controlsId);
+        const listId = controlsId.replace('checkboxControls', 'evaluationList');
         const list = document.getElementById(listId);
         const checkboxes = list.querySelectorAll('input[type="checkbox"]');
         const checked = list.querySelectorAll('input[type="checkbox"]:checked');
-        const counter = list.querySelector('.checkbox-counter span');
+        const counter = controls.querySelector('.checkbox-counter span');
         const MAX_SELECTION = 10;
 
         counter.textContent = checked.length;
@@ -139,42 +157,49 @@
         }
     }
 
-    function toggleEvaluationList(listId) {
+    function toggleEvaluationList(listId, controlsId) {
         const list = document.getElementById(listId);
+        const controls = document.getElementById(controlsId);
 
         // Если кликнули по уже открытой таблице - закрываем её
         if (currentlyOpenListId === listId) {
             list.style.display = 'none';
+            controls.style.display = 'none';
             currentlyOpenListId = null;
+            currentlyOpenControlsId = null;
             return;
         }
 
         // Закрываем предыдущую открытую таблицу (если есть)
         if (currentlyOpenListId) {
             const prevList = document.getElementById(currentlyOpenListId);
-            if (prevList) {
+            const prevControls = document.getElementById(currentlyOpenControlsId);
+            if (prevList && prevControls) {
                 prevList.style.display = 'none';
+                prevControls.style.display = 'none';
                 // Сбрасываем состояние чекбоксов в предыдущей таблице
                 prevList.querySelectorAll('.pvk-label').forEach(label => {
                     label.classList.remove('hidden');
                 });
                 prevList.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-                prevList.querySelector('.checkbox-counter span').textContent = '0';
-                prevList.querySelector('.checkbox-counter span').classList.remove('limit-reached');
+                prevControls.querySelector('.checkbox-counter span').textContent = '0';
+                prevControls.querySelector('.checkbox-counter span').classList.remove('limit-reached');
             }
         }
 
         // Открываем новую таблицу
         list.style.display = 'block';
+        controls.style.display = 'flex';
         currentlyOpenListId = listId;
+        currentlyOpenControlsId = controlsId;
 
         // Сбрасываем состояние чекбоксов в новой таблице
         list.querySelectorAll('.pvk-label').forEach(label => {
             label.classList.remove('hidden');
         });
         list.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-        list.querySelector('.checkbox-counter span').textContent = '0';
-        list.querySelector('.checkbox-counter span').classList.remove('limit-reached');
+        controls.querySelector('.checkbox-counter span').textContent = '0';
+        controls.querySelector('.checkbox-counter span').classList.remove('limit-reached');
     }
 
     let currentProfession = {
@@ -207,8 +232,9 @@
             .catch(error => console.error('Ошибка при проверке авторизации:', error));
     });
 
-    function saveSelection(buttonId, listId) {
+    function saveSelection(buttonId, listId, controlsId) {
         const list = document.getElementById(listId);
+        const controls = document.getElementById(controlsId);
         const checkboxes = list.querySelectorAll('input[type="checkbox"]:checked');
 
         if (checkboxes.length === 0) {
@@ -229,12 +255,14 @@
         list.querySelectorAll('.pvk-label').forEach(label => {
             label.classList.remove('hidden');
         });
-        list.querySelector('.checkbox-counter span').textContent = '0';
-        list.querySelector('.checkbox-counter span').classList.remove('limit-reached');
+        controls.querySelector('.checkbox-counter span').textContent = '0';
+        controls.querySelector('.checkbox-counter span').classList.remove('limit-reached');
         list.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
 
         list.style.display = 'none';
+        controls.style.display = 'none';
         currentlyOpenListId = null;
+        currentlyOpenControlsId = null;
         openOrderModal(selectedQualities);
     }
 
@@ -257,7 +285,9 @@
         // Закрываем открытый список оценок при выборе профессии
         if (currentlyOpenListId) {
             document.getElementById(currentlyOpenListId).style.display = 'none';
+            document.getElementById(currentlyOpenControlsId).style.display = 'none';
             currentlyOpenListId = null;
+            currentlyOpenControlsId = null;
         }
     }
 
@@ -280,7 +310,9 @@
         // Закрываем открытый список оценок при создании новой профессии
         if (currentlyOpenListId) {
             document.getElementById(currentlyOpenListId).style.display = 'none';
+            document.getElementById(currentlyOpenControlsId).style.display = 'none';
             currentlyOpenListId = null;
+            currentlyOpenControlsId = null;
         }
     }
 
