@@ -231,7 +231,6 @@ app.get('/professions_rating', async (req, res) => {
         const pvks = result_pvk.rows;
         const result_profession = await pool.query('SELECT * FROM professions');
         const professions = result_profession.rows;
-
         res.render('professions_rating', { pvks: pvks, professions: professions, isAdmin: !!req.session.isAdmin, login: req.session.login || null, isExpert: !!req.session.isExpert });
     } catch (err) {
         console.error('Ошибка при выполнении запроса:', err);
