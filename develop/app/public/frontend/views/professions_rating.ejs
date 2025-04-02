@@ -250,6 +250,7 @@
                 id: checkbox.dataset.pvkId
             });
         });
+
         // Сброс состояния
         list.querySelectorAll('.pvk-label').forEach(label => {
             label.classList.remove('hidden');
@@ -290,6 +291,7 @@
         }
     }
 
+
     function openNewProfessionModal(buttonId) {
         currentProfession = {
             id: null,
@@ -324,7 +326,7 @@
             return;
         }
 
-        if (currentProfession.isNew && !description) {
+        if (!description) {
             alert('Для новой профессии необходимо описание!');
             return;
         }
