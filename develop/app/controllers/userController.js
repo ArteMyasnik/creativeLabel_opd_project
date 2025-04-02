@@ -392,7 +392,7 @@ class UserController {
 
     async testVisualSignal(req, res) {
         try {
-            const {login, average_reaction_time, standard_deviation, missed_signals} = req.body;
+            const {login, average_reaction_time, standard_deviation, missed_signals, age, sex} = req.body;
 
             const checkUser = await pool.query(
                 'SELECT COUNT(*) FROM users WHERE login = $1',
@@ -436,7 +436,9 @@ class UserController {
                 standard_deviation,
                 correct_answers,
                 missed_clicks,
-                wrong_clicks
+                wrong_clicks,
+                age,
+                sex
             } = req.body;
 
             const checkUser = await pool.query(
@@ -483,7 +485,9 @@ class UserController {
                 correct_answers,
                 wrong_answers,
                 missed_attempts,
-                accuracy
+                accuracy,
+                age,
+                sex
             } = req.body;
 
             const checkUser = await pool.query(
@@ -523,7 +527,7 @@ class UserController {
 
     async testSimpleRdo(req, res) {
         try {
-            const {login, avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned} = req.body;
+            const {login, avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned, age, sex} = req.body;
 
             const checkUser = await pool.query(
                 'SELECT COUNT(*) FROM users WHERE login = $1',
@@ -562,7 +566,7 @@ class UserController {
 
     async testComplexRdo(req, res) {
         try {
-            const {login, circle1, circle2, circle3, overall} = req.body;
+            const {login, circle1, circle2, circle3, overall, age, sex} = req.body;
 
             const checkUser = await pool.query(
                 'SELECT COUNT(*) FROM users WHERE login = $1',

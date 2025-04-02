@@ -60,109 +60,171 @@
             border-color: #479C92;
             border-radius: 10px;
             font-size: 18px;
-
-
         }
         .disabled{
             opacity:0.5;
         }
+
+        /* Модальное окно для данных пользователя */
+        #userDataModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        #userDataForm {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            color: black;
+            width: 300px;
+        }
+        #userDataForm label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        #userDataForm input, #userDataForm select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+        #userDataForm button {
+            background-color: #479C92;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <h1>Тест на время реакции</h1>
-    <p>Нажмите кнопку "Старт", затем как можно быстрее нажмите кнопку при появлении красного круга.</p>
-    <button id="startButton">Старт</button>
-    <div id="signal"></div>
-    <button id="reactionButton">Нажмите как можно быстрее!</button>
+<h1>Тест на время реакции</h1>
+<p>Нажмите кнопку "Старт", затем как можно быстрее нажмите кнопку при появлении красного круга.</p>
+<button id="startButton">Старт</button>
+<div id="signal"></div>
+<button id="reactionButton">Нажмите как можно быстрее!</button>
 
-    <div id="results">
-        <h2>Результаты теста</h2>
-        <p>Среднее время реакции: <span id="averageTime"></span> мс</p>
-        <p>Стандартное отклонение: <span id="stdDev"></span> мс</p>
-        <p>Пропущено сигналов: <span id="missedSignals"></span></p>
+<div id="results">
+    <h2>Результаты теста</h2>
+    <p>Среднее время реакции: <span id="averageTime"></span> мс</p>
+    <p>Стандартное отклонение: <span id="stdDev"></span> мс</p>
+    <p>Пропущено сигналов: <span id="missedSignals"></span></p>
+</div>
+
+<!-- Модальное окно для ввода данных пользователя -->
+<div id="userDataModal">
+    <div id="userDataForm">
+        <h2>Пожалуйста, укажите ваши данные</h2>
+        <label for="age">Возраст:</label>
+        <input type="number" id="age" min="1" max="120" required>
+
+        <label for="sex">Пол:</label>
+        <select id="sex" required>
+            <option value="">Выберите пол</option>
+            <option value="male">Мужской</option>
+            <option value="female">Женский</option>
+            <option value="other">Другой</option>
+        </select>
+
+        <button onclick="saveUserData()">Сохранить</button>
     </div>
+</div>
 
-    <script>
-        let reactionTimes = [];
-        let missedSignals = 0;
-        let signalCount = 0;
-        let totalTime = 0;
-        let isTestRunning = false;
-        let testStartTime;
-        const testDuration = 2 * 60 * 1000; // 2 минуты в миллисекундах
+<script>
+    let reactionTimes = [];
+    let missedSignals = 0;
+    let signalCount = 0;
+    let totalTime = 0;
+    let isTestRunning = false;
+    let testStartTime;
+    const testDuration = 2 * 60 * 1000; // 2 минуты в миллисекундах
+    let userAge = null;
+    let userSex = null;
 
-        const signalElement = document.getElementById('signal');
-        const startButton = document.getElementById('startButton');
-        const reactionButton = document.getElementById('reactionButton');
-        const averageTimeElement = document.getElementById('averageTime');
-        const stdDevElement = document.getElementById('stdDev');
-        const missedSignalsElement = document.getElementById('missedSignals');
-        const resultsElement = document.getElementById('results');
+    const signalElement = document.getElementById('signal');
+    const startButton = document.getElementById('startButton');
+    const reactionButton = document.getElementById('reactionButton');
+    const averageTimeElement = document.getElementById('averageTime');
+    const stdDevElement = document.getElementById('stdDev');
+    const missedSignalsElement = document.getElementById('missedSignals');
+    const resultsElement = document.getElementById('results');
 
-        // Функция для старта теста
-        function startTest() {
-            signalCount = 0;
-            reactionTimes = [];
-            missedSignals = 0;
-            isTestRunning = true;
-            testStartTime = Date.now(); // Запоминаем время старта теста
-            startButton.disabled = true;
-            startButton.textContent = "Тест в процессе...";
-            reactionButton.style.display = 'block'; // Показываем кнопку
-            signalElement.style.display = 'none'; // Прячем сигнал в начале
-            resultsElement.style.display = 'none'; // Скрыть результаты перед новым тестом
-            startTestCycle();
+    // Функция для старта теста
+    function startTest() {
+        signalCount = 0;
+        reactionTimes = [];
+        missedSignals = 0;
+        isTestRunning = true;
+        testStartTime = Date.now(); // Запоминаем время старта теста
+        startButton.disabled = true;
+        startButton.textContent = "Тест в процессе...";
+        reactionButton.style.display = 'block'; // Показываем кнопку
+        signalElement.style.display = 'none'; // Прячем сигнал в начале
+        resultsElement.style.display = 'none'; // Скрыть результаты перед новым тестом
+        startTestCycle();
 
-            // Закрываем тест по истечению 2 минут
-            setTimeout(endTest, testDuration);
+        // Закрываем тест по истечению 2 минут
+        setTimeout(endTest, testDuration);
+    }
+
+    // Функция для запуска сигнала
+    function startTestCycle() {
+        if (!isTestRunning || Date.now() - testStartTime >= testDuration) {
+            endTest();
+            return;
         }
 
-        // Функция для запуска сигнала
-        function startTestCycle() {
-            if (!isTestRunning || Date.now() - testStartTime >= testDuration) {
-                endTest();
-                return;
-            }
+        signalCount++;
+        let randomDelay = Math.random() * 3000 + 1000;  // случайное время от 1 до 3 секунд
 
-            signalCount++;
-            let randomDelay = Math.random() * 3000 + 1000;  // случайное время от 1 до 3 секунд
+        setTimeout(() => {
+            signalElement.style.display = 'block';
+            const startTime = Date.now();
 
+            reactionButton.onclick = function() {
+                const reactionTime = Date.now() - startTime;
+                reactionTimes.push(reactionTime);
+                signalElement.style.display = 'none';
+
+                // Подготовка к следующему сигналу
+                setTimeout(startTestCycle, Math.random() * 3000 + 1000);
+            };
+
+            // Увеличение количества пропусков если сигнал не был замечен
             setTimeout(() => {
-                signalElement.style.display = 'block';
-                const startTime = Date.now();
-
-                reactionButton.onclick = function() {
-                    const reactionTime = Date.now() - startTime;
-                    reactionTimes.push(reactionTime);
+                if (signalElement.style.display === 'block') {
+                    missedSignals++;
                     signalElement.style.display = 'none';
-
-                    // Подготовка к следующему сигналу
-                    setTimeout(startTestCycle, Math.random() * 3000 + 1000);
-                };
-
-                // Увеличение количества пропусков если сигнал не был замечен
-                setTimeout(() => {
-                    if (signalElement.style.display === 'block') {
-                        missedSignals++;
-                        signalElement.style.display = 'none';
-                        setTimeout(startTestCycle, Math.random() * 3000 + 1000); // Следующий сигнал
-                    }
-                }, randomDelay);
+                    setTimeout(startTestCycle, Math.random() * 3000 + 1000); // Следующий сигнал
+                }
             }, randomDelay);
-        }
+        }, randomDelay);
+    }
 
-        // Функция для завершения теста
-        function endTest() {
-            isTestRunning = false;
-            startButton.disabled = false;
-            startButton.textContent = "Начать новый тест";
-            reactionButton.style.display = 'none'; // Скрыть кнопку
-            signalElement.style.display = 'none'; // Скрыть сигнал
-            displayResults();
-        }
+    // Функция для завершения теста
+    function endTest() {
+        isTestRunning = false;
+        startButton.disabled = false;
+        startButton.textContent = "Начать новый тест";
+        reactionButton.style.display = 'none'; // Скрыть кнопку
+        signalElement.style.display = 'none'; // Скрыть сигнал
+        displayResults();
+    }
 
-        // Функция для отображения результатов
-        function displayResults() {
+    // Функция для отображения результатов
+    function displayResults() {
+        if (reactionTimes.length === 0) {
+            averageTimeElement.textContent = "0";
+            stdDevElement.textContent = "0";
+        } else {
             totalTime = reactionTimes.reduce((a, b) => a + b, 0);
             const averageReactionTime = totalTime / reactionTimes.length;
             averageTimeElement.textContent = averageReactionTime.toFixed(2);
@@ -170,46 +232,96 @@
             const variance = reactionTimes.reduce((a, b) => a + Math.pow(b - averageReactionTime, 2), 0) / reactionTimes.length;
             const standardDeviation = Math.sqrt(variance);
             stdDevElement.textContent = standardDeviation.toFixed(2);
+        }
 
-            missedSignalsElement.textContent = missedSignals;
+        missedSignalsElement.textContent = missedSignals;
+        resultsElement.style.display = 'block'; // Показываем результаты только после завершения теста
 
-            resultsElement.style.display = 'block'; // Показываем результаты только после завершения теста
+        // Рассчитываем результаты для сохранения
+        const averageReactionTime = reactionTimes.length > 0 ?
+            reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length : 0;
+        const standardDeviation = reactionTimes.length > 0 ?
+            Math.sqrt(reactionTimes.reduce((a, b) => a + Math.pow(b - averageReactionTime, 2), 0) / reactionTimes.length) : 0;
 
-            // Сохраняем результаты теста в базу данных
+        // Проверяем, нужно ли запросить данные пользователя
+        if (userAge === null || userSex === null) {
+            showUserDataModal(averageReactionTime, standardDeviation, missedSignals);
+        } else {
             saveTestResults(averageReactionTime, standardDeviation, missedSignals);
         }
+    }
 
-        // Функция для сохранения результатов теста
-        function saveTestResults(averageReactionTime, standardDeviation, missedSignals) {
-            const login = "<%= login %>";
+    // Показать модальное окно с запросом данных пользователя
+    function showUserDataModal(averageReactionTime, standardDeviation, missedSignals) {
+        const modal = document.getElementById('userDataModal');
+        modal.style.display = 'flex';
 
-            fetch('http://localhost:3000/api/test_visual_signal', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    login: login,
-                    averageReactionTime: averageReactionTime,
-                    standardDeviation: standardDeviation,
-                    missedSignals: missedSignals
-                }),
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert("Результаты теста успешно сохранены!");
-                    } else {
-                        alert("Ошибка при сохранении результатов: " + data.message);
-                    }
-                })
-                .catch(error => {
-                    alert("Ошибка сети: " + error.message);
-                });
+        // Сохраняем результаты теста для последующего сохранения
+        modal.dataset.averageReactionTime = averageReactionTime;
+        modal.dataset.standardDeviation = standardDeviation;
+        modal.dataset.missedSignals = missedSignals;
+    }
+
+    // Сохранить данные пользователя
+    function saveUserData() {
+        const ageInput = document.getElementById('age');
+        const sexSelect = document.getElementById('sex');
+
+        if (!ageInput.value || !sexSelect.value) {
+            alert("Пожалуйста, заполните все поля");
+            return;
         }
 
-        // Начать тест по кнопке
-        startButton.addEventListener('click', startTest);
-    </script>
+        userAge = ageInput.value;
+        userSex = sexSelect.value;
+
+        const modal = document.getElementById('userDataModal');
+        modal.style.display = 'none';
+
+        // Получаем сохраненные результаты теста
+        const averageReactionTime = parseFloat(modal.dataset.averageReactionTime);
+        const standardDeviation = parseFloat(modal.dataset.standardDeviation);
+        const missedSignals = parseInt(modal.dataset.missedSignals);
+
+        // Сохраняем результаты с данными пользователя
+        saveTestResults(averageReactionTime, standardDeviation, missedSignals);
+    }
+
+    // Функция для сохранения результатов теста
+    function saveTestResults(averageReactionTime, standardDeviation, missedSignals) {
+        const login = "<%= login %>";
+        const age = userAge;
+        const sex = userSex;
+
+        fetch('http://localhost:3000/api/test_visual_signal', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                login: login,
+                averageReactionTime: averageReactionTime,
+                standardDeviation: standardDeviation,
+                missedSignals: missedSignals,
+                age: age,
+                sex: sex
+            }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Результаты теста успешно сохранены!");
+                } else {
+                    alert("Ошибка при сохранении результатов: " + data.message);
+                }
+            })
+            .catch(error => {
+                alert("Ошибка сети: " + error.message);
+            });
+    }
+
+    // Начать тест по кнопке
+    startButton.addEventListener('click', startTest);
+</script>
 </body>
 </html>

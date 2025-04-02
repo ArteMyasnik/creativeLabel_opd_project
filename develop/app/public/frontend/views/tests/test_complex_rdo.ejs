@@ -102,239 +102,310 @@
       border: 1px solid #ccc;
       text-align: center;
     }
+    /* Модальное окно для данных пользователя */
+    #userDataModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    #userDataForm {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      color: black;
+      width: 300px;
+    }
+    #userDataForm label {
+      display: block;
+      margin-bottom: 10px;
+    }
+    #userDataForm input, #userDataForm select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+    }
+    #userDataForm button {
+      background-color: #479C92;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Кнопка "Начать тест" (изначально видна) -->
-  <button id="startTest">Начать тест</button>
+<!-- Кнопка "Начать тест" (изначально видна) -->
+<button id="startTest">Начать тест</button>
 
-  <!-- Весь интерфейс теста (изначально скрыт) -->
-  <div id="testInterface" class="hidden">
+<!-- Весь интерфейс теста (изначально скрыт) -->
+<div id="testInterface" class="hidden">
 
-    <h1>Тест реакции</h1>
+  <h1>Тест реакции</h1>
 
-    <div class="canvas-container">
-      <canvas id="canvas1" width="200" height="200"></canvas>
-      <canvas id="canvas2" width="200" height="200" class="hidden"></canvas>
-      <canvas id="canvas3" width="200" height="200" class="hidden"></canvas>
-    </div>
-
-    <div class="buttons-container">
-      <div class="button-block">
-        <span class="arrow">⬇</span>
-        <button class="reaction-button" id="btn1">1</button>
-      </div>
-      <div class="button-block">
-        <span class="arrow">⬇</span>
-        <button class="reaction-button" id="btn2">2</button>
-      </div>
-      <div class="button-block">
-        <span class="arrow">⬇</span>
-        <button class="reaction-button" id="btn3">3</button>
-      </div>
-    </div>
-
-    <div id="message"></div>
+  <div class="canvas-container">
+    <canvas id="canvas1" width="200" height="200"></canvas>
+    <canvas id="canvas2" width="200" height="200" class="hidden"></canvas>
+    <canvas id="canvas3" width="200" height="200" class="hidden"></canvas>
   </div>
 
-  <!-- Контейнер с кнопкой "Перезапустить" и результатами (скрыт до окончания теста) -->
-  <div id="resultsContainer" class="hidden">
-    <button id="restart">Перезапустить тест</button>
-    <div id="results"></div>
+  <div class="buttons-container">
+    <div class="button-block">
+      <span class="arrow">⬇</span>
+      <button class="reaction-button" id="btn1">1</button>
+    </div>
+    <div class="button-block">
+      <span class="arrow">⬇</span>
+      <button class="reaction-button" id="btn2">2</button>
+    </div>
+    <div class="button-block">
+      <span class="arrow">⬇</span>
+      <button class="reaction-button" id="btn3">3</button>
+    </div>
   </div>
 
-  <script>
-    // Параметры теста
-    const testDuration = 120000; // 2 минуты
-    const segmentDuration = testDuration / 3; // 40 секунд на круг
-    const threshold_ms = 100; // порог точного ответа
+  <div id="message"></div>
+</div>
 
-    let startTime = null;
-    let lastTimestamp = null;
-    let currentCircle = 1;
-    let testActive = false;
-    let animationFrameId;
+<!-- Контейнер с кнопкой "Перезапустить" и результатами (скрыт до окончания теста) -->
+<div id="resultsContainer" class="hidden">
+  <button id="restart">Перезапустить тест</button>
+  <div id="results"></div>
+</div>
 
-    // Данные для каждого круга
-    const circleData = {
-      1: { canvas: null, ctx: null, angle: 0, speed: 1.2, starAngle: Math.PI / 4, radius: 60, ballColor: "red" },
-      2: { canvas: null, ctx: null, angle: 0, speed: 1.8, starAngle: Math.PI / 4, radius: 60, ballColor: "blue" },
-      3: { canvas: null, ctx: null, angle: 0, speed: 2.4, starAngle: Math.PI / 4, radius: 60, ballColor: "green" }
-    };
+<!-- Модальное окно для ввода данных пользователя -->
+<div id="userDataModal">
+  <div id="userDataForm">
+    <h2>Пожалуйста, укажите ваши данные</h2>
+    <label for="age">Возраст:</label>
+    <input type="number" id="age" min="1" max="120" required>
 
-    // Ошибки (мс) по кругам
-    let responses = { 1: [], 2: [], 3: [] };
+    <label for="sex">Пол:</label>
+    <select id="sex" required>
+      <option value="">Выберите пол</option>
+      <option value="male">Мужской</option>
+      <option value="female">Женский</option>
+      <option value="other">Другой</option>
+    </select>
 
-    // Инициализация холстов
-    function initCircle(num) {
-      const cd = circleData[num];
-      cd.canvas = document.getElementById("canvas" + num);
-      cd.ctx = cd.canvas.getContext("2d");
+    <button onclick="saveUserData()">Сохранить</button>
+  </div>
+</div>
+
+<script>
+  // Параметры теста
+  const testDuration = 120000; // 2 минуты
+  const segmentDuration = testDuration / 3; // 40 секунд на круг
+  const threshold_ms = 100; // порог точного ответа
+
+  let startTime = null;
+  let lastTimestamp = null;
+  let currentCircle = 1;
+  let testActive = false;
+  let animationFrameId;
+  let userAge = null;
+  let userSex = null;
+
+  // Данные для каждого круга
+  const circleData = {
+    1: { canvas: null, ctx: null, angle: 0, speed: 1.2, starAngle: Math.PI / 4, radius: 60, ballColor: "red" },
+    2: { canvas: null, ctx: null, angle: 0, speed: 1.8, starAngle: Math.PI / 4, radius: 60, ballColor: "blue" },
+    3: { canvas: null, ctx: null, angle: 0, speed: 2.4, starAngle: Math.PI / 4, radius: 60, ballColor: "green" }
+  };
+
+  // Ошибки (мс) по кругам
+  let responses = { 1: [], 2: [], 3: [] };
+  let circleResults = { 1: {}, 2: {}, 3: {} };
+
+  // Инициализация холстов
+  function initCircle(num) {
+    const cd = circleData[num];
+    cd.canvas = document.getElementById("canvas" + num);
+    cd.ctx = cd.canvas.getContext("2d");
+    const centerX = cd.canvas.width / 2;
+    const centerY = cd.canvas.height / 2;
+    cd.starX = centerX + cd.radius * Math.cos(cd.starAngle);
+    cd.starY = centerY + cd.radius * Math.sin(cd.starAngle);
+  }
+
+  // Нормализация угла
+  function normalizeAngle(angle) {
+    while (angle > Math.PI) angle -= 2 * Math.PI;
+    while (angle < -Math.PI) angle += 2 * Math.PI;
+    return angle;
+  }
+
+  // Рисуем окружность, звезду и шарик
+  function drawCircle(num) {
+    const cd = circleData[num];
+    const ctx = cd.ctx;
+    const w = cd.canvas.width;
+    const h = cd.canvas.height;
+    const centerX = w / 2;
+    const centerY = h / 2;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Окружность
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, cd.radius, 0, 2 * Math.PI);
+    ctx.strokeStyle = "#000";
+    ctx.stroke();
+
+    // Звезда
+    ctx.fillStyle = "orange";
+    ctx.beginPath();
+    for (let i = 0; i < 5; i++) {
+      let a = (i * 2 * Math.PI) / 5 - Math.PI / 2;
+      let x = cd.starX + 10 * Math.cos(a);
+      let y = cd.starY + 10 * Math.sin(a);
+      ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fill();
+
+    // Шарик
+    cd.ballX = centerX + cd.radius * Math.cos(cd.angle);
+    cd.ballY = centerY + cd.radius * Math.sin(cd.angle);
+    ctx.fillStyle = cd.ballColor;
+    ctx.beginPath();
+    ctx.arc(cd.ballX, cd.ballY, 8, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+
+  // Обновляем угол шарика и перерисовываем
+  function updateCircle(num, dt) {
+    const cd = circleData[num];
+    cd.angle += cd.speed * (dt / 1000);
+    if (cd.angle > 2 * Math.PI) {
+      cd.angle -= 2 * Math.PI;
+    }
+    drawCircle(num);
+  }
+
+  // Показываем/скрываем канвасы
+  function updateCanvasVisibility() {
+    for (let i = 1; i <= 3; i++) {
+      let canvasEl = document.getElementById("canvas" + i);
+      canvasEl.classList.toggle("hidden", i !== currentCircle);
+    }
+  }
+
+  // Анимационный цикл
+  function animationLoop(timestamp) {
+    if (!testActive) return; // если тест не запущен, выходим
+    if (!startTime) {
+      startTime = timestamp;
+      lastTimestamp = timestamp;
+    }
+    const elapsed = timestamp - startTime;
+    if (elapsed >= testDuration) {
+      endTest();
+      return;
+    }
+    const segment = Math.floor(elapsed / segmentDuration) + 1;
+    if (segment !== currentCircle) {
+      currentCircle = segment;
+      updateCanvasVisibility();
+    }
+    const dt = timestamp - lastTimestamp;
+    lastTimestamp = timestamp;
+    updateCircle(currentCircle, dt);
+    animationFrameId = requestAnimationFrame(animationLoop);
+  }
+
+  // Вывод краткого сообщения
+  function showMessage(text) {
+    const msgDiv = document.getElementById("message");
+    msgDiv.textContent = text;
+    setTimeout(() => { msgDiv.textContent = ""; }, 1500);
+  }
+
+  // При нажатии кнопок "1", "2", "3"
+  function checkReaction(num) {
+    if (!testActive) return;
+    if (num !== currentCircle) {
+      showMessage("Сейчас активен круг №" + currentCircle);
+      return;
+    }
+    const cd = circleData[num];
+    let errorAngle = normalizeAngle(cd.starAngle - cd.angle);
+    let errorSec = errorAngle / cd.speed;
+    let errorMs = errorSec * 1000;
+    responses[num].push(errorMs);
+    let sign = errorMs >= 0 ? "+" : "";
+    if (Math.abs(errorMs) <= threshold_ms) {
+      showMessage("Верно! (Круг " + num + ")");
+      // Перемещаем звезду
+      cd.starAngle = Math.random() * 2 * Math.PI;
       const centerX = cd.canvas.width / 2;
       const centerY = cd.canvas.height / 2;
       cd.starX = centerX + cd.radius * Math.cos(cd.starAngle);
       cd.starY = centerY + cd.radius * Math.sin(cd.starAngle);
+    } else {
+      showMessage("Промах: " + sign + errorMs.toFixed(0) + " ms (Круг " + num + ")");
     }
+  }
 
-    // Нормализация угла
-    function normalizeAngle(angle) {
-      while (angle > Math.PI) angle -= 2 * Math.PI;
-      while (angle < -Math.PI) angle += 2 * Math.PI;
-      return angle;
-    }
+  // Среднее
+  function average(arr) {
+    if (arr.length === 0) return 0;
+    return arr.reduce((sum, val) => sum + val, 0) / arr.length;
+  }
+  // Ст. отклонение
+  function stdDev(arr) {
+    if (arr.length === 0) return 0;
+    let avg = average(arr);
+    let variance = arr.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / arr.length;
+    return Math.sqrt(variance);
+  }
 
-    // Рисуем окружность, звезду и шарик
-    function drawCircle(num) {
-      const cd = circleData[num];
-      const ctx = cd.ctx;
-      const w = cd.canvas.width;
-      const h = cd.canvas.height;
-      const centerX = w / 2;
-      const centerY = h / 2;
+  // Завершение теста
+  function endTest() {
+    testActive = false;
+    cancelAnimationFrame(animationFrameId);
+    showResults();
+    // Скрываем интерфейс теста
+    document.getElementById("testInterface").classList.add("hidden");
+    // Показываем контейнер результатов
+    document.getElementById("resultsContainer").classList.remove("hidden");
+  }
 
-      ctx.clearRect(0, 0, w, h);
+  // Показать результаты
+  function showResults() {
+    let resDiv = document.getElementById("results");
+    let html = "<h2>Результаты теста</h2>";
+    html += "<table><tr><th>Круг</th><th>Ответов</th><th>Средняя ошибка (мс)</th><th>Средняя абс. ошибка (мс)</th><th>Ст. отклонение (абс)</th><th>Ст. отклонение (с знак.)</th></tr>";
+    let allErrors = [];
 
-      // Окружность
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, cd.radius, 0, 2 * Math.PI);
-      ctx.strokeStyle = "#000";
-      ctx.stroke();
+    // Сохраняем результаты для каждого круга
+    for (let i = 1; i <= 3; i++) {
+      let arr = responses[i];
+      let avgErr = average(arr);
+      let absArr = arr.map(Math.abs);
+      let avgAbs = average(absArr);
+      let stdAbs = stdDev(absArr);
+      let stdSigned = stdDev(arr);
+      allErrors = allErrors.concat(arr);
 
-      // Звезда
-      ctx.fillStyle = "orange";
-      ctx.beginPath();
-      for (let i = 0; i < 5; i++) {
-        let a = (i * 2 * Math.PI) / 5 - Math.PI / 2;
-        let x = cd.starX + 10 * Math.cos(a);
-        let y = cd.starY + 10 * Math.sin(a);
-        ctx.lineTo(x, y);
-      }
-      ctx.closePath();
-      ctx.fill();
+      circleResults[i] = {
+        responses: arr.length,
+        avgError: avgErr.toFixed(1),
+        avgAbsError: avgAbs.toFixed(1),
+        stdAbs: stdAbs.toFixed(1),
+        stdSigned: stdSigned.toFixed(1)
+      };
 
-      // Шарик
-      cd.ballX = centerX + cd.radius * Math.cos(cd.angle);
-      cd.ballY = centerY + cd.radius * Math.sin(cd.angle);
-      ctx.fillStyle = cd.ballColor;
-      ctx.beginPath();
-      ctx.arc(cd.ballX, cd.ballY, 8, 0, 2 * Math.PI);
-      ctx.fill();
-    }
-
-    // Обновляем угол шарика и перерисовываем
-    function updateCircle(num, dt) {
-      const cd = circleData[num];
-      cd.angle += cd.speed * (dt / 1000);
-      if (cd.angle > 2 * Math.PI) {
-        cd.angle -= 2 * Math.PI;
-      }
-      drawCircle(num);
-    }
-
-    // Показываем/скрываем канвасы
-    function updateCanvasVisibility() {
-      for (let i = 1; i <= 3; i++) {
-        let canvasEl = document.getElementById("canvas" + i);
-        canvasEl.classList.toggle("hidden", i !== currentCircle);
-      }
-    }
-
-    // Анимационный цикл
-    function animationLoop(timestamp) {
-      if (!testActive) return; // если тест не запущен, выходим
-      if (!startTime) {
-        startTime = timestamp;
-        lastTimestamp = timestamp;
-      }
-      const elapsed = timestamp - startTime;
-      if (elapsed >= testDuration) {
-        endTest();
-        return;
-      }
-      const segment = Math.floor(elapsed / segmentDuration) + 1;
-      if (segment !== currentCircle) {
-        currentCircle = segment;
-        updateCanvasVisibility();
-      }
-      const dt = timestamp - lastTimestamp;
-      lastTimestamp = timestamp;
-      updateCircle(currentCircle, dt);
-      animationFrameId = requestAnimationFrame(animationLoop);
-    }
-
-    // Вывод краткого сообщения
-    function showMessage(text) {
-      const msgDiv = document.getElementById("message");
-      msgDiv.textContent = text;
-      setTimeout(() => { msgDiv.textContent = ""; }, 1500);
-    }
-
-    // При нажатии кнопок "1", "2", "3"
-    function checkReaction(num) {
-      if (!testActive) return;
-      if (num !== currentCircle) {
-        showMessage("Сейчас активен круг №" + currentCircle);
-        return;
-      }
-      const cd = circleData[num];
-      let errorAngle = normalizeAngle(cd.starAngle - cd.angle);
-      let errorSec = errorAngle / cd.speed;
-      let errorMs = errorSec * 1000;
-      responses[num].push(errorMs);
-      let sign = errorMs >= 0 ? "+" : "";
-      if (Math.abs(errorMs) <= threshold_ms) {
-        showMessage("Верно! (Круг " + num + ")");
-        // Перемещаем звезду
-        cd.starAngle = Math.random() * 2 * Math.PI;
-        const centerX = cd.canvas.width / 2;
-        const centerY = cd.canvas.height / 2;
-        cd.starX = centerX + cd.radius * Math.cos(cd.starAngle);
-        cd.starY = centerY + cd.radius * Math.sin(cd.starAngle);
-      } else {
-        showMessage("Промах: " + sign + errorMs.toFixed(0) + " ms (Круг " + num + ")");
-      }
-    }
-
-    // Среднее
-    function average(arr) {
-      if (arr.length === 0) return 0;
-      return arr.reduce((sum, val) => sum + val, 0) / arr.length;
-    }
-    // Ст. отклонение
-    function stdDev(arr) {
-      if (arr.length === 0) return 0;
-      let avg = average(arr);
-      let variance = arr.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / arr.length;
-      return Math.sqrt(variance);
-    }
-
-    // Завершение теста
-    function endTest() {
-      testActive = false;
-      cancelAnimationFrame(animationFrameId);
-      showResults();
-      // Скрываем интерфейс теста
-      document.getElementById("testInterface").classList.add("hidden");
-      // Показываем контейнер результатов
-      document.getElementById("resultsContainer").classList.remove("hidden");
-    }
-
-    // Показать результаты
-    function showResults() {
-      let resDiv = document.getElementById("results");
-      let html = "<h2>Результаты теста</h2>";
-      html += "<table><tr><th>Круг</th><th>Ответов</th><th>Средняя ошибка (мс)</th><th>Средняя абс. ошибка (мс)</th><th>Ст. отклонение (абс)</th><th>Ст. отклонение (с знак.)</th></tr>";
-      let allErrors = [];
-      for (let i = 1; i <= 3; i++) {
-        let arr = responses[i];
-        let avgErr = average(arr);
-        let absArr = arr.map(Math.abs);
-        let avgAbs = average(absArr);
-        let stdAbs = stdDev(absArr);
-        let stdSigned = stdDev(arr);
-        allErrors = allErrors.concat(arr);
-        html += `<tr>
+      html += `<tr>
           <td>${i}</td>
           <td>${arr.length}</td>
           <td>${avgErr.toFixed(1)}</td>
@@ -342,107 +413,152 @@
           <td>${stdAbs.toFixed(1)}</td>
           <td>${stdSigned.toFixed(1)}</td>
         </tr>`;
-      }
-      let overallAvg = average(allErrors);
-      let overallAvgAbs = average(allErrors.map(Math.abs));
-      let overallStdAbs = stdDev(allErrors.map(Math.abs));
-      let overallStdSigned = stdDev(allErrors);
-      html += `<tr style="font-weight:bold;">
+    }
+
+    let overallResults = {
+      responses: allErrors.length,
+      avgError: average(allErrors).toFixed(1),
+      avgAbsError: average(allErrors.map(Math.abs)).toFixed(1),
+      stdAbs: stdDev(allErrors.map(Math.abs)).toFixed(1),
+      stdSigned: stdDev(allErrors).toFixed(1)
+    };
+
+    html += `<tr style="font-weight:bold;">
         <td>ВСЕ</td>
-        <td>${allErrors.length}</td>
-        <td>${overallAvg.toFixed(1)}</td>
-        <td>${overallAvgAbs.toFixed(1)}</td>
-        <td>${overallStdAbs.toFixed(1)}</td>
-        <td>${overallStdSigned.toFixed(1)}</td>
+        <td>${overallResults.responses}</td>
+        <td>${overallResults.avgError}</td>
+        <td>${overallResults.avgAbsError}</td>
+        <td>${overallResults.stdAbs}</td>
+        <td>${overallResults.stdSigned}</td>
       </tr>`;
-      html += "</table>";
-      resDiv.innerHTML = html;
+    html += "</table>";
+    resDiv.innerHTML = html;
 
-      saveReactionCircleResults(circleResults[1], circleResults[2], circleResults[3], {
-        responses: allErrors.length,
-        avgError: overallAvg.toFixed(1),
-        avgAbsError: overallAvgAbs.toFixed(1),
-        stdAbs: overallStdAbs.toFixed(1),
-        stdSigned: overallStdSigned.toFixed(1)
-      });
+    // Проверяем, нужно ли запросить данные пользователя
+    if (userAge === null || userSex === null) {
+      showUserDataModal(circleResults, overallResults);
+    } else {
+      saveReactionCircleResults(circleResults[1], circleResults[2], circleResults[3], overallResults);
+    }
+  }
+
+  // Показать модальное окно с запросом данных пользователя
+  function showUserDataModal(circleResults, overallResults) {
+    const modal = document.getElementById('userDataModal');
+    modal.style.display = 'flex';
+
+    // Сохраняем результаты теста для последующего сохранения
+    modal.dataset.circle1 = JSON.stringify(circleResults[1]);
+    modal.dataset.circle2 = JSON.stringify(circleResults[2]);
+    modal.dataset.circle3 = JSON.stringify(circleResults[3]);
+    modal.dataset.overall = JSON.stringify(overallResults);
+  }
+
+  // Сохранить данные пользователя
+  function saveUserData() {
+    const ageInput = document.getElementById('age');
+    const sexSelect = document.getElementById('sex');
+
+    if (!ageInput.value || !sexSelect.value) {
+      alert("Пожалуйста, заполните все поля");
+      return;
     }
 
-    function saveReactionCircleResults(circle1, circle2, circle3, overall) {
-      const login = "<%= login %>";
+    userAge = ageInput.value;
+    userSex = sexSelect.value;
 
-      fetch('http://localhost:3000/api/test_complex_rdo', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          login: login,
-          circle1: circle1,
-          circle2: circle2,
-          circle3: circle3,
-          overall: overall
-        }),
-      })
-              .then(response => response.json())
-              .then(data => {
-                if (data.success) {
-                  alert("Результаты теста успешно сохранены!");
-                } else {
-                  alert("Ошибка при сохранении результатов: " + data.message);
-                }
-              })
-              .catch(error => {
-                alert("Ошибка сети: " + error.message);
-              });
-    }
+    const modal = document.getElementById('userDataModal');
+    modal.style.display = 'none';
 
+    // Получаем сохраненные результаты теста
+    const circle1 = JSON.parse(modal.dataset.circle1);
+    const circle2 = JSON.parse(modal.dataset.circle2);
+    const circle3 = JSON.parse(modal.dataset.circle3);
+    const overall = JSON.parse(modal.dataset.overall);
 
-    // Запуск теста
-    function startTest() {
-      // Скрываем кнопку "Начать тест", показываем интерфейс
-      document.getElementById("startTest").classList.add("hidden");
-      document.getElementById("testInterface").classList.remove("hidden");
-      // Сброс переменных
-      startTime = null;
-      lastTimestamp = null;
-      currentCircle = 1;
-      testActive = true;
-      responses = { 1: [], 2: [], 3: [] };
-      // Сбрасываем углы/звезду в начальное положение
-      for (let i = 1; i <= 3; i++) {
-        circleData[i].angle = 0;
-        circleData[i].starAngle = Math.PI / 4;
-        const cd = circleData[i];
-        const centerX = cd.canvas.width / 2;
-        const centerY = cd.canvas.height / 2;
-        cd.starX = centerX + cd.radius * Math.cos(cd.starAngle);
-        cd.starY = centerY + cd.radius * Math.sin(cd.starAngle);
-      }
-      updateCanvasVisibility();
-      // Скрываем результаты (если были)
-      document.getElementById("resultsContainer").classList.add("hidden");
-      document.getElementById("results").innerHTML = "";
-      // Запускаем анимацию
-      requestAnimationFrame(animationLoop);
-    }
+    // Сохраняем результаты с данными пользователя
+    saveReactionCircleResults(circle1, circle2, circle3, overall);
+  }
 
-    // Перезапуск
-    function resetTest() {
-      // Просто вызываем startTest заново
-      startTest();
-    }
+  function saveReactionCircleResults(circle1, circle2, circle3, overall) {
+    const login = "<%= login %>";
+    const age = userAge;
+    const sex = userSex;
 
-    // Слушатели
-    document.getElementById("btn1").addEventListener("click", () => checkReaction(1));
-    document.getElementById("btn2").addEventListener("click", () => checkReaction(2));
-    document.getElementById("btn3").addEventListener("click", () => checkReaction(3));
-    document.getElementById("startTest").addEventListener("click", startTest);
-    document.getElementById("restart").addEventListener("click", resetTest);
+    fetch('http://localhost:3000/api/test_complex_rdo', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        login: login,
+        circle1: circle1,
+        circle2: circle2,
+        circle3: circle3,
+        overall: overall,
+        age: age,
+        sex: sex
+      }),
+    })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                alert("Результаты теста успешно сохранены!");
+              } else {
+                alert("Ошибка при сохранении результатов: " + data.message);
+              }
+            })
+            .catch(error => {
+              alert("Ошибка сети: " + error.message);
+            });
+  }
 
-    // Инициализация канвасов
+  // Запуск теста
+  function startTest() {
+    // Скрываем кнопку "Начать тест", показываем интерфейс
+    document.getElementById("startTest").classList.add("hidden");
+    document.getElementById("testInterface").classList.remove("hidden");
+    // Сброс переменных
+    startTime = null;
+    lastTimestamp = null;
+    currentCircle = 1;
+    testActive = true;
+    responses = { 1: [], 2: [], 3: [] };
+    // Сбрасываем углы/звезду в начальное положение
     for (let i = 1; i <= 3; i++) {
-      initCircle(i);
+      circleData[i].angle = 0;
+      circleData[i].starAngle = Math.PI / 4;
+      const cd = circleData[i];
+      const centerX = cd.canvas.width / 2;
+      const centerY = cd.canvas.height / 2;
+      cd.starX = centerX + cd.radius * Math.cos(cd.starAngle);
+      cd.starY = centerY + cd.radius * Math.sin(cd.starAngle);
     }
-  </script>
+    updateCanvasVisibility();
+    // Скрываем результаты (если были)
+    document.getElementById("resultsContainer").classList.add("hidden");
+    document.getElementById("results").innerHTML = "";
+    // Запускаем анимацию
+    requestAnimationFrame(animationLoop);
+  }
+
+  // Перезапуск
+  function resetTest() {
+    // Просто вызываем startTest заново
+    startTest();
+  }
+
+  // Слушатели
+  document.getElementById("btn1").addEventListener("click", () => checkReaction(1));
+  document.getElementById("btn2").addEventListener("click", () => checkReaction(2));
+  document.getElementById("btn3").addEventListener("click", () => checkReaction(3));
+  document.getElementById("startTest").addEventListener("click", startTest);
+  document.getElementById("restart").addEventListener("click", resetTest);
+
+  // Инициализация канвасов
+  for (let i = 1; i <= 3; i++) {
+    initCircle(i);
+  }
+</script>
 </body>
 </html>
