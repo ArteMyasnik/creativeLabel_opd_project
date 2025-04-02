@@ -232,6 +232,7 @@ app.get('/professions_rating', async (req, res) => {
         const pvks = result_pvk.rows;
         const result_profession = await pool.query('SELECT * FROM professions');
         const professions = result_profession.rows;
+
         res.render('professions_rating', { pvks: pvks, professions: professions, isAdmin: !!req.session.isAdmin, login: req.session.login || null, isExpert: !!req.session.isExpert });
     } catch (err) {
         console.error('Ошибка при выполнении запроса:', err);
@@ -258,28 +259,43 @@ app.get('/results', (req, res) => {
 
 // -----------------------------------------------------------------------------------------
 // Pages HTML tests ------------------------------------------------------------------------
-app.get('/test_visual_signal', (req, res) => {
+app.get('/test_visual_signal', async (req, res) => {
     const login = req.session.login || null;
-    res.render('tests/test_visual_signal', { login });
+    const result_age_sex = await pool.query('SELECT age, sex FROM users WHERE login=$1', [req.session.login])
+    const age = result_age_sex.rows[0].age;
+    const sex = result_age_sex.rows[0].sex;
+    res.render('tests/test_visual_signal', { login, age: age || null, sex: sex || null });
 });
 
-app.get('/test_color_signal', (req, res) => {
+app.get('/test_color_signal', async (req, res) => {
     const login = req.session.login || null;
-    res.render('tests/test_color_signal', { login });
+    const result_age_sex = await pool.query('SELECT age, sex FROM users WHERE login=$1', [req.session.login])
+    const age = result_age_sex.rows[0].age;
+    const sex = result_age_sex.rows[0].sex;
+    res.render('tests/test_color_signal', { login, age: age || null, sex: sex || null });
 });
 
-app.get('/test_digital_signal', (req, res) => {
+app.get('/test_digital_signal', async (req, res) => {
     const login = req.session.login || null;
-    res.render('tests/test_digital_signal', { login });
+    const result_age_sex = await pool.query('SELECT age, sex FROM users WHERE login=$1', [req.session.login])
+    const age = result_age_sex.rows[0].age;
+    const sex = result_age_sex.rows[0].sex;
+    res.render('tests/test_digital_signal', { login, age: age || null, sex: sex || null });
 });
 
-app.get('/test_simple_rdo', (req, res) => {
+app.get('/test_simple_rdo', async (req, res) => {
     const login = req.session.login || null;
-    res.render('tests/test_simple_rdo', { login });
+    const result_age_sex = await pool.query('SELECT age, sex FROM users WHERE login=$1', [req.session.login])
+    const age = result_age_sex.rows[0].age;
+    const sex = result_age_sex.rows[0].sex;
+    res.render('tests/test_simple_rdo', { login, age: age || null, sex: sex || null });
 });
-app.get('/test_complex_rdo', (req, res) => {
+app.get('/test_complex_rdo', async (req, res) => {
     const login = req.session.login || null;
-    res.render('tests/test_complex_rdo', { login });
+    const result_age_sex = await pool.query('SELECT age, sex FROM users WHERE login=$1', [req.session.login])
+    const age = result_age_sex.rows[0].age;
+    const sex = result_age_sex.rows[0].sex;
+    res.render('tests/test_complex_rdo', { login, age: age || null, sex: sex || null });
 });
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------

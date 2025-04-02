@@ -17,7 +17,6 @@
             margin: 0;
             background-color: black;
             color: white;
-
         }
         .signal {
             width: 200px;
@@ -32,8 +31,8 @@
         .button {
             width: 100px;
             height: 50px;
-            background-color: #479C92; /* Цвет кнопок */
-            color: white; /* Белый текст на кнопках */
+            background-color: #479C92;
+            color: white;
             border-color: #479C92;
             border-radius: 10px;
             font-family: Montserrat;
@@ -45,7 +44,7 @@
         }
         #results {
             margin-top: 20px;
-            display: none; /* Скрываем результаты по умолчанию */
+            display: none;
             padding: 20px;
             border: 1px solid #ccc;
             background-color: #f9f9f9;
@@ -57,15 +56,14 @@
             color: white;
             font-family: 'Montserrat', Arial, sans-serif;
         }
-
         #startButton {
-            margin-top: 20px; /* Отступ сверху для кнопки "Начать тест" */
-            background-color: #479C92; /* Цвет кнопки */
-            color: white; /* Белый текст */
+            margin-top: 20px;
+            background-color: #479C92;
+            color: white;
             border: none;
-            border-radius: 10px; /* Закругление углов */
+            border-radius: 10px;
             padding: 10px 20px;
-            font-family: 'Montserrat', Arial, sans-serif; /* Шрифт Montserrat */
+            font-family: 'Montserrat', Arial, sans-serif;
             font-size: 16px;
             cursor: pointer;
             transition: background-color 0.3s ease;
@@ -74,8 +72,43 @@
             opacity: 0.5;
             pointer-events: none;
         }
-
-
+        #userDataModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        #userDataForm {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            color: black;
+            width: 300px;
+        }
+        #userDataForm label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        #userDataForm input, #userDataForm select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+        #userDataForm button {
+            background-color: #479C92;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -88,6 +121,26 @@
 </div>
 <button id="startButton" onclick="startTest()">Начать тест</button>
 <div id="results"></div>
+
+<!-- Модальное окно для ввода данных пользователя -->
+<div id="userDataModal">
+    <div id="userDataForm">
+        <h2>Пожалуйста, укажите ваши данные</h2>
+        <label for="age">Возраст:</label>
+        <input type="number" id="age" min="1" max="120" required>
+
+        <label for="sex">Пол:</label>
+        <select id="sex" required>
+            <option value="">Выберите пол</option>
+            <option value="male">Мужской</option>
+            <option value="female">Женский</option>
+            <option value="other">Другой</option>
+        </select>
+
+        <button onclick="saveUserData()">Сохранить</button>
+    </div>
+</div>
+
 <script>
     const colors = ['red', 'blue', 'green'];
     let currentColor = '';
@@ -98,6 +151,8 @@
     let wrongClicks = 0;
     let testTimeout;
     let signalTimeout;
+    let userAge = null;
+    let userSex = null;
 
     function startSignal() {
         const signalElement = document.getElementById('signal');
@@ -109,12 +164,12 @@
                 missedClicks++;
             }
             signalElement.style.backgroundColor = 'transparent';
-            startSignal(); // Начинаем новый цикл после истечения времени
+            startSignal();
         }, 5000);
     }
 
     function checkAnswer(answer) {
-        clearTimeout(signalTimeout); // Останавливаем таймер сигнала
+        clearTimeout(signalTimeout);
 
         const endTime = Date.now();
         const reactionTime = endTime - startTime;
@@ -126,7 +181,7 @@
             wrongClicks++;
         }
 
-        startSignal(); // Начинаем новый цикл после ответа
+        startSignal();
     }
 
     function showResults() {
@@ -147,11 +202,13 @@
                 <p>Количество пропусков: ${missedClicks}</p>
                 <p>Количество ошибок - неправильное нажатие: ${wrongClicks}</p>
             `;
-        resultsDiv.style.display = 'block'; // Показываем результаты
+        resultsDiv.style.display = 'block';
     }
 
     function saveTestResults(averageReactionTime, standardDeviation, correctAnswers, missedClicks, wrongClicks) {
         const login = "<%= login %>";
+        const age = userAge;
+        const sex = userSex;
 
         fetch('http://localhost:3000/api/test_color_signal', {
             method: 'POST',
@@ -164,7 +221,9 @@
                 standardDeviation: standardDeviation,
                 correctAnswers: correctAnswers,
                 missedClicks: missedClicks,
-                wrongClicks: wrongClicks
+                wrongClicks: wrongClicks,
+                age: age,
+                sex: sex
             }),
         })
             .then(response => response.json())
@@ -181,12 +240,11 @@
     }
 
     function finishTest() {
-        console.log("Function finishTest called"); // Проверка вызова функции
-        clearTimeout(testTimeout); // Останавливаем таймер теста
-        clearTimeout(signalTimeout); // Останавливаем таймер сигнала
+        console.log("Function finishTest called");
+        clearTimeout(testTimeout);
+        clearTimeout(signalTimeout);
         showResults();
 
-        // Сохраняем результаты теста на сервере
         let averageReactionTime = 0;
         let standardDeviation = 0;
 
@@ -196,15 +254,58 @@
             standardDeviation = Math.sqrt(variance);
         }
 
-        saveTestResults(averageReactionTime, standardDeviation, correctAnswers, missedClicks, wrongClicks);
+        // Проверяем, нужно ли запросить данные пользователя
+        if (userAge === null || userSex === null) {
+            showUserDataModal(averageReactionTime, standardDeviation, correctAnswers, missedClicks, wrongClicks);
+        } else {
+            saveTestResults(averageReactionTime, standardDeviation, correctAnswers, missedClicks, wrongClicks);
+        }
 
         resetTest();
+    }
+
+    function showUserDataModal(averageReactionTime, standardDeviation, correctAnswers, missedClicks, wrongClicks) {
+        const modal = document.getElementById('userDataModal');
+        modal.style.display = 'flex';
+
+        // Сохраняем результаты теста для последующего сохранения
+        modal.dataset.averageReactionTime = averageReactionTime;
+        modal.dataset.standardDeviation = standardDeviation;
+        modal.dataset.correctAnswers = correctAnswers;
+        modal.dataset.missedClicks = missedClicks;
+        modal.dataset.wrongClicks = wrongClicks;
+    }
+
+    function saveUserData() {
+        const ageInput = document.getElementById('age');
+        const sexSelect = document.getElementById('sex');
+
+        if (!ageInput.value || !sexSelect.value) {
+            alert("Пожалуйста, заполните все поля");
+            return;
+        }
+
+        userAge = ageInput.value;
+        userSex = sexSelect.value;
+
+        const modal = document.getElementById('userDataModal');
+        modal.style.display = 'none';
+
+        // Получаем сохраненные результаты теста
+        const averageReactionTime = parseFloat(modal.dataset.averageReactionTime);
+        const standardDeviation = parseFloat(modal.dataset.standardDeviation);
+        const correctAnswers = parseInt(modal.dataset.correctAnswers);
+        const missedClicks = parseInt(modal.dataset.missedClicks);
+        const wrongClicks = parseInt(modal.dataset.wrongClicks);
+
+        // Сохраняем результаты с данными пользователя
+        saveTestResults(averageReactionTime, standardDeviation, correctAnswers, missedClicks, wrongClicks);
     }
 
     function resetTest() {
         console.log("Test reset");
         const startButton = document.getElementById('startButton');
-        startButton.disabled = false; // Включаем кнопку "Начать тест"
+        startButton.disabled = false;
         reactionTimes = [];
         correctAnswers = 0;
         missedClicks = 0;
@@ -212,27 +313,27 @@
         const signalElement = document.getElementById('signal');
         signalElement.style.backgroundColor = 'transparent';
         const buttons = document.querySelectorAll('.button');
-        buttons.forEach(button => button.classList.add('disabled')); // Отключаем кнопки
+        buttons.forEach(button => button.classList.add('disabled'));
         const resultsDiv = document.getElementById('results');
-        resultsDiv.style.display = 'none'; // Скрываем результаты
+        resultsDiv.style.display = 'none';
     }
 
     function startTest() {
         console.log("Test started");
-        resetTest(); // Сбрасываем тест перед началом нового
+        resetTest();
         const startButton = document.getElementById('startButton');
-        startButton.disabled = true; // Отключаем кнопку после начала теста
+        startButton.disabled = true;
 
         const buttons = document.querySelectorAll('.button');
         buttons.forEach(button => {
-            button.classList.remove('disabled'); // Включаем кнопки
+            button.classList.remove('disabled');
             button.addEventListener('click', function() {
                 checkAnswer(this.className.split(' ')[1]);
             });
         });
 
         startSignal();
-        testTimeout = setTimeout(finishTest, 0.3 * 60 * 1000); // Завершаем тест через 2 минуты
+        testTimeout = setTimeout(finishTest, 0.3 * 60 * 1000);
     }
 </script>
 </body>

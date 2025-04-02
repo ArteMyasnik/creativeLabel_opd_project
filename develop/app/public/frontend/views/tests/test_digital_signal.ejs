@@ -56,6 +56,44 @@
         .disabled{
             opacity:0.5;
         }
+        /* Модальное окно для данных пользователя */
+        #userDataModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        #userDataForm {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            color: black;
+            width: 300px;
+        }
+        #userDataForm label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        #userDataForm input, #userDataForm select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+        #userDataForm button {
+            background-color: #479C92;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -65,6 +103,25 @@
 <button class="answerBtn" id="evenBtn">Чётная сумма</button>
 <button class="answerBtn" id="oddBtn">Нечётная сумма</button>
 <div id="results"></div>
+
+<!-- Модальное окно для ввода данных пользователя -->
+<div id="userDataModal">
+    <div id="userDataForm">
+        <h2>Пожалуйста, укажите ваши данные</h2>
+        <label for="age">Возраст:</label>
+        <input type="number" id="age" min="1" max="120" required>
+
+        <label for="sex">Пол:</label>
+        <select id="sex" required>
+            <option value="">Выберите пол</option>
+            <option value="male">Мужской</option>
+            <option value="female">Женский</option>
+            <option value="other">Другой</option>
+        </select>
+
+        <button onclick="saveUserData()">Сохранить</button>
+    </div>
+</div>
 
 <script>
     let startTime;
@@ -76,6 +133,8 @@
     let testActive = false;
     let timeoutId;
     const totalTrials = 20;
+    let userAge = null;
+    let userSex = null;
 
     const startBtn = document.getElementById('startBtn');
     const numbersElement = document.getElementById('numbers');
@@ -163,6 +222,8 @@
 
     function saveTestResults(averageReactionTime, standardDeviation, correctAnswers, wrongAnswers, missedAttempts, accuracy) {
         const login = "<%= login %>";
+        const age = userAge;
+        const sex = userSex;
 
         fetch('http://localhost:3000/api/test_digital_signal', {
             method: 'POST',
@@ -176,7 +237,9 @@
                 correctAnswers: correctAnswers,
                 wrongAnswers: wrongAnswers,
                 missedAttempts: missedAttempts,
-                accuracy: accuracy
+                accuracy: accuracy,
+                age: age,
+                sex: sex
             }),
         })
             .then(response => response.json())
@@ -192,6 +255,46 @@
             });
     }
 
+    function showUserDataModal(averageReactionTime, standardDeviation, correctAnswers, wrongAnswers, missedAttempts, accuracy) {
+        const modal = document.getElementById('userDataModal');
+        modal.style.display = 'flex';
+
+        // Сохраняем результаты теста для последующего сохранения
+        modal.dataset.averageReactionTime = averageReactionTime;
+        modal.dataset.standardDeviation = standardDeviation;
+        modal.dataset.correctAnswers = correctAnswers;
+        modal.dataset.wrongAnswers = wrongAnswers;
+        modal.dataset.missedAttempts = missedAttempts;
+        modal.dataset.accuracy = accuracy;
+    }
+
+    function saveUserData() {
+        const ageInput = document.getElementById('age');
+        const sexSelect = document.getElementById('sex');
+
+        if (!ageInput.value || !sexSelect.value) {
+            alert("Пожалуйста, заполните все поля");
+            return;
+        }
+
+        userAge = ageInput.value;
+        userSex = sexSelect.value;
+
+        const modal = document.getElementById('userDataModal');
+        modal.style.display = 'none';
+
+        // Получаем сохраненные результаты теста
+        const averageReactionTime = parseFloat(modal.dataset.averageReactionTime);
+        const standardDeviation = parseFloat(modal.dataset.standardDeviation);
+        const correctAnswers = parseInt(modal.dataset.correctAnswers);
+        const wrongAnswers = parseInt(modal.dataset.wrongAnswers);
+        const missedAttempts = parseInt(modal.dataset.missedAttempts);
+        const accuracy = parseFloat(modal.dataset.accuracy);
+
+        // Сохраняем результаты с данными пользователя
+        saveTestResults(averageReactionTime, standardDeviation, correctAnswers, wrongAnswers, missedAttempts, accuracy);
+    }
+
     function endTest() {
         testActive = false;
         startBtn.disabled = false;
@@ -199,13 +302,18 @@
         oddBtn.style.display = 'none';
         showResults();
 
-        // Сохраняем результаты теста на сервере
+        // Рассчитываем результаты теста
         const average = reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length || 0;
         const variance = reactionTimes.reduce((a, b) => a + Math.pow(b - average, 2), 0) / reactionTimes.length || 0;
         const stdDev = Math.sqrt(variance);
         const accuracy = (correctAnswers / totalTrials) * 100;
 
-        saveTestResults(average, stdDev, correctAnswers, wrongAnswers, missedAttempts, accuracy);
+        // Проверяем, нужно ли запросить данные пользователя
+        if (userAge === null || userSex === null) {
+            showUserDataModal(average, stdDev, correctAnswers, wrongAnswers, missedAttempts, accuracy);
+        } else {
+            saveTestResults(average, stdDev, correctAnswers, wrongAnswers, missedAttempts, accuracy);
+        }
     }
 
     function showResults() {

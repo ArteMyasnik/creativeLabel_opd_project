@@ -154,82 +154,43 @@
             max-width: 600px;
         }
 
-        .content {
-            position: relative;
+        /* Модальное окно для данных пользователя */
+        #userDataModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        #userDataForm {
+            background-color: white;
             padding: 20px;
-            text-align: center;
-            font-size: 10px;
-            opacity: 0;
-            animation: ani 2.5s forwards;
+            border-radius: 10px;
+            color: black;
+            width: 300px;
         }
-
-        @keyframes ani {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
+        #userDataForm label {
+            display: block;
+            margin-bottom: 10px;
         }
-
-        .content h1 {
-            font-size: 70px;
-            text-align: left;
-            margin-left: 5%;
-            padding-bottom: -1%;
+        #userDataForm input, #userDataForm select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
         }
-
-        .grid {
-            opacity: 0;
-            animation: ani 2.5s forwards;
-            display: grid;
-            grid-template-columns: repeat(3, minmax(100px, 1fr));
-            grid-auto-rows: minmax(165px, auto);
-            gap: 50px 80px;
-            text-align: left;
-            padding: 0px;
-            max-width: calc(3 * 380px + 2 * 80px);
-            margin-left: 5%;
-            margin-right: 5%;
-        }
-
-        @media (max-width: 1200px) {
-            .grid {
-                grid-template-columns: repeat(2, minmax(250px, 1fr));
-                gap: 40px 60px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .grid {
-                grid-template-columns: repeat(1, minmax(200px, 1fr));
-                gap: 30px 40px;
-            }
-        }
-
-        .object {
-            background-color: black;
-            border-color: #585858;
-            border: 3px solid #585858;
-            border-radius: 20px;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 25px;
-            text-align: center;
-            padding-top: 3%;
-            transition: all 0.7s ease;
-            position: relative;
-            text-decoration: none;
+        #userDataForm button {
+            background-color: #479C92;
             color: white;
-        }
-
-        .object:hover {
-            background-color: #2d5e58;
-            transform: scale(1.15);
-            border-color: #2d5e58;
-        }
-
-        .object img {
-            width: 100px;
-            height: 100px;
-            bottom: 10px;
-            position: absolute;
-            left: 37%;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -247,6 +208,25 @@
 </div>
 <div id="results"></div>
 
+<!-- Модальное окно для ввода данных пользователя -->
+<div id="userDataModal">
+    <div id="userDataForm">
+        <h2>Пожалуйста, укажите ваши данные</h2>
+        <label for="age">Возраст:</label>
+        <input type="number" id="age" min="1" max="120" required>
+
+        <label for="sex">Пол:</label>
+        <select id="sex" required>
+            <option value="">Выберите пол</option>
+            <option value="male">Мужской</option>
+            <option value="female">Женский</option>
+            <option value="other">Другой</option>
+        </select>
+
+        <button onclick="saveUserData()">Сохранить</button>
+    </div>
+</div>
+
 <script>
     // Массив для хранения результатов каждой попытки:
     // Каждый элемент: { attempt, signedError, absoluteError }
@@ -261,6 +241,8 @@
     let bestResult = null;
     let testTimeout;
     const starAngle = 90; // Целевой угол
+    let userAge = null;
+    let userSex = null;
 
     function startTest() {
         if (testRunning) return;
@@ -402,11 +384,58 @@
               </div>`;
         resultDiv.innerHTML = html;
 
+        // Проверяем, нужно ли запросить данные пользователя
+        if (userAge === null || userSex === null) {
+            showUserDataModal(avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned);
+        } else {
+            saveReactionBallResults(avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned);
+        }
+    }
+
+    function showUserDataModal(avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned) {
+        const modal = document.getElementById('userDataModal');
+        modal.style.display = 'flex';
+
+        // Сохраняем результаты теста для последующего сохранения
+        modal.dataset.avgPremature = avgPremature;
+        modal.dataset.avgDelayed = avgDelayed;
+        modal.dataset.avgAbsolute = avgAbsolute;
+        modal.dataset.signResponse = signResponse;
+        modal.dataset.stdAbs = stdAbs;
+        modal.dataset.stdSigned = stdSigned;
+    }
+
+    function saveUserData() {
+        const ageInput = document.getElementById('age');
+        const sexSelect = document.getElementById('sex');
+
+        if (!ageInput.value || !sexSelect.value) {
+            alert("Пожалуйста, заполните все поля");
+            return;
+        }
+
+        userAge = ageInput.value;
+        userSex = sexSelect.value;
+
+        const modal = document.getElementById('userDataModal');
+        modal.style.display = 'none';
+
+        // Получаем сохраненные результаты теста
+        const avgPremature = modal.dataset.avgPremature;
+        const avgDelayed = modal.dataset.avgDelayed;
+        const avgAbsolute = modal.dataset.avgAbsolute;
+        const signResponse = modal.dataset.signResponse;
+        const stdAbs = modal.dataset.stdAbs;
+        const stdSigned = modal.dataset.stdSigned;
+
+        // Сохраняем результаты с данными пользователя
         saveReactionBallResults(avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned);
     }
 
     function saveReactionBallResults(avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned) {
         const login = "<%= login %>";
+        const age = userAge;
+        const sex = userSex;
 
         fetch('http://localhost:3000/api/test_simple_rdo', {
             method: 'POST',
@@ -420,7 +449,9 @@
                 avgAbsolute: avgAbsolute,
                 signResponse: signResponse,
                 stdAbs: stdAbs,
-                stdSigned: stdSigned
+                stdSigned: stdSigned,
+                age: age,
+                sex: sex
             }),
         })
             .then(response => response.json())
