@@ -4,10 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Создание профессии</title>
-    <link rel="stylesheet" href="../../Styles/professionsRatingStyles.css" />
+    <link rel="stylesheet" href="../../Styles/professionsRatingStyles.css"/>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <style>
-        /* Добавьте сюда стили, если файл CSS отсутствует */
+        /* Стили для скрытия чекбоксов */
+        .pvk-label {
+            display: block;
+            margin: 5px 0;
+            transition: all 0.3s ease;
+        }
+        .pvk-label.hidden {
+            display: none;
+        }
+        .checkbox-counter {
+            margin: 10px 0;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .checkbox-counter span {
+            color: green;
+        }
+        .checkbox-counter .limit-reached {
+            color: red;
+        }
+        /* Новые стили для вынесенных элементов */
+        .checkbox-controls {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px; /* Добавлено расстояние между элементами */
+        }
+        .evaluation-list {
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -18,83 +48,305 @@
 </div>
 
 <div class="center-buttons">
-    <div class="button-group">
-        <button class="make_button" id="professionButton1" onclick="openModal('professionButton1')">Создать профессию</button>
-        <button id='evaluationButton1' class="evaluation-button" onclick="toggleEvaluationList('evaluationList1')" style="display: none">Провести оценку</button>
-        <div id="evaluationList1" class="evaluation-list">
-            <% pvks.forEach(function(pvk) { %>
-                <label><input type="checkbox"> <%= pvk.pvk %></label>
-            <% }); %>
-            <button class="save-selection-button" onclick="saveSelection('evaluationList1')">Сохранить выбор</button>
+    <% const cardCount = Math.max(3, professions.length + 1); %>
+    <% for (let i = 0; i < cardCount; i++) { %>
+        <div class="button-group">
+            <% if (i < professions.length) { %>
+                <button class="make_button profession-card"
+                        id="professionButton<%= i + 1 %>"
+                        onclick="selectExistingProfession(
+                                '<%= professions[i].id %>',
+                                '<%= professions[i].name %>',
+                                '<%= professions[i].description %>',
+                                'professionButton<%= i + 1 %>'
+                                )">
+                    <div class="profession-title"><%= professions[i].name %></div>
+                    <% if (professions[i].description) { %>
+                        <div class="profession-description"><%= professions[i].description %></div>
+                    <% } %>
+                </button>
+            <% } else { %>
+                <button class="make_button"
+                        id="professionButton<%= i + 1 %>"
+                        onclick="openNewProfessionModal('professionButton<%= i + 1 %>')">
+                    Создать профессию
+                </button>
+            <% } %>
+
+            <button id='evaluationButton<%= i + 1 %>'
+                    class="evaluation-button"
+                    onclick="toggleEvaluationList('evaluationList<%= i + 1 %>', 'checkboxControls<%= i + 1 %>')"
+                    style="display: none">
+                Провести оценку
+            </button>
+
+            <div id="evaluationList<%= i + 1 %>" class="evaluation-list" style="display: none">
+                <% pvks.forEach(function(pvk) { %>
+                    <label class="pvk-label">
+                        <input type="checkbox"
+                               data-pvk-id="<%= pvk.id %>"
+                               data-pvk-name="<%= pvk.pvk %>"
+                               onchange="handleCheckboxChange('checkboxControls<%= i + 1 %>')">
+                        <%= pvk.pvk %>
+                    </label>
+                <% }); %>
+            </div>
+
+            <!-- Вынесенные элементы управления -->
+            <div id="checkboxControls<%= i + 1 %>" class="checkbox-controls" style="display: none">
+                <div class="checkbox-counter">Выбрано: <span>0</span>/10</div>
+                <button class="save-selection-button"
+                        onclick="saveSelection('professionButton<%= i + 1 %>', 'evaluationList<%= i + 1 %>', 'checkboxControls<%= i + 1 %>')">
+                    Сохранить выбор
+                </button>
+            </div>
         </div>
-    </div>
-    <div id="orderModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeOrderModal()">&times;</span>
-            <h2>Упорядочить выбранные качества</h2>
-            <ul id="orderedList" class="sortable-list">
-                <!-- Сюда будут добавляться выбранные качества -->
-            </ul>
-            <button onclick="saveOrder()">Сохранить порядок</button>
-        </div>
-    </div>
-    <div class="button-group">
-        <button class="make_button" id="professionButton2" onclick="openModal('professionButton2')">Создать профессию</button>
-        <button id='evaluationButton2' class="evaluation-button" onclick="toggleEvaluationList('evaluationList2')" style="display: none">Провести оценку</button>
-        <div id="evaluationList2" class="evaluation-list">
-            <% pvks.forEach(function(pvk) { %>
-                <label><input type="checkbox"> <%= pvk.pvk %></label>
-            <% }); %>
-            <button class="save-selection-button" onclick="saveSelection('evaluationList2')">Сохранить выбор</button>
-        </div>
-    </div>
-    <div class="button-group">
-        <button class="make_button" id="professionButton3" onclick="openModal('professionButton3')">Создать профессию</button>
-        <button id='evaluationButton3' class="evaluation-button" onclick="toggleEvaluationList('evaluationList3')" style="display: none">Провести оценку</button>
-        <div id="evaluationList3" class="evaluation-list">
-            <% pvks.forEach(function(pvk) { %>
-                <label><input type="checkbox"> <%= pvk.pvk %></label>
-            <% }); %>
-            <button class="save-selection-button" onclick="saveSelection('evaluationList3')">Сохранить выбор</button>
-        </div>
+    <% } %>
+</div>
+
+<div id="orderModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeOrderModal()">&times;</span>
+        <h2>Упорядочить выбранные качества</h2>
+        <ul id="orderedList" class="sortable-list">
+            <!-- Сюда будут добавляться выбранные качества -->
+        </ul>
+        <button onclick="saveOrder()">Сохранить порядок</button>
     </div>
 </div>
 
-<div id="myModal" class="modal">
+<div id="professionModal" class="modal">
     <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <h2>Создание профессии</h2>
+        <span class="close" onclick="closeProfessionModal()">&times;</span>
+        <h2 id="modalTitle">Создание профессии</h2>
         <input type="text" id="professionName" placeholder="Название профессии">
         <textarea id="professionDescription" placeholder="Краткое описание"></textarea>
-        <button onclick="saveProfession()">Сохранить</button>
+        <button onclick="handleProfessionSave()">Сохранить</button>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-</body>
 <script>
+    // Глобальная переменная для отслеживания открытого списка
+    let currentlyOpenListId = null;
+    let currentlyOpenControlsId = null;
+
+    // Функция для обработки изменения чекбоксов
+    function handleCheckboxChange(controlsId) {
+        const controls = document.getElementById(controlsId);
+        const listId = controlsId.replace('checkboxControls', 'evaluationList');
+        const list = document.getElementById(listId);
+        const checkboxes = list.querySelectorAll('input[type="checkbox"]');
+        const checked = list.querySelectorAll('input[type="checkbox"]:checked');
+        const counter = controls.querySelector('.checkbox-counter span');
+        const MAX_SELECTION = 10;
+
+        counter.textContent = checked.length;
+
+        if (checked.length >= MAX_SELECTION) {
+            checkboxes.forEach(checkbox => {
+                if (!checkbox.checked) {
+                    checkbox.closest('.pvk-label').classList.add('hidden');
+                }
+            });
+            counter.classList.add('limit-reached');
+        } else if (checked.length <= 9) {
+            checkboxes.forEach(checkbox => {
+                checkbox.closest('.pvk-label').classList.remove('hidden');
+            });
+            counter.classList.remove('limit-reached');
+        }
+    }
+
+    function toggleEvaluationList(listId, controlsId) {
+        const list = document.getElementById(listId);
+        const controls = document.getElementById(controlsId);
+
+        // Если кликнули по уже открытой таблице - закрываем её
+        if (currentlyOpenListId === listId) {
+            list.style.display = 'none';
+            controls.style.display = 'none';
+            currentlyOpenListId = null;
+            currentlyOpenControlsId = null;
+            return;
+        }
+
+        // Закрываем предыдущую открытую таблицу (если есть)
+        if (currentlyOpenListId) {
+            const prevList = document.getElementById(currentlyOpenListId);
+            const prevControls = document.getElementById(currentlyOpenControlsId);
+            if (prevList && prevControls) {
+                prevList.style.display = 'none';
+                prevControls.style.display = 'none';
+                // Сбрасываем состояние чекбоксов в предыдущей таблице
+                prevList.querySelectorAll('.pvk-label').forEach(label => {
+                    label.classList.remove('hidden');
+                });
+                prevList.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                prevControls.querySelector('.checkbox-counter span').textContent = '0';
+                prevControls.querySelector('.checkbox-counter span').classList.remove('limit-reached');
+            }
+        }
+
+        // Открываем новую таблицу
+        list.style.display = 'block';
+        controls.style.display = 'flex';
+        currentlyOpenListId = listId;
+        currentlyOpenControlsId = controlsId;
+
+        // Сбрасываем состояние чекбоксов в новой таблице
+        list.querySelectorAll('.pvk-label').forEach(label => {
+            label.classList.remove('hidden');
+        });
+        list.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+        controls.querySelector('.checkbox-counter span').textContent = '0';
+        controls.querySelector('.checkbox-counter span').classList.remove('limit-reached');
+    }
+
+    let currentProfession = {
+        id: null,
+        name: '',
+        description: '',
+        buttonId: null,
+        isNew: false
+    };
+
     document.addEventListener('DOMContentLoaded', function () {
         const lists = document.querySelectorAll('.sortable-list');
         lists.forEach(list => {
             new Sortable(list, {
-                animation: 150, // Анимация перетаскивания
-                ghostClass: 'sortable-ghost', // Класс для элемента, который перетаскивается
-                chosenClass: 'sortable-chosen', // Класс для выбранного элемента
-                dragClass: 'sortable-drag', // Класс для элемента, который перемещается
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                dragClass: 'sortable-drag',
             });
         });
+
+        fetch('http://localhost:3000/check-auth')
+            .then(response => response.json())
+            .then(data => {
+                if (data.isAdmin || data.isExpert) {
+                    const evaluationButtons = document.querySelectorAll('.evaluation-button');
+                    evaluationButtons.forEach(button => button.style.display = 'block');
+                }
+            })
+            .catch(error => console.error('Ошибка при проверке авторизации:', error));
     });
 
-    let currentButtonId = null;
+    function saveSelection(buttonId, listId, controlsId) {
+        const list = document.getElementById(listId);
+        const controls = document.getElementById(controlsId);
+        const checkboxes = list.querySelectorAll('input[type="checkbox"]:checked');
 
-    function openModal(buttonId) {
-        currentButtonId = buttonId;
-        document.getElementById('myModal').style.display = 'block';
+        if (checkboxes.length === 0) {
+            alert('Выберите хотя бы одно качество!');
+            return;
+        }
+
+        const selectedQualities = [];
+
+        checkboxes.forEach(checkbox => {
+            selectedQualities.push({
+                text: checkbox.parentElement.textContent.trim(),
+                id: checkbox.dataset.pvkId
+            });
+        });
+
+        // Сброс состояния
+        list.querySelectorAll('.pvk-label').forEach(label => {
+            label.classList.remove('hidden');
+        });
+        controls.querySelector('.checkbox-counter span').textContent = '0';
+        controls.querySelector('.checkbox-counter span').classList.remove('limit-reached');
+        list.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+
+        list.style.display = 'none';
+        controls.style.display = 'none';
+        currentlyOpenListId = null;
+        currentlyOpenControlsId = null;
+        openOrderModal(selectedQualities);
+    }
+
+    function selectExistingProfession(id, name, description, buttonId) {
+        currentProfession = {
+            id: id,
+            name: name,
+            description: description,
+            buttonId: buttonId,
+            isNew: false
+        };
+
+        document.querySelectorAll('.make_button').forEach(btn =>
+            btn.classList.remove('selected-profession'));
+        document.getElementById(buttonId).classList.add('selected-profession');
+
+        document.getElementById('professionName').disabled = true;
+        document.getElementById('professionDescription').disabled = true;
+
+        // Закрываем открытый список оценок при выборе профессии
+        if (currentlyOpenListId) {
+            document.getElementById(currentlyOpenListId).style.display = 'none';
+            document.getElementById(currentlyOpenControlsId).style.display = 'none';
+            currentlyOpenListId = null;
+            currentlyOpenControlsId = null;
+        }
+    }
+
+    function openNewProfessionModal(buttonId) {
+        currentProfession = {
+            id: null,
+            name: '',
+            description: '',
+            buttonId: buttonId,
+            isNew: true
+        };
+
+        document.getElementById('professionName').value = '';
+        document.getElementById('professionDescription').value = '';
+        document.getElementById('professionName').disabled = false;
+        document.getElementById('professionDescription').disabled = false;
+
+        document.getElementById('professionModal').style.display = 'block';
+
+        // Закрываем открытый список оценок при создании новой профессии
+        if (currentlyOpenListId) {
+            document.getElementById(currentlyOpenListId).style.display = 'none';
+            document.getElementById(currentlyOpenControlsId).style.display = 'none';
+            currentlyOpenListId = null;
+            currentlyOpenControlsId = null;
+        }
+    }
+
+    function handleProfessionSave() {
+        const name = document.getElementById('professionName').value.trim();
+        const description = document.getElementById('professionDescription').value.trim();
+
+        if (!name) {
+            alert('Название профессии обязательно!');
+            return;
+        }
+
+        if (currentProfession.isNew && !description) {
+            alert('Для новой профессии необходимо описание!');
+            return;
+        }
+
+        const button = document.getElementById(currentProfession.buttonId);
+        button.innerHTML = `
+            <div class="profession-card">
+                <div class="profession-title">${name}</div>
+                ${description ? `<div class="profession-description">${description}</div>` : ''}
+            </div>
+        `;
+
+        currentProfession.name = name;
+        currentProfession.description = description;
+
+        closeProfessionModal();
     }
 
     function openOrderModal(qualities) {
         const orderedList = document.getElementById('orderedList');
-        orderedList.innerHTML = ''; // Очищаем список
+        orderedList.innerHTML = '';
 
         qualities.forEach(quality => {
             const li = document.createElement('li');
@@ -102,7 +354,6 @@
             orderedList.appendChild(li);
         });
 
-        // Инициализация SortableJS для нового списка
         new Sortable(orderedList, {
             animation: 150,
             ghostClass: 'sortable-ghost',
@@ -122,50 +373,73 @@
         const items = orderedList.querySelectorAll('li');
         const finalOrder = [];
 
-        items.forEach((item, index) => {
+        let mark = 10;
+
+        items.forEach((item) => {
             finalOrder.push({
-                text: item.textContent.trim(),
-                order: index + 1
+                pvkName: item.textContent.trim(),
+                mark: mark
             });
+            mark--;
         });
 
-        alert('Порядок сохранен:\n' + finalOrder.map(q => `${q.order}. ${q.text}`).join('\n'));
+        alert('Порядок сохранен:\n' + finalOrder.map(q => `${q.mark}. ${q.pvkName}`).join('\n'));
         saveResults(finalOrder);
         closeOrderModal();
     }
 
-    let professionName = '';
-    let professionDescription = '';
-
-    // Функция для сохранения результатов теста
     function saveResults(finalOrder) {
+        if (!currentProfession.id && !currentProfession.name) {
+            alert('Сначала выберите или создайте профессию!');
+            return;
+        }
+
         const dataToSend = {
-            profession_name: professionName,
-            profession_description: professionDescription,
-            login: "<% login %>",
+            existing_profession_id: currentProfession.id,
+            new_profession: currentProfession.isNew ? {
+                name: currentProfession.name,
+                description: currentProfession.description
+            } : null,
+            login: "<%= login %>",
             finalOrder: finalOrder
         };
-        // Получаем profession_name и login (предположим, что они уже сохранены в глобальных переменных)
+
+        console.log("Отправка данных:", dataToSend);
+
         fetch('http://localhost:3000/api/profession_rating', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(dataToSend),
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(dataToSend)
         })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Порядок успешно сохранен на сервере!');
-                    closeOrderModal();
+                    alert('Оценки успешно сохранены!');
+                    currentProfession = { id: null, name: '', description: '', buttonId: null, isNew: false };
+                    document.querySelectorAll('.make_button').forEach(btn =>
+                        btn.classList.remove('selected-profession'));
                 } else {
-                    alert("Ошибка при сохранении результатов: " + data.message);
+                    throw new Error(data.message || 'Ошибка сохранения');
                 }
             })
             .catch(error => {
-                console.error('Ошибка при сохранении порядка:', error);
-                alert('Произошла ошибка при сохранении порядка.');
+                console.error('Ошибка:', error);
+                alert('Ошибка: ' + error.message);
             });
+    }
+
+    function closeProfessionModal() {
+        document.getElementById('professionModal').style.display = 'none';
+    }
+
+    function selectProfession(professionId, name) {
+        selectedProfessionId = professionId;
+        professionName = name;
+    }
+
+    function openModal(buttonId) {
+        currentButtonId = buttonId;
+        document.getElementById('myModal').style.display = 'block';
     }
 
     function closeModal() {
@@ -173,8 +447,13 @@
     }
 
     function saveProfession() {
-        const name = document.getElementById('professionName').value;
-        const description = document.getElementById('professionDescription').value;
+        const name = document.getElementById('professionName').value.trim();
+        const description = document.getElementById('professionDescription').value.trim();
+
+        if (!name || !description) {
+            alert('Заполните все поля!');
+            return;
+        }
 
         if (name && description) {
             const button = document.getElementById(currentButtonId);
@@ -187,52 +466,12 @@
         }
     }
 
-    function toggleEvaluationList(listId) {
-        const list = document.getElementById(listId);
-        list.style.display = list.style.display === 'block' ? 'none' : 'block';
-    }
-
-    function saveSelection(listId) {
-        const list = document.getElementById(listId);
-        const items = list.querySelectorAll('label');
-        const selectedQualities = [];
-
-        items.forEach((item, index) => {
-            const checkbox = item.querySelector('input[type="checkbox"]');
-            if (checkbox.checked) {
-                selectedQualities.push({
-                    text: checkbox.nextSibling.textContent.trim(), // Исправлено
-                    order: index + 1
-                });
-            }
-        });
-
-        // Открываем модальное окно с выбранными качествами
-        openOrderModal(selectedQualities);
-    }
-
-    window.onclick = function(event) {
+    window.onclick = function (event) {
         const modal = document.getElementById('myModal');
         if (event.target === modal) {
             closeModal();
         }
     }
-
-    const evaluationButton1 = document.getElementById('evaluationButton1');
-    const evaluationButton2 = document.getElementById('evaluationButton2');
-    const evaluationButton3 = document.getElementById('evaluationButton3');
-    const isAdmin = "<% isAdmin %>";
-    const login = "<% login %>";
-    const isExpert = "<% isExpert %>";
-    // Проверка статуса авторизации
-    fetch('http://localhost:3000/check-auth')
-        .then(response => response.json())
-        .then(data => {
-            if (data.isAdmin || data.isExpert) {
-                evaluationButton1.style.display = 'block';
-                evaluationButton2.style.display = 'block';
-                evaluationButton3.style.display = 'block';
-            }
-        });
 </script>
+</body>
 </html>

@@ -85,7 +85,6 @@ app.post('/logout', (req, res) => {
             console.error('Ошибка при выходе:', err);
             return res.status(500).json({ message: 'Ошибка сервера' });
         }
-        const checkMessage = "Выход из системы";
         res.status(200).json({ message: 'Выход выполнен успешно!' });
     });
 });
@@ -234,17 +233,6 @@ app.get('/professions_rating', async (req, res) => {
         const professions = result_profession.rows;
 
         res.render('professions_rating', { pvks: pvks, professions: professions, isAdmin: !!req.session.isAdmin, login: req.session.login || null, isExpert: !!req.session.isExpert });
-    } catch (err) {
-        console.error('Ошибка при выполнении запроса:', err);
-        res.status(500).send('Ошибка сервера');
-    }
-});
-
-app.post('/profession_rating', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT * FROM pvks');
-        const pvks = result.rows;
-        res.render('professions_rating', { pvks: pvks, isAdmin: !!req.session.isAdmin, login: req.session.login || null, isExpert: !!req.session.isExpert });
     } catch (err) {
         console.error('Ошибка при выполнении запроса:', err);
         res.status(500).send('Ошибка сервера');
