@@ -52,7 +52,6 @@
     #startTest:hover, #restart:hover {
       background: #ffdd33;
     }
-    /* Блоки с канвасами и кнопками */
     .canvas-container {
       display: flex;
       justify-content: center;
@@ -76,14 +75,12 @@
       margin-bottom: 5px;
       display: block;
     }
-    /* Сообщения */
     #message {
       font-size: 20px;
       color: #333;
       min-height: 30px;
       margin-bottom: 20px;
     }
-    /* Результаты */
     #results {
       margin-top: 20px;
       text-align: left;
@@ -102,50 +99,19 @@
       border: 1px solid #ccc;
       text-align: center;
     }
-    /* Модальное окно для данных пользователя */
-    #userDataModal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.7);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
-    #userDataForm {
-      background-color: white;
-      padding: 20px;
-      border-radius: 10px;
-      color: black;
-      width: 300px;
-    }
-    #userDataForm label {
-      display: block;
-      margin-bottom: 10px;
-    }
-    #userDataForm input, #userDataForm select {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 15px;
-      box-sizing: border-box;
-    }
-    #userDataForm button {
-      background-color: #479C92;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
   </style>
 </head>
 <body>
 
 <!-- Кнопка "Начать тест" (изначально видна) -->
 <button id="startTest">Начать тест</button>
+
+<!-- Кнопки выбора времени -->
+<div id="timeSelection" class="hidden">
+  <button onclick="setTestDuration(30000)">30 секунд</button>
+  <button onclick="setTestDuration(60000)">1 минута</button>
+  <button onclick="setTestDuration(120000)">2 минуты</button>
+</div>
 
 <!-- Весь интерфейс теста (изначально скрыт) -->
 <div id="testInterface" class="hidden">
@@ -182,51 +148,28 @@
   <div id="results"></div>
 </div>
 
-<!-- Модальное окно для ввода данных пользователя -->
-<div id="userDataModal">
-  <div id="userDataForm">
-    <h2>Пожалуйста, укажите ваши данные</h2>
-    <label for="age">Возраст:</label>
-    <input type="number" id="age" min="1" max="120" required>
-
-    <label for="sex">Пол:</label>
-    <select id="sex" required>
-      <option value="">Выберите пол</option>
-      <option value="male">Мужской</option>
-      <option value="female">Женский</option>
-      <option value="other">Другой</option>
-    </select>
-
-    <button onclick="saveUserData()">Сохранить</button>
-  </div>
-</div>
-
 <script>
+  let testDuration = 120000;  // по умолчанию 2 минуты
+  let segmentDuration = testDuration / 3;
+
   // Параметры теста
-  const testDuration = 120000; // 2 минуты
-  const segmentDuration = testDuration / 3; // 40 секунд на круг
-  const threshold_ms = 100; // порог точного ответа
+  const threshold_ms = 100;
 
   let startTime = null;
   let lastTimestamp = null;
   let currentCircle = 1;
   let testActive = false;
   let animationFrameId;
-  let userAge = null;
-  let userSex = null;
 
-  // Данные для каждого круга
   const circleData = {
     1: { canvas: null, ctx: null, angle: 0, speed: 1.2, starAngle: Math.PI / 4, radius: 60, ballColor: "red" },
     2: { canvas: null, ctx: null, angle: 0, speed: 1.8, starAngle: Math.PI / 4, radius: 60, ballColor: "blue" },
     3: { canvas: null, ctx: null, angle: 0, speed: 2.4, starAngle: Math.PI / 4, radius: 60, ballColor: "green" }
   };
 
-  // Ошибки (мс) по кругам
   let responses = { 1: [], 2: [], 3: [] };
   let circleResults = { 1: {}, 2: {}, 3: {} };
 
-  // Инициализация холстов
   function initCircle(num) {
     const cd = circleData[num];
     cd.canvas = document.getElementById("canvas" + num);
@@ -237,14 +180,12 @@
     cd.starY = centerY + cd.radius * Math.sin(cd.starAngle);
   }
 
-  // Нормализация угла
   function normalizeAngle(angle) {
     while (angle > Math.PI) angle -= 2 * Math.PI;
     while (angle < -Math.PI) angle += 2 * Math.PI;
     return angle;
   }
 
-  // Рисуем окружность, звезду и шарик
   function drawCircle(num) {
     const cd = circleData[num];
     const ctx = cd.ctx;
@@ -255,13 +196,11 @@
 
     ctx.clearRect(0, 0, w, h);
 
-    // Окружность
     ctx.beginPath();
     ctx.arc(centerX, centerY, cd.radius, 0, 2 * Math.PI);
     ctx.strokeStyle = "#000";
     ctx.stroke();
 
-    // Звезда
     ctx.fillStyle = "orange";
     ctx.beginPath();
     for (let i = 0; i < 5; i++) {
@@ -273,7 +212,6 @@
     ctx.closePath();
     ctx.fill();
 
-    // Шарик
     cd.ballX = centerX + cd.radius * Math.cos(cd.angle);
     cd.ballY = centerY + cd.radius * Math.sin(cd.angle);
     ctx.fillStyle = cd.ballColor;
@@ -282,7 +220,6 @@
     ctx.fill();
   }
 
-  // Обновляем угол шарика и перерисовываем
   function updateCircle(num, dt) {
     const cd = circleData[num];
     cd.angle += cd.speed * (dt / 1000);
@@ -292,7 +229,6 @@
     drawCircle(num);
   }
 
-  // Показываем/скрываем канвасы
   function updateCanvasVisibility() {
     for (let i = 1; i <= 3; i++) {
       let canvasEl = document.getElementById("canvas" + i);
@@ -300,9 +236,8 @@
     }
   }
 
-  // Анимационный цикл
   function animationLoop(timestamp) {
-    if (!testActive) return; // если тест не запущен, выходим
+    if (!testActive) return;
     if (!startTime) {
       startTime = timestamp;
       lastTimestamp = timestamp;
@@ -323,14 +258,12 @@
     animationFrameId = requestAnimationFrame(animationLoop);
   }
 
-  // Вывод краткого сообщения
   function showMessage(text) {
     const msgDiv = document.getElementById("message");
     msgDiv.textContent = text;
     setTimeout(() => { msgDiv.textContent = ""; }, 1500);
   }
 
-  // При нажатии кнопок "1", "2", "3"
   function checkReaction(num) {
     if (!testActive) return;
     if (num !== currentCircle) {
@@ -345,7 +278,6 @@
     let sign = errorMs >= 0 ? "+" : "";
     if (Math.abs(errorMs) <= threshold_ms) {
       showMessage("Верно! (Круг " + num + ")");
-      // Перемещаем звезду
       cd.starAngle = Math.random() * 2 * Math.PI;
       const centerX = cd.canvas.width / 2;
       const centerY = cd.canvas.height / 2;
@@ -356,12 +288,11 @@
     }
   }
 
-  // Среднее
   function average(arr) {
     if (arr.length === 0) return 0;
     return arr.reduce((sum, val) => sum + val, 0) / arr.length;
   }
-  // Ст. отклонение
+
   function stdDev(arr) {
     if (arr.length === 0) return 0;
     let avg = average(arr);
@@ -369,196 +300,68 @@
     return Math.sqrt(variance);
   }
 
-  // Завершение теста
   function endTest() {
     testActive = false;
     cancelAnimationFrame(animationFrameId);
     showResults();
-    // Скрываем интерфейс теста
     document.getElementById("testInterface").classList.add("hidden");
-    // Показываем контейнер результатов
     document.getElementById("resultsContainer").classList.remove("hidden");
   }
 
-  // Показать результаты
   function showResults() {
     let resDiv = document.getElementById("results");
     let html = "<h2>Результаты теста</h2>";
-    html += "<table><tr><th>Круг</th><th>Ответов</th><th>Средняя ошибка (мс)</th><th>Средняя абс. ошибка (мс)</th><th>Ст. отклонение (абс)</th><th>Ст. отклонение (с знак.)</th></tr>";
-    let allErrors = [];
-
-    // Сохраняем результаты для каждого круга
+    html += "<table><tr><th>Круг</th><th>Ответов</th><th>Средняя ошибка (мс)</th><th>Средняя абс. ошибка (мс)</th><th>Стандартное отклонение (мс)</th></tr>";
     for (let i = 1; i <= 3; i++) {
-      let arr = responses[i];
-      let avgErr = average(arr);
-      let absArr = arr.map(Math.abs);
-      let avgAbs = average(absArr);
-      let stdAbs = stdDev(absArr);
-      let stdSigned = stdDev(arr);
-      allErrors = allErrors.concat(arr);
-
-      circleResults[i] = {
-        responses: arr.length,
-        avgError: avgErr.toFixed(1),
-        avgAbsError: avgAbs.toFixed(1),
-        stdAbs: stdAbs.toFixed(1),
-        stdSigned: stdSigned.toFixed(1)
-      };
-
-      html += `<tr>
-          <td>${i}</td>
-          <td>${arr.length}</td>
-          <td>${avgErr.toFixed(1)}</td>
-          <td>${avgAbs.toFixed(1)}</td>
-          <td>${stdAbs.toFixed(1)}</td>
-          <td>${stdSigned.toFixed(1)}</td>
-        </tr>`;
+      let res = responses[i];
+      let mean = average(res).toFixed(0);
+      let absMean = average(res.map(Math.abs)).toFixed(0);
+      let std = stdDev(res).toFixed(0);
+      html += "<tr><td>" + i + "</td><td>" + res.length + "</td><td>" + mean + "</td><td>" + absMean + "</td><td>" + std + "</td></tr>";
     }
-
-    let overallResults = {
-      responses: allErrors.length,
-      avgError: average(allErrors).toFixed(1),
-      avgAbsError: average(allErrors.map(Math.abs)).toFixed(1),
-      stdAbs: stdDev(allErrors.map(Math.abs)).toFixed(1),
-      stdSigned: stdDev(allErrors).toFixed(1)
-    };
-
-    html += `<tr style="font-weight:bold;">
-        <td>ВСЕ</td>
-        <td>${overallResults.responses}</td>
-        <td>${overallResults.avgError}</td>
-        <td>${overallResults.avgAbsError}</td>
-        <td>${overallResults.stdAbs}</td>
-        <td>${overallResults.stdSigned}</td>
-      </tr>`;
     html += "</table>";
     resDiv.innerHTML = html;
-
-    // Проверяем, нужно ли запросить данные пользователя
-    if (userAge === null || userSex === null) {
-      showUserDataModal(circleResults, overallResults);
-    } else {
-      saveReactionCircleResults(circleResults[1], circleResults[2], circleResults[3], overallResults);
-    }
   }
 
-  // Показать модальное окно с запросом данных пользователя
-  function showUserDataModal(circleResults, overallResults) {
-    const modal = document.getElementById('userDataModal');
-    modal.style.display = 'flex';
-
-    // Сохраняем результаты теста для последующего сохранения
-    modal.dataset.circle1 = JSON.stringify(circleResults[1]);
-    modal.dataset.circle2 = JSON.stringify(circleResults[2]);
-    modal.dataset.circle3 = JSON.stringify(circleResults[3]);
-    modal.dataset.overall = JSON.stringify(overallResults);
-  }
-
-  // Сохранить данные пользователя
-  function saveUserData() {
-    const ageInput = document.getElementById('age');
-    const sexSelect = document.getElementById('sex');
-
-    if (!ageInput.value || !sexSelect.value) {
-      alert("Пожалуйста, заполните все поля");
-      return;
-    }
-
-    userAge = ageInput.value;
-    userSex = sexSelect.value;
-
-    const modal = document.getElementById('userDataModal');
-    modal.style.display = 'none';
-
-    // Получаем сохраненные результаты теста
-    const circle1 = JSON.parse(modal.dataset.circle1);
-    const circle2 = JSON.parse(modal.dataset.circle2);
-    const circle3 = JSON.parse(modal.dataset.circle3);
-    const overall = JSON.parse(modal.dataset.overall);
-
-    // Сохраняем результаты с данными пользователя
-    saveReactionCircleResults(circle1, circle2, circle3, overall);
-  }
-
-  function saveReactionCircleResults(circle1, circle2, circle3, overall) {
-    const login = "<%= login %>";
-    const age = userAge;
-    const sex = userSex;
-
-    fetch('http://localhost:3000/api/test_complex_rdo', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        login: login,
-        circle1: circle1,
-        circle2: circle2,
-        circle3: circle3,
-        overall: overall,
-        age: age,
-        sex: sex
-      }),
-    })
-            .then(response => response.json())
-            .then(data => {
-              if (data.success) {
-                alert("Результаты теста успешно сохранены!");
-              } else {
-                alert("Ошибка при сохранении результатов: " + data.message);
-              }
-            })
-            .catch(error => {
-              alert("Ошибка сети: " + error.message);
-            });
-  }
-
-  // Запуск теста
-  function startTest() {
-    // Скрываем кнопку "Начать тест", показываем интерфейс
-    document.getElementById("startTest").classList.add("hidden");
-    document.getElementById("testInterface").classList.remove("hidden");
-    // Сброс переменных
-    startTime = null;
-    lastTimestamp = null;
-    currentCircle = 1;
-    testActive = true;
+  function restartTest() {
     responses = { 1: [], 2: [], 3: [] };
-    // Сбрасываем углы/звезду в начальное положение
-    for (let i = 1; i <= 3; i++) {
-      circleData[i].angle = 0;
-      circleData[i].starAngle = Math.PI / 4;
-      const cd = circleData[i];
-      const centerX = cd.canvas.width / 2;
-      const centerY = cd.canvas.height / 2;
-      cd.starX = centerX + cd.radius * Math.cos(cd.starAngle);
-      cd.starY = centerY + cd.radius * Math.sin(cd.starAngle);
-    }
-    updateCanvasVisibility();
-    // Скрываем результаты (если были)
+    circleResults = { 1: {}, 2: {}, 3: {} };
     document.getElementById("resultsContainer").classList.add("hidden");
-    document.getElementById("results").innerHTML = "";
-    // Запускаем анимацию
-    requestAnimationFrame(animationLoop);
+    document.getElementById("startTest").classList.remove("hidden");
   }
 
-  // Перезапуск
-  function resetTest() {
-    // Просто вызываем startTest заново
+  function setTestDuration(duration) {
+    testDuration = duration;
+    segmentDuration = testDuration / 3;
+    document.getElementById("timeSelection").classList.add("hidden");
+    document.getElementById("testInterface").classList.remove("hidden");
+    initCircle(1);
+    initCircle(2);
+    initCircle(3);
     startTest();
   }
 
-  // Слушатели
+  function startTest() {
+    testActive = true;
+    startTime = null;
+    lastTimestamp = null;
+    currentCircle = 1;
+    document.getElementById("startTest").classList.add("hidden");
+    document.getElementById("timeSelection").classList.add("hidden");
+    animationFrameId = requestAnimationFrame(animationLoop);
+  }
+
+  document.getElementById("restart").addEventListener("click", restartTest);
+  document.getElementById("startTest").addEventListener("click", function() {
+    document.getElementById("timeSelection").classList.remove("hidden");
+    document.getElementById("startTest").classList.add("hidden");
+  });
+
+  // Слушатели событий для кнопок
   document.getElementById("btn1").addEventListener("click", () => checkReaction(1));
   document.getElementById("btn2").addEventListener("click", () => checkReaction(2));
   document.getElementById("btn3").addEventListener("click", () => checkReaction(3));
-  document.getElementById("startTest").addEventListener("click", startTest);
-  document.getElementById("restart").addEventListener("click", resetTest);
-
-  // Инициализация канвасов
-  for (let i = 1; i <= 3; i++) {
-    initCircle(i);
-  }
 </script>
+
 </body>
 </html>
