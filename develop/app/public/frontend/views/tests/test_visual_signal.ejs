@@ -126,15 +126,15 @@
 </head>
 <body>
     <h1>Тест на время реакции</h1>
-    <p>Нажмите кнопку "Старт", затем как можно быстрее нажмите кнопку при появлении красного круга.</p>
-    
+    <p id="textAboutTest">Нажмите кнопку "Старт", затем как можно быстрее нажмите кнопку при появлении красного круга.</p>
+
     <!-- Новые кнопки выбора длительности -->
     <div id="durationButtons">
         <button class="durationBtn" data-duration="30">30 с</button>
         <button class="durationBtn" data-duration="60">60 с</button>
         <button class="durationBtn" data-duration="120">120 с</button>
     </div>
-    
+
     <button id="startButton">Старт</button>
     <div id="signal"></div>
     <button id="reactionButton">Нажмите как можно быстрее!</button>
@@ -198,6 +198,10 @@
 
         // Функция для старта теста
         function startTest() {
+            const textAboutTest = document.getElementById('textAboutTest');
+            const durationButtons = document.getElementById('durationButtons');
+            durationButtons.style.display = 'none';
+            textAboutTest.style.display = 'none';
             signalCount = 0;
             reactionTimes = [];
             missedSignals = 0;
