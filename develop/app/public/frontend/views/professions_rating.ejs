@@ -317,7 +317,7 @@ const rowsNeeded = Math.ceil(totalBlocks / 3);
         controls.querySelector('.checkbox-counter span').textContent = '0';
         controls.querySelector('.checkbox-counter span').classList.remove('limit-reached');
     }
-
+    
     function selectExistingProfession(id, name, description, buttonId) {
         currentProfession = {
             id: id,
@@ -339,6 +339,7 @@ const rowsNeeded = Math.ceil(totalBlocks / 3);
             currentlyOpenControlsId = null;
         }
     }
+
 
     function openNewProfessionModal(buttonId) {
         currentProfession = {
@@ -370,7 +371,7 @@ const rowsNeeded = Math.ceil(totalBlocks / 3);
             return;
         }
 
-        if (currentProfession.isNew && !description) {
+        if (!description) {
             alert('Для новой профессии необходимо описание!');
             return;
         }
