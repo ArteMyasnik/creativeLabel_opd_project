@@ -17,9 +17,10 @@ router.put('/profile/:login/update-email', UserController.changeEmail);
 router.put('/experts', UserController.assignExperts)
 // Сброс эксперта
 router.post('/experts/reset', UserController.resetExperts);
+// Создание профессии
+router.post('/professions', UserController.createProfession);
 // Оценка профессий
-// router.post('/profession_rating', UserController.saveProfessionsRating);
-
+router.post('/profession_rating', UserController.saveProfessionsRating);
 
 // Тесты
 // Тест на реакцию
