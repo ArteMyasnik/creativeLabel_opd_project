@@ -1,7 +1,7 @@
 import requests
 import json
 
-API_KEY = "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"
+# API_KEY MUST BE ASSIGNED
 MODEL = "deepseek/deepseek-r1"
 
 PVK_CATEGORIES = {

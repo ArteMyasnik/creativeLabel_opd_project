@@ -5,62 +5,79 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Оценка профессий</title>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <link rel="stylesheet" href="../../Styles/expertStyles.css">
     <style>
-        /* Стили остаются без изменений */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
+        .content {
+            position: relative;
             padding: 20px;
-            background-color: #f5f5f5;
+            text-align: center;
+            font-size: 10px;
+            opacity: 0;
+            animation: ani 2.5s forwards;
         }
+
         .professions-container {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
             justify-content: center;
+            margin: 0 5%;
         }
+
         .profession-card {
             width: 300px;
             padding: 15px;
-            background: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 3px solid #585858;
+            border-radius: 20px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.7s ease;
             min-height: 150px;
             position: relative;
+            color: white;
         }
+
         .profession-card:hover {
-            background: #e9ecef;
+            background-color: #2d5e58;
+            transform: scale(1.05);
+            border-color: #2d5e58;
         }
+
         .profession-card.selected {
-            background: #d4edda;
-            border-color: #c3e6cb;
+            background: #1e3d38;
+            border-color: #479C92;
         }
+
         .profession-title {
             font-weight: bold;
             margin-bottom: 5px;
             font-size: 1.2em;
+            color: white;
         }
+
         .profession-description {
-            color: #555;
+            color: #ccc;
             font-size: 0.9em;
             margin-bottom: 10px;
         }
+
         .evaluation-button {
             width: 100%;
             padding: 10px;
             margin-top: 10px;
-            background: #4a90e2;
+            background: #479C92;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 20px;
             cursor: pointer;
             transition: background 0.3s;
+            font-family: Montserrat;
         }
+
         .evaluation-button:hover {
-            background: #357abd;
+            background: #2d5e58;
         }
+
         .evaluation-list {
             margin-top: 10px;
             max-height: 0;
@@ -68,55 +85,70 @@
             transition: max-height 0.3s ease;
             border: 1px solid transparent;
             border-radius: 5px;
+            text-align: left;
         }
+
         .evaluation-list.visible {
             max-height: 300px;
-            border-color: #ddd;
+            border-color: #585858;
             padding: 10px;
-            background: white;
+            background: rgba(0, 0, 0, 0.5);
             margin-bottom: 10px;
             overflow-y: auto;
         }
+
         .pvk-label {
             display: block;
             margin: 8px 0;
             padding: 5px;
             border-radius: 3px;
             transition: background 0.2s;
+            color: white;
         }
+
         .pvk-label:hover {
-            background: #f0f0f0;
+            background: rgba(71, 156, 146, 0.3);
         }
+
         .checkbox-controls {
             margin-top: 10px;
             display: none;
             padding: 10px;
-            background: white;
-            border: 1px solid #ddd;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #585858;
             border-radius: 5px;
+            flex-direction: column;
         }
+
         .checkbox-counter {
             font-weight: bold;
             margin-bottom: 10px;
+            color: white;
         }
+
         .checkbox-counter span {
-            color: green;
+            color: #4CAF50;
         }
+
         .checkbox-counter .limit-reached {
-            color: red;
+            color: #f44336;
         }
+
         .save-selection-button {
             padding: 8px 15px;
-            background: #28a745;
+            background: #479C92;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 20px;
             cursor: pointer;
             transition: background 0.3s;
+            font-family: Montserrat;
         }
+
         .save-selection-button:hover {
-            background: #218838;
+            background: #2d5e58;
         }
+
         .modal {
             display: none;
             position: fixed;
@@ -124,19 +156,23 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.7);
             z-index: 100;
         }
+
         .modal-content {
-            background: white;
+            background: rgba(0, 0, 0, 0.9);
             margin: 10% auto;
             padding: 20px;
             width: 80%;
             max-width: 500px;
-            border-radius: 5px;
+            border-radius: 20px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             position: relative;
+            border: 3px solid #585858;
+            color: white;
         }
+
         .close {
             position: absolute;
             top: 10px;
@@ -144,74 +180,129 @@
             font-size: 1.5em;
             font-weight: bold;
             cursor: pointer;
+            color: white;
         }
+
         .close:hover {
-            color: #777;
+            color: #ccc;
         }
+
         #professionName, #professionDescription {
             width: 100%;
             padding: 8px;
             margin-bottom: 10px;
-            border: 1px solid #ddd;
+            border: 1px solid #585858;
             border-radius: 4px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
         }
+
         #professionDescription {
             height: 100px;
             resize: vertical;
         }
+
         #saveProfessionButton, #saveOrderButton {
             padding: 10px 15px;
-            background: #4a90e2;
+            background: #479C92;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 20px;
             cursor: pointer;
             transition: background 0.3s;
+            font-family: Montserrat;
         }
+
         #saveProfessionButton:hover, #saveOrderButton:hover {
-            background: #357abd;
+            background: #2d5e58;
         }
+
         .hidden {
             display: none !important;
         }
+
         .pvk-type {
             font-weight: bold;
             margin-top: 10px;
-            color: #444;
-            border-bottom: 1px solid #ddd;
+            color: #479C92;
+            border-bottom: 1px solid #585858;
             padding-bottom: 5px;
         }
 
-
-        /* Стили для модального окна сортировки */
+        /* Обновленные стили для модального окна сортировки */
         #orderModal .modal-content {
-            max-width: 600px;
-            padding: 20px;
+            max-width: 400px;
+            width: 90%;
+            max-height: 65vh;
+            margin: 15vh auto;
+            padding: 15px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #orderModal h2 {
+            margin-top: 0;
+            font-size: 1.3em;
+            color: white;
+        }
+
+        #orderModal .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 15px;
         }
 
         #orderedList {
             list-style-type: none;
             padding: 0;
+            margin: 0;
         }
 
         #orderedList li {
-            padding: 12px;
-            margin-bottom: 8px;
-            background: #f8f9fa;
-            border: 1px solid #ddd;
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #585858;
             border-radius: 4px;
             cursor: move;
-            transition: transform 0.2s;
+            transition: all 0.2s;
+            font-size: 0.9em;
+            color: white;
         }
 
         #orderedList li:hover {
-            transform: translateX(5px);
-            background: #e9ecef;
+            background: rgba(71, 156, 146, 0.3);
         }
 
         #orderedList li.sortable-ghost {
             opacity: 0.5;
-            background: #cce5ff;
+            background: rgba(71, 156, 146, 0.5);
+        }
+
+        .save-order-footer {
+            padding: 10px 0 0;
+            border-top: 1px solid #585858;
+            text-align: right;
+        }
+
+        .delete-button {
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-family: Montserrat;
+        }
+
+        .delete-button:hover {
+            background: #d32f2f;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 8px;
         }
     </style>
 </head>
@@ -222,71 +313,72 @@
     </div>
 </div>
 
-<div class="professions-container" id="professionsContainer">
-    <% professions.forEach(function(profession) { %>
-        <div class="profession-card" data-id="<%= profession.id %>" onclick="selectProfession(<%= profession.id %>, event)">
-            <div class="profession-title"><%= profession.name %></div>
-            <div class="profession-description"><%= profession.description %></div>
-            <button class="evaluation-button" onclick="toggleEvaluationList(<%= profession.id %>, event)">Оценить профессию</button>
-            <div class="evaluation-list" id="evalList-<%= profession.id %>">
-                <% const pvkGroups = {};
-                    pvks.forEach(pvk => {
-                        if (!pvkGroups[pvk.type]) pvkGroups[pvk.type] = [];
-                        pvkGroups[pvk.type].push(pvk);
-                    });
-                Object.keys(pvkGroups).forEach(type => { %>
-                    <div class="pvk-type"><%= type %></div>
-                    <% pvkGroups[type].forEach(function(pvk) { %>
-                        <label class="pvk-label">
-                            <input type="checkbox" data-pvk-id="<%= pvk.id %>"
-                                    <%= profession.pvks && profession.pvks.includes(pvk.id) ? 'checked' : '' %>
-                                   onclick="updateCheckboxCounter(<%= profession.id %>, event)">
-                            <%= pvk.pvk %>
-                            <% if (pvk.description) { %>
-                                <span style="font-size: 0.8em; color: #666;">(<%= pvk.description %>)</span>
-                            <% } %>
-                        </label>
-                    <% }); %>
-                <% }); %>
-            </div>
-            <div class="checkbox-controls" id="controls-<%= profession.id %>">
-                <div class="checkbox-counter">Выбрано: <span>0</span>/10</div>
-                <button class="save-selection-button" onclick="savePvkSelection(<%= profession.id %>, event)">Сохранить выбор</button>
-            </div>
-        </div>
-    <% }); %>
+<div class="content">
+    <h1>Оценка профессий</h1>
 
-    <div class="profession-card" onclick="openProfessionModal()">
-        <div class="profession-title">+ Новая профессия</div>
-        <div class="profession-description">Нажмите, чтобы создать</div>
+    <div class="professions-container" id="professionsContainer">
+        <% professions.forEach(function(profession) { %>
+            <div class="profession-card" data-id="<%= profession.id %>" onclick="selectProfession(<%= profession.id %>, event)">
+                <div class="profession-title"><%= profession.name %></div>
+                <div class="profession-description"><%= profession.description %></div>
+                <button class="evaluation-button" onclick="toggleEvaluationList(<%= profession.id %>, event)">Оценить профессию</button>
+                <div class="evaluation-list" id="evalList-<%= profession.id %>">
+                    <% const pvkGroups = {};
+                        pvks.forEach(pvk => {
+                            if (!pvkGroups[pvk.type]) pvkGroups[pvk.type] = [];
+                            pvkGroups[pvk.type].push(pvk);
+                        });
+                    Object.keys(pvkGroups).forEach(type => { %>
+                        <div class="pvk-type"><%= type %></div>
+                        <% pvkGroups[type].forEach(function(pvk) { %>
+                            <label class="pvk-label">
+                                <input type="checkbox" data-pvk-id="<%= pvk.id %>"
+                                        <%= profession.pvks && profession.pvks.includes(pvk.id) ? 'checked' : '' %>
+                                       onclick="updateCheckboxCounter(<%= profession.id %>, event)">
+                                <%= pvk.pvk %>
+                                <% if (pvk.description) { %>
+                                    <span style="font-size: 0.8em; color: #aaa;">(<%= pvk.description %>)</span>
+                                <% } %>
+                            </label>
+                        <% }); %>
+                    <% }); %>
+                </div>
+                <div class="checkbox-controls" id="controls-<%= profession.id %>">
+                    <div class="checkbox-counter">Выбрано: <span>0</span>/10</div>
+                    <button class="save-selection-button" onclick="savePvkSelection(<%= profession.id %>, event)">Сохранить выбор</button>
+                </div>
+            </div>
+        <% }); %>
+
+        <div class="profession-card" onclick="openProfessionModal()">
+            <div class="profession-title">+ Новая профессия</div>
+            <div class="profession-description">Нажмите, чтобы создать</div>
+        </div>
     </div>
 </div>
 
-<!-- Модальные окна -->
+<!-- Модальное окно создания профессии -->
 <div id="professionModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeProfessionModal()">&times;</span>
         <h2>Создание профессии</h2>
         <input type="text" id="professionName" placeholder="Название профессии" required>
         <textarea id="professionDescription" placeholder="Описание профессии" required></textarea>
-        <button onclick="saveProfession()">Сохранить профессию</button>
+        <button id="saveProfessionButton" onclick="saveProfession()">Сохранить профессию</button>
     </div>
 </div>
 
-<!-- Модальное окно для сортировки ПВК -->
+<!-- Модальное окно сортировки ПВК -->
 <div id="orderModal" class="modal">
-    <div class="modal-content" style="max-height: 80vh; overflow-y: auto;">
+    <div class="modal-content">
         <span class="close" onclick="closeOrderModal()">&times;</span>
         <h2>Упорядочить ПВК для профессии</h2>
-        <div style="margin-bottom: 15px;">
-            <p>Перетащите элементы для расстановки приоритетов (от самого важного к менее важному)</p>
+        <div class="modal-body">
+            <p style="margin-top: 0; color: #ccc;">Перетащите элементы для расстановки приоритетов (от самого важного к менее важному)</p>
+            <ul id="orderedList"></ul>
         </div>
-        <ul id="orderedList" style="min-height: 50px; margin-bottom: 20px;"></ul>
-        <div style="position: sticky; bottom: 0; background: white; padding: 10px 0; border-top: 1px solid #ddd;">
-            <button onclick="saveOrder()"
-                    style="padding: 10px 20px; background: #4a90e2; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                Сохранить порядок
-            </button>
+        <div class="save-order-footer">
+            <button id="saveOrderButton">Сохранить порядок</button>
         </div>
     </div>
 </div>
@@ -296,7 +388,7 @@
     const professions = <%- JSON.stringify(professions) %>;
     const pvks = <%- JSON.stringify(pvks) %>;
     let selectedProfessionId = null;
-    let selectedProfessionName = null; // Добавляем переменную для хранения названия
+    let selectedProfessionName = null;
     let selectedPvks = {};
     let currentlyOpenEvaluation = null;
 
@@ -306,7 +398,6 @@
             event.target.classList.contains('profession-title') ||
             event.target.classList.contains('profession-description')) {
             selectedProfessionId = id;
-            // Находим название выбранной профессии
             const selectedProfession = professions.find(p => p.id == id);
             selectedProfessionName = selectedProfession ? selectedProfession.name : null;
 
@@ -398,27 +489,19 @@
         const orderedList = document.getElementById('orderedList');
         orderedList.innerHTML = '';
 
-        // Добавляем только названия ПВК без дополнительной информации
         selectedPvks[professionId].forEach(pvk => {
             const li = document.createElement('li');
             li.dataset.pvkId = pvk.id;
-
-            // Отображаем только название ПВК (первую строку до переноса, если есть)
             const pvkNameOnly = pvk.name.split('\n')[0].split('<br>')[0];
             li.textContent = pvkNameOnly;
-
             orderedList.appendChild(li);
         });
 
-        // Инициализация SortableJS с улучшенной анимацией
         new Sortable(orderedList, {
-            animation: 200,
+            animation: 150,
             ghostClass: 'sortable-ghost',
             chosenClass: 'sortable-chosen',
-            dragClass: 'sortable-drag',
-            handle: 'li',
-            filter: '.ignore-elements',
-            preventOnFilter: false
+            dragClass: 'sortable-drag'
         });
 
         document.getElementById('orderModal').style.display = 'block';
@@ -446,7 +529,6 @@
             return;
         }
 
-        // Отправка данных на сервер
         fetch('http://localhost:3000/api/professions', {
             method: 'POST',
             headers: {
@@ -477,6 +559,7 @@
         document.getElementById('orderModal').style.display = 'none';
     }
 
+    // Сохранение порядка ПВК
     function saveOrder() {
         const login = "<%= login %>";
         const orderedList = document.getElementById('orderedList');
@@ -491,7 +574,6 @@
             return;
         }
 
-        // Отправка данных на сервер с названием профессии вместо ID
         fetch('http://localhost:3000/api/profession_rating', {
             method: 'POST',
             headers: {
@@ -517,6 +599,9 @@
                 alert('Произошла ошибка при сохранении');
             });
     }
+
+    // Назначение обработчика для кнопки сохранения порядка
+    document.getElementById('saveOrderButton').addEventListener('click', saveOrder);
 
     // Закрытие модальных окон при клике вне их
     window.onclick = function(event) {
