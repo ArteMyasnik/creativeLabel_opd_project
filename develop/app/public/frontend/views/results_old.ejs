@@ -1,0 +1,397 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="ru">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Статистика по профессии</title>-->
+<!--    <link rel="stylesheet" href="../../Styles/resultsStyles.css" />-->
+<!--    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>-->
+<!--</head>-->
+<!--<body>-->
+<!--<div class="button-container">-->
+<!--    <div class="left-button">-->
+<!--        <button onclick="window.location.href='/main'">Главная страница</button>-->
+<!--    </div>-->
+<!--    <div class="right-buttons">-->
+<!--        <button onclick="window.location.href='/profile'">Профиль</button>-->
+<!--        <button onclick="window.location.href='/login'">Войти</button>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!--<div class="content">-->
+<!--    <h1>Статистика по профессиям</h1>-->
+
+<!--    &lt;!&ndash; Блок для Профессии 1 &ndash;&gt;-->
+<!--    <div class="profession-block">-->
+<!--        &lt;!&ndash; Левый блок: название и фото &ndash;&gt;-->
+<!--        <div class="profession-info">-->
+<!--            <h2>Профессия 1</h2>-->
+<!--            <img src="..\Images/developer.jpg" alt="Фотография профессии" class="profession-image">-->
+<!--        </div>-->
+
+<!--        &lt;!&ndash; Правый блок: описание &ndash;&gt;-->
+<!--        <div class="profession-description">-->
+<!--            <p>Описание профессии. Здесь может быть текст, описывающий основные обязанности, требования и особенности профессии.</p>-->
+<!--        </div>-->
+<!--    </div>-->
+
+<!--    &lt;!&ndash; Диаграмма для Профессии 1 &ndash;&gt;-->
+<!--    <div class="chart-container">-->
+<!--        <canvas id="professionChart1"></canvas>-->
+<!--    </div>-->
+
+<!--    &lt;!&ndash; Блок для Профессии 2 &ndash;&gt;-->
+<!--    <div class="profession-block">-->
+<!--        &lt;!&ndash; Левый блок: название и фото &ndash;&gt;-->
+<!--        <div class="profession-info">-->
+<!--            <h2>Профессия 2</h2>-->
+<!--            <img src="..\Images/developer.jpg" alt="Фотография профессии" class="profession-image">-->
+<!--        </div>-->
+
+<!--        &lt;!&ndash; Правый блок: описание &ndash;&gt;-->
+<!--        <div class="profession-description">-->
+<!--            <p>Описание профессии. Здесь может быть текст, описывающий основные обязанности, требования и особенности профессии.</p>-->
+<!--        </div>-->
+<!--    </div>-->
+
+<!--    &lt;!&ndash; Диаграмма для Профессии 2 &ndash;&gt;-->
+<!--    <div class="chart-container">-->
+<!--        <canvas id="professionChart2"></canvas>-->
+<!--    </div>-->
+
+<!--    &lt;!&ndash; Блок для Профессии 3 &ndash;&gt;-->
+<!--    <div class="profession-block">-->
+<!--        &lt;!&ndash; Левый блок: название и фото &ndash;&gt;-->
+<!--        <div class="profession-info">-->
+<!--            <h2>Профессия 3</h2>-->
+<!--            <img src="..\Images/developer.jpg" alt="Фотография профессии" class="profession-image">-->
+<!--        </div>-->
+
+<!--        &lt;!&ndash; Правый блок: описание &ndash;&gt;-->
+<!--        <div class="profession-description">-->
+<!--            <p>Описание профессии. Здесь может быть текст, описывающий основные обязанности, требования и особенности профессии.</p>-->
+<!--        </div>-->
+<!--    </div>-->
+
+<!--    &lt;!&ndash; Диаграмма для Профессии 3 &ndash;&gt;-->
+<!--    <div class="chart-container">-->
+<!--        <canvas id="professionChart3"></canvas>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!--<script>-->
+<!--    // Диаграмма для Профессии 1-->
+<!--    const ctx1 = document.getElementById('professionChart1').getContext('2d');-->
+<!--    new Chart(ctx1, {-->
+<!--        type: 'pie',-->
+<!--        data: {-->
+<!--            labels: ['ПВК 1', 'ПВК 2', 'ПВК 3', 'ПВК 4'],-->
+<!--            datasets: [{-->
+<!--                label: 'Статистика по ПВК',-->
+<!--                data: [20, 20, 40, 80],-->
+<!--                backgroundColor: [-->
+<!--                    '#479C92',-->
+<!--                    '#2d5e58',-->
+<!--                    '#1c3c3a',-->
+<!--                    '#0f1f1e'-->
+<!--                ],-->
+<!--                borderColor: [-->
+<!--                    '#ffffff',-->
+<!--                    '#ffffff',-->
+<!--                    '#ffffff',-->
+<!--                    '#ffffff'-->
+<!--                ],-->
+<!--                borderWidth: 1-->
+<!--            }]-->
+<!--        },-->
+<!--        options: {-->
+<!--            responsive: true,-->
+<!--            plugins: {-->
+<!--                legend: {-->
+<!--                    position: 'top',-->
+<!--                },-->
+<!--                title: {-->
+<!--                    display: true,-->
+<!--                    text: 'Статистика по ПВК (Профессия 1)'-->
+<!--                }-->
+<!--            }-->
+<!--        }-->
+<!--    });-->
+
+<!--    // Диаграмма для Профессии 2-->
+<!--    const ctx2 = document.getElementById('professionChart2').getContext('2d');-->
+<!--    new Chart(ctx2, {-->
+<!--        type: 'pie',-->
+<!--        data: {-->
+<!--            labels: ['ПВК 1', 'ПВК 2', 'ПВК 3', 'ПВК 4'],-->
+<!--            datasets: [{-->
+<!--                label: 'Статистика по ПВК',-->
+<!--                data: [30, 10, 50, 60],-->
+<!--                backgroundColor: [-->
+<!--                    '#479C92',-->
+<!--                    '#2d5e58',-->
+<!--                    '#1c3c3a',-->
+<!--                    '#0f1f1e'-->
+<!--                ],-->
+<!--                borderColor: [-->
+<!--                    '#ffffff',-->
+<!--                    '#ffffff',-->
+<!--                    '#ffffff',-->
+<!--                    '#ffffff'-->
+<!--                ],-->
+<!--                borderWidth: 1-->
+<!--            }]-->
+<!--        },-->
+<!--        options: {-->
+<!--            responsive: true,-->
+<!--            plugins: {-->
+<!--                legend: {-->
+<!--                    position: 'top',-->
+<!--                },-->
+<!--                title: {-->
+<!--                    display: true,-->
+<!--                    text: 'Статистика по ПВК (Профессия 2)'-->
+<!--                }-->
+<!--            }-->
+<!--        }-->
+<!--    });-->
+
+<!--    // Диаграмма для Профессии 3-->
+<!--    const ctx3 = document.getElementById('professionChart3').getContext('2d');-->
+<!--    new Chart(ctx3, {-->
+<!--        type: 'pie',-->
+<!--        data: {-->
+<!--            labels: ['ПВК 1', 'ПВК 2', 'ПВК 3', 'ПВК 4'],-->
+<!--            datasets: [{-->
+<!--                label: 'Статистика по ПВК',-->
+<!--                data: [40, 30, 20, 70],-->
+<!--                backgroundColor: [-->
+<!--                    '#479C92',-->
+<!--                    '#2d5e58',-->
+<!--                    '#1c3c3a',-->
+<!--                    '#0f1f1e'-->
+<!--                ],-->
+<!--                borderColor: [-->
+<!--                    '#ffffff',-->
+<!--                    '#ffffff',-->
+<!--                    '#ffffff',-->
+<!--                    '#ffffff'-->
+<!--                ],-->
+<!--                borderWidth: 1-->
+<!--            }]-->
+<!--        },-->
+<!--        options: {-->
+<!--            responsive: true,-->
+<!--            plugins: {-->
+<!--                legend: {-->
+<!--                    position: 'top',-->
+<!--                },-->
+<!--                title: {-->
+<!--                    display: true,-->
+<!--                    text: 'Статистика по ПВК (Профессия 3)'-->
+<!--                }-->
+<!--            }-->
+<!--        }-->
+<!--    });-->
+<!--</script>-->
+<!--</body>-->
+<!--</html>-->
+
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Статистика по профессии</title>
+    <link rel="stylesheet" href="../../Styles/resultsStyles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .button-container {
+            background-color: #479C92;
+            padding: 15px;
+            display: flex;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #2d5e58;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #1c3c3a;
+        }
+        .content {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #2d5e58;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .profession-block {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            overflow: hidden;
+            flex-wrap: wrap;
+        }
+        .profession-chart {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .profession-details {
+            flex: 2;
+            min-width: 300px;
+            padding: 20px;
+        }
+        .profession-image {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            border-radius: 5px;
+            margin: 10px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #479C92;
+            margin-top: 0;
+        }
+        @media (max-width: 768px) {
+            .profession-block {
+                flex-direction: column;
+            }
+            .profession-chart, .profession-details {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="button-container">
+    <div class="left-button">
+        <button onclick="window.location.href='/main'">Главная страница</button>
+    </div>
+</div>
+
+<div class="content">
+    <h1>Статистика по профессиям</h1>
+
+    <% professions.forEach((profession, index) => { %>
+        <!-- Блок для Профессии -->
+        <div class="profession-block">
+            <!-- Левая часть: диаграмма -->
+            <div class="profession-chart">
+                <canvas id="professionChart<%= profession.id %>"></canvas>
+            </div>
+
+            <!-- Правая часть: описание профессии -->
+            <div class="profession-details">
+                <h2><%= profession.name %></h2>
+                <img src="../Images/developer.jpg" alt="Фотография профессии" class="profession-image">
+                <p><%= profession.description %></p>
+            </div>
+        </div>
+    <% }); %>
+</div>
+
+<script>
+    // Данные для диаграмм (передаются из сервера через EJS)
+    const professionsData = [
+        <% professions.forEach(profession => { %>
+        {
+            id: <%= profession.id %>,
+            name: '<%= profession.name %>',
+            pvks: [
+                <% profession.pvks.forEach(pvk => { %>
+                {
+                    name: '<%= pvk.name %>',
+                    mark: <%= pvk.mark %>
+                },
+                <% }); %>
+            ]
+        },
+        <% }); %>
+    ];
+
+    // Создание диаграмм для каждой профессии
+    professionsData.forEach(profession => {
+        const ctx = document.getElementById(`professionChart${profession.id}`).getContext('2d');
+
+        // Подготовка данных для диаграммы
+        const labels = profession.pvks.map(pvk => pvk.name);
+        const data = profession.pvks.map(pvk => pvk.mark);
+
+        // Генерация цветов
+        const backgroundColors = labels.map((_, i) => {
+            const hue = (i * 360 / labels.length) % 360;
+            return `hsl(${hue}, 70%, 60%)`;
+        });
+
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Оценка ПВК',
+                    data: data,
+                    backgroundColor: backgroundColors,
+                    borderColor: '#ffffff',
+                    borderWidth: 2,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            boxWidth: 12,
+                            padding: 20,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: `Оценки ПВК для ${profession.name}`,
+                        font: {
+                            size: 16
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.raw}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

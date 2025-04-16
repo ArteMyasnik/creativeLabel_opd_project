@@ -238,9 +238,66 @@ app.get('/professions_rating', async (req, res) => {
     }
 });
 
-app.get('/results', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'results.html'));
+// app.get('/results', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'results.html'));
+// });
+
+app.get('/results', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT profession_id, pvk_id, mark FROM profession_pvk');
+        const grades = result.rows[0];
+        console.log(grades)
+        res.render('results', { grades: grades });
+    } catch (err) {
+        console.error('Ошибка при выполнении запроса:', err);
+        res.status(500).send('Ошибка сервера');
+    }
 });
+
+// app.get('/results', async (req, res) => {
+//     try {
+//         // Fetch all profession-PVK data
+//         const result = await pool.query(`
+//             SELECT pp.profession_id, pp.pvk_id, pp.mark,
+//                    p.name as profession_name, p.description as profession_description,
+//                    pvk.name as pvk_name
+//             FROM profession_pvk pp
+//             JOIN professions p ON pp.profession_id = p.id
+//             JOIN pvk ON pp.pvk_id = pvk.id
+//             ORDER BY pp.profession_id, pp.mark DESC
+//         `);
+//
+//         // Organize data by profession
+//         const professionsData = {};
+//         result.rows.forEach(row => {
+//             if (!professionsData[row.profession_id]) {
+//                 professionsData[row.profession_id] = {
+//                     name: row.profession_name,
+//                     description: row.profession_description,
+//                     pvks: []
+//                 };
+//             }
+//             professionsData[row.profession_id].pvks.push({
+//                 id: row.pvk_id,
+//                 name: row.pvk_name,
+//                 mark: row.mark
+//             });
+//         });
+//
+//         // Convert to array for easier iteration in EJS
+//         const professionsArray = Object.values(professionsData);
+//
+//         res.render('results', {
+//             professions: professionsArray
+//         });
+//     } catch (err) {
+//         console.error('Ошибка при выполнении запроса:', err);
+//         res.status(500).send('Ошибка сервера');
+//     }
+// });
+
+
+
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------
 
