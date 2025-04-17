@@ -78,22 +78,37 @@
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         position: 'right',
+                        labels: {
+                            color: '#479C92',
+                            font: {
+                                size: 14,
+                                family: 'Arial, sans-serif'
+                            },
+                            padding: 10,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
                     },
                     title: {
                         display: true,
-                        text: 'Оценки ПВК для ' + data.name,
+                        text: 'Оценки для ' + data.name,
                         font: {
                             size: 16
-                        }
+                        },
+                        color:'#479C92'
                     },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return `${context.label}: ${context.raw}`;
+                                return `Оценка экспертов: ${context.raw}`; // Or pvk name `${context.label}: ${context.raw}`
                             }
+                        },
+                        bodyFont: {
+                            size: 14
                         }
                     }
                 }

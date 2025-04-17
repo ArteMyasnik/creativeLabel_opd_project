@@ -238,31 +238,14 @@ app.get('/professions_rating', async (req, res) => {
     }
 });
 
-// app.get('/results', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'results.html'));
-// });
-
 app.get('/results', async (req, res) => {
     try {
         const result = await pool.query(`
-            SELECT 
-                pp.profession_id,
-                pp.pvk_id,
-                pp.mark,
-                p.name AS profession_name,
-                pvk.pvk AS pvk_name
+            SELECT  pp.profession_id, pp.pvk_id, pp.mark, p.name AS profession_name, pvk.pvk AS pvk_name
             FROM profession_pvk pp
             JOIN professions p ON pp.profession_id = p.id
             JOIN pvks pvk ON pp.pvk_id = pvk.id
         `);
-
-        const gradesById = result.rows.reduce((acc, row) => {
-            if (!acc[row.profession_id]) {
-                acc[row.profession_id] = {};
-            }
-            acc[row.profession_id][row.pvk_id] = row.mark;
-            return acc;
-        }, {});
 
         const grades = result.rows.reduce((acc, row) => {
             if (!acc[row.profession_name]) {
