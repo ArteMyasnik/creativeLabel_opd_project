@@ -247,6 +247,16 @@ app.get('/results', async (req, res) => {
             JOIN pvks pvk ON pp.pvk_id = pvk.id
         `);
 
+        console.log(result.rows);
+
+        const gradesById = result.rows.reduce((acc, row) => {
+            if (!acc[row.profession_id]) {
+                acc[row.profession_id] = {};
+            }
+            acc[row.profession_id][row.pvk_id] = row.mark;
+            return acc;
+        }, {});
+
         const grades = result.rows.reduce((acc, row) => {
             if (!acc[row.profession_name]) {
                 acc[row.profession_name] = {};
@@ -255,13 +265,16 @@ app.get('/results', async (req, res) => {
             return acc;
         }, {});
 
-        const professionsResult = await pool.query('SELECT * FROM professions');
-        const pvksResult = await pool.query('SELECT * FROM pvks');
+        const professionsResult = await pool.query('SELECT * FROM professions ORDER BY id');
+        // const pvksResult = await pool.query('SELECT * FROM pvks ORDER BY id');
+
+        console.log(gradesById)
+        console.log(grades)
 
         res.render('results', {
             grades: grades,
             professions: professionsResult.rows,
-            pvks: pvksResult.rows
+            // pvks: pvksResult.rows
         });
     } catch (err) {
         console.error('Ошибка при выполнении запроса:', err);
