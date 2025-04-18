@@ -65,46 +65,44 @@
 // */
 
 
-async function calculateStats(professionId, pvkId) {
-    try {
-
-        // Получаем все оценки для profession_pvk_id
-        const resultMarks = await pool.query(`
-            SELECT mark
-            FROM profession_pvk
-            WHERE profession_id = $1
-              AND pvk_id = $2;
-        `, [professionId, pvkId]);
-
-        // Извлекаем оценки
-        const marks = resultMarks.rows.map(row => row.mark);
-
-        // Кол-во оценок экспертов
-        const expertCount = await pool.query(`
-            SELECT expert_count
-            FROM profession
-            WHERE id = $1
-        `, [professionId]);
-
-        // Вычисляем среднее арифметическое var numbers = [5, 10, 15, 20];
-        const mean = marks.reduce((sum, mark) => sum + mark, 0) / expertCount;
-
-        // Вычисляем дисперсию
-        const variance = marks.reduce((sum, mark) => sum + Math.abs(mark - mean), 0) / expertCount;
-
-        return {variance, mean};
-    } catch (error) {
-        console.error('Ошибка при вычислении статистики:', error);
-        throw error;
-    }
-}
-
-/*
-// Пример использования
-const professionId = 1;
-const pvkId = 1;
-calculateStats(professionId, pvkId).then(stats => {
-    console.log('Дисперсия:', stats.variance);
-    console.log('Среднее:', stats.mean);
-});
-*/
+// async function calculateStats(professionId, pvkId) {
+//     try {
+//
+//         // Получаем все оценки для profession_pvk_id
+//         const resultMarks = await pool.query(`
+//             SELECT mark
+//             FROM profession_pvk
+//             WHERE profession_id = $1
+//               AND pvk_id = $2;
+//         `, [professionId, pvkId]);
+//
+//         // Извлекаем оценки
+//         const marks = resultMarks.rows.map(row => row.mark);
+//
+//         // Кол-во оценок экспертов
+//         const expertCount = await pool.query(`
+//             SELECT expert_count
+//             FROM profession
+//             WHERE id = $1
+//         `, [professionId]);
+//
+//         // Вычисляем среднее арифметическое var numbers = [5, 10, 15, 20];
+//         const mean = marks.reduce((sum, mark) => sum + mark, 0) / expertCount;
+//
+//         // Вычисляем дисперсию
+//         const variance = marks.reduce((sum, mark) => sum + Math.abs(mark - mean), 0) / expertCount;
+//
+//         return {variance, mean};
+//     } catch (error) {
+//         console.error('Ошибка при вычислении статистики:', error);
+//         throw error;
+//     }
+// }
+//
+// // Пример использования
+// const professionId = 1;
+// const pvkId = 1;
+// calculateStats(professionId, pvkId).then(stats => {
+//     console.log('Дисперсия:', stats.variance);
+//     console.log('Среднее:', stats.mean);
+// });

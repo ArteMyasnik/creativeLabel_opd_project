@@ -241,40 +241,88 @@ app.get('/professions_rating', async (req, res) => {
 app.get('/results', async (req, res) => {
     try {
         const result = await pool.query(`
-            SELECT  pp.profession_id, pp.pvk_id, pp.mark, p.name AS profession_name, pvk.pvk AS pvk_name
+            SELECT pp.profession_id, pp.pvk_id, p.name AS profession_name, pvk.pvk AS pvk_name
             FROM profession_pvk pp
-            JOIN professions p ON pp.profession_id = p.id
-            JOIN pvks pvk ON pp.pvk_id = pvk.id
+                     JOIN professions p ON pp.profession_id = p.id
+                     JOIN pvks pvk ON pp.pvk_id = pvk.id
         `);
 
-        console.log(result.rows);
+        async function calculateStats(professionId, pvkId) {
+            try {
+                // Получаем все оценки для данной профессии и оцениваемого пвк
+                const resultMarks = await pool.query(`
+                    SELECT mark
+                    FROM profession_pvk
+                    WHERE profession_id = $1
+                      AND pvk_id = $2;
+                `, [professionId, pvkId]);
 
-        const gradesById = result.rows.reduce((acc, row) => {
-            if (!acc[row.profession_id]) {
-                acc[row.profession_id] = {};
-            }
-            acc[row.profession_id][row.pvk_id] = row.mark;
-            return acc;
-        }, {});
+                // Извлекаем оценки
+                const marks = resultMarks.rows.map(row => row.mark);
 
-        const grades = result.rows.reduce((acc, row) => {
-            if (!acc[row.profession_name]) {
-                acc[row.profession_name] = {};
+                // Кол-во экспертов, оценивших эту профессию
+                const expertCountResult = await pool.query(`
+                    SELECT expert_count
+                    FROM professions
+                    WHERE id = $1
+                `, [professionId]);
+
+                const expertCount = expertCountResult.rows[0].expert_count;
+
+                // Вычисляем среднее арифметическое
+                const mean = marks.reduce((sum, mark) => sum + mark, 0) / expertCount;
+
+                // Вычисляем дисперсию
+                const variance = marks.reduce((sum, mark) => sum + Math.abs(mark - mean), 0) / expertCount;
+
+                return mean - variance; // {variance, mean}
+            } catch (err) {
+                console.error('Ошибка при расчете статистики:', err);
+                return 0;
             }
-            acc[row.profession_name][row.pvk_name] = row.mark;
-            return acc;
-        }, {});
+        }
+
+        // Создаем массивы для хранения промисов (ожиданий высчитывания оценок)
+        const gradesByIdPromises = {};
+        const gradesPromises = {};
+
+        // Сначала собираем все промисы (собираем все возможные расчёты)
+        result.rows.forEach(row => {
+            if (!gradesByIdPromises[row.profession_id]) {
+                gradesByIdPromises[row.profession_id] = {};
+            }
+            gradesByIdPromises[row.profession_id][row.pvk_id] = calculateStats(row.profession_id, row.pvk_id);
+
+            if (!gradesPromises[row.profession_name]) {
+                gradesPromises[row.profession_name] = {};
+            }
+            gradesPromises[row.profession_name][row.pvk_name] = calculateStats(row.profession_id, row.pvk_id);
+        });
+
+        // Дожидаемся выполнения всех промисов и готово
+        const gradesById = {};
+        for (const professionId in gradesByIdPromises) {
+            gradesById[professionId] = {};
+            for (const pvkId in gradesByIdPromises[professionId]) {
+                gradesById[professionId][pvkId] = await gradesByIdPromises[professionId][pvkId];
+            }
+        }
+
+        const grades = {};
+        for (const professionName in gradesPromises) {
+            grades[professionName] = {};
+            for (const pvkName in gradesPromises[professionName]) {
+                grades[professionName][pvkName] = await gradesPromises[professionName][pvkName];
+            }
+        }
 
         const professionsResult = await pool.query('SELECT * FROM professions ORDER BY id');
-        // const pvksResult = await pool.query('SELECT * FROM pvks ORDER BY id');
 
-        console.log(gradesById)
-        console.log(grades)
+        console.log(grades);
 
         res.render('results', {
             grades: grades,
             professions: professionsResult.rows,
-            // pvks: pvksResult.rows
         });
     } catch (err) {
         console.error('Ошибка при выполнении запроса:', err);
