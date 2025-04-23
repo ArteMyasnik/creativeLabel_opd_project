@@ -3,7 +3,6 @@ const session = require('express-session');
 const path = require('path');
 const app = express();
 const userRouter = require('./controllers/userRoutes');
-const actionRouter = require('./controllers/backend/actionRoutes');
 const PORT = process.env.PORT || 3000;
 const pool = require('./db/db');
 const crypto = require('crypto');
