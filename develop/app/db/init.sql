@@ -9,84 +9,11 @@ CREATE TABLE users
     isModerator   BOOLEAN   DEFAULT FALSE,
     isExpert      BOOLEAN   DEFAULT FALSE,
     createdAt     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    age           INT,
+    age           INTEGER,
     sex           VARCHAR(10) CHECK (sex IN ('male', 'female'))
 );
 
 -- Создание таблицы tests
-CREATE TABLE tests
-(
-    id          SERIAL PRIMARY KEY,
-    name        VARCHAR(255) NOT NULL,
-    description TEXT
-);
-
--- Создание таблицы test_visual_signal
-CREATE TABLE test_visual_signal
-(
-    id                    SERIAL PRIMARY KEY,
-    user_id               INT REFERENCES users (id) ON DELETE CASCADE,
-    average_reaction_time NUMERIC(10, 2) NOT NULL,
-    standard_deviation    NUMERIC(10, 2) NOT NULL,
-    missed_signals        INT            NOT NULL,
-    created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Создание таблицы test_color_signal
-CREATE TABLE test_color_signal
-(
-    id                    SERIAL PRIMARY KEY,
-    user_id               INT            NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    average_reaction_time NUMERIC(10, 2) NOT NULL,
-    standard_deviation    NUMERIC(10, 2) NOT NULL,
-    correct_answers       INT            NOT NULL,
-    missed_clicks         INT            NOT NULL,
-    wrong_clicks          INT            NOT NULL,
-    created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Создание таблицы test_digital_signal
-CREATE TABLE test_digital_signal
-(
-    id                    SERIAL PRIMARY KEY,
-    user_id               INT REFERENCES users (id) ON DELETE CASCADE,
-    average_reaction_time DOUBLE PRECISION NOT NULL CHECK (average_reaction_time >= 0),
-    standard_deviation    DOUBLE PRECISION NOT NULL CHECK (standard_deviation >= 0),
-    correct_answers       INT              NOT NULL CHECK (correct_answers >= 0),
-    wrong_answers         INT              NOT NULL CHECK (wrong_answers >= 0),
-    missed_attempts       INT              NOT NULL CHECK (missed_attempts >= 0),
-    accuracy              DOUBLE PRECISION NOT NULL CHECK (accuracy >= 0 AND accuracy <= 100),
-    created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Создание таблицы test_simple_rdo
-CREATE TABLE test_simple_rdo
-(
-    id           SERIAL PRIMARY KEY,
-    user_id      INT REFERENCES users (id) ON DELETE CASCADE,
-    avgPremature NUMERIC(10, 2) NOT NULL,
-    avgDelayed   NUMERIC(10, 2) NOT NULL,
-    avgAbsolute  NUMERIC(10, 2) NOT NULL,
-    signResponse CHAR(1)        NOT NULL,
-    stdAbs       NUMERIC(10, 2) NOT NULL,
-    stdSigned    NUMERIC(10, 2) NOT NULL,
-    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT chk_sign_response CHECK (signResponse IN ('+', '-', '0'))
-);
-
--- Создание таблицы test_complex_rdo
-CREATE TABLE test_complex_rdo
-(
-    id         SERIAL PRIMARY KEY,
-    user_id    INT REFERENCES users (id) ON DELETE CASCADE,
-    circle1    JSONB NOT NULL,
-    circle2    JSONB NOT NULL,
-    circle3    JSONB NOT NULL,
-    overall    JSONB NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Создание таблицы pvks (Профессионально-важные качества)
 CREATE TABLE pvks
 (
     id          SERIAL PRIMARY KEY,
@@ -109,41 +36,21 @@ CREATE TABLE professions
     id           SERIAL PRIMARY KEY,
     name         VARCHAR(255) NOT NULL UNIQUE,
     description  TEXT,
-    expert_count INT DEFAULT 0
+    expert_count INTEGER DEFAULT 0
 );
 
 -- Создание таблицы profession_pvk (Связь профессий и PVK)
 CREATE TABLE profession_pvk
 (
     id            SERIAL PRIMARY KEY,
-    profession_id INT REFERENCES professions (id) ON DELETE CASCADE,
-    user_id       INT REFERENCES users (id) ON DELETE CASCADE,
-    pvk_id        INT REFERENCES pvks (id) ON DELETE CASCADE,
-    mark          INT,
+    profession_id INTEGER REFERENCES professions (id) ON DELETE CASCADE,
+    user_id       INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    pvk_id        INTEGER REFERENCES pvks (id) ON DELETE CASCADE,
+    mark          INTEGER,
     UNIQUE (profession_id, pvk_id, user_id)
 );
 
--- Создание таблицы test_pvk (Связь тестов и PVK)
-CREATE TABLE test_pvk
-(
-    id      SERIAL PRIMARY KEY,
-    test_id INT REFERENCES tests (id) ON DELETE CASCADE,
-    pvk_id  INT REFERENCES pvks (id) ON DELETE CASCADE,
-    UNIQUE (test_id, pvk_id)
-);
-
--- Создание таблицы test_user (Связь пользователей и тестов)
-CREATE TABLE test_user
-(
-    id              SERIAL PRIMARY KEY,
-    test_id         INT REFERENCES tests (id) ON DELETE CASCADE,
-    user_id         INT REFERENCES users (id) ON DELETE CASCADE,
-    result          INT,
-    time_of_passage TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Вставка начальных данных (опционально)
--- Пример добавления ролей, если они нужны
+-- Создание таблицы test_visual_signal
 CREATE TABLE roles
 (
     id   SERIAL PRIMARY KEY,
@@ -153,8 +60,8 @@ CREATE TABLE roles
 CREATE TABLE user_roles
 (
     id      SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users (id) ON DELETE CASCADE,
-    role_id INT REFERENCES roles (id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    role_id INTEGER REFERENCES roles (id) ON DELETE CASCADE,
     UNIQUE (user_id, role_id)
 );
 
@@ -163,6 +70,111 @@ VALUES ('admin'),
        ('moderator'),
        ('expert'),
        ('user');
+
+-- Создание таблицы test_color_signal
+CREATE TABLE tests
+(
+    id          SERIAL PRIMARY KEY,
+    name        VARCHAR(255) NOT NULL,
+    description TEXT
+);
+
+INSERT INTO tests (name)
+VALUES ('Простая сенсомоторная реакция'),
+       ('Сложная сенсомоторная реакция'),
+       ('Простая реакция на движущийся объект'),
+       ('Сложная реакция на движущийся объект'),
+       ('');
+
+-- Создание таблицы test_digital_signal
+CREATE TABLE test_visual_signal
+(
+    id                    SERIAL PRIMARY KEY,
+    user_id               INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    average_reaction_time NUMERIC(10, 2) NOT NULL,
+    standard_deviation    NUMERIC(10, 2) NOT NULL,
+    missed_signals        INTEGER            NOT NULL,
+    created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    test_id INTEGER REFERENCES tests (id) ON DELETE CASCADE
+);
+
+-- Создание таблицы test_simple_rdo
+CREATE TABLE test_color_signal
+(
+    id                    SERIAL PRIMARY KEY,
+    user_id               INTEGER            NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    average_reaction_time NUMERIC(10, 2) NOT NULL,
+    standard_deviation    NUMERIC(10, 2) NOT NULL,
+    correct_answers       INTEGER            NOT NULL,
+    missed_clicks         INTEGER            NOT NULL,
+    wrong_clicks          INTEGER            NOT NULL,
+    created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    test_id INTEGER REFERENCES tests (id) ON DELETE CASCADE
+);
+
+-- Создание таблицы test_complex_rdo
+CREATE TABLE test_digital_signal
+(
+    id                    SERIAL PRIMARY KEY,
+    user_id               INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    average_reaction_time DOUBLE PRECISION NOT NULL CHECK (average_reaction_time >= 0),
+    standard_deviation    DOUBLE PRECISION NOT NULL CHECK (standard_deviation >= 0),
+    correct_answers       INTEGER              NOT NULL CHECK (correct_answers >= 0),
+    wrong_answers         INTEGER              NOT NULL CHECK (wrong_answers >= 0),
+    missed_attempts       INTEGER              NOT NULL CHECK (missed_attempts >= 0),
+    accuracy              DOUBLE PRECISION NOT NULL CHECK (accuracy >= 0 AND accuracy <= 100),
+    created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    test_id INTEGER REFERENCES tests (id) ON DELETE CASCADE
+);
+
+-- Создание таблицы pvks (Профессионально-важные качества)
+CREATE TABLE test_simple_rdo
+(
+    id           SERIAL PRIMARY KEY,
+    user_id      INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    avgPremature NUMERIC(10, 2) NOT NULL,
+    avgDelayed   NUMERIC(10, 2) NOT NULL,
+    avgAbsolute  NUMERIC(10, 2) NOT NULL,
+    signResponse CHAR(1)        NOT NULL,
+    stdAbs       NUMERIC(10, 2) NOT NULL,
+    stdSigned    NUMERIC(10, 2) NOT NULL,
+    CONSTRAINT chk_sign_response CHECK (signResponse IN ('+', '-', '0')),
+    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    test_id INTEGER REFERENCES tests (id) ON DELETE CASCADE
+);
+
+-- Создание таблицы test_pvk (Связь тестов и PVK)
+CREATE TABLE test_complex_rdo
+(
+    id         SERIAL PRIMARY KEY,
+    user_id    INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    circle1    JSONB NOT NULL,
+    circle2    JSONB NOT NULL,
+    circle3    JSONB NOT NULL,
+    overall    JSONB NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    test_id INTEGER REFERENCES tests (id) ON DELETE CASCADE
+);
+
+-- Создание таблицы test_user (Связь пользователей и тестов)
+CREATE TABLE test_pvk
+(
+    id      SERIAL PRIMARY KEY,
+    test_id INTEGER REFERENCES tests (id) ON DELETE CASCADE,
+    pvk_id  INTEGER REFERENCES pvks (id) ON DELETE CASCADE,
+    UNIQUE (test_id, pvk_id)
+);
+
+-- Вставка начальных данных (опционально)
+-- Пример добавления ролей, если они нужны
+CREATE TABLE test_user
+(
+    id              SERIAL PRIMARY KEY,
+    test_id         INTEGER REFERENCES tests (id) ON DELETE CASCADE,
+    user_id         INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    result          INTEGER,
+    time_of_passage TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Создание индексов для ускорения запросов (опционально)
 CREATE INDEX idx_users_login ON users (login);
@@ -406,13 +418,13 @@ VALUES ('Ценностно-побудительные качества личн
 DO
 $$
 DECLARE
-r_admin INT;
+r_admin INTEGER;
     r_moderator
-INT;
+INTEGER;
     r_user
-INT;
+INTEGER;
     u_id
-INT;
+INTEGER;
     u_isAdmin
 BOOLEAN;
     u_isModerator

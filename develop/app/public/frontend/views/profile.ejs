@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Профиль <%= login %></title>
     <link rel="stylesheet" href="../../Styles/profileStyles.css">
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
 <button onclick="window.location.href='/main'">Главная страница</button>
@@ -18,36 +23,42 @@
         <h2>Мой профиль</h2>
         <p>Логин: <%= login %></p>
         <p>Почта: <%= email %></p>
-        <p>Пол: <%= sex %> <button class="edit-button" onclick="editSex()">Изменить</button></p>
-        <p>Возраст: <%= age %> <button class="edit-button" onclick="editAge()">Изменить</button></p>
+        <p>Пол: <%= sex || 'Не указан' %> <button class="edit-button" onclick="editSex()">Изменить</button></p>
+        <p>Возраст: <%= age || 'Не указан' %> <button class="edit-button" onclick="editAge()">Изменить</button></p>
         <button class="edit-button" onclick="changePassword()">Изменить пароль</button>
     </div>
     <div class="testResults">
         <h2>Результаты тестов</h2>
-        <h3>разрабы - вы лучшие!</h3>
-        <h4>Section 1</h4>
-        <table>
-            <thead>
-            <tr>
-                <th>№</th>
-                <th>Тест</th>
-                <th>Время прохождения</th>
-                <th>Кол-во попыток</th>
-                <th>Результат</th>
-                <th>Закладки</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>1</td>
-                <td>Тест 1</td>
-                <td>10:00</td>
-                <td>2</td>
-                <td>80%</td>
-                <td><button>добавить в закладку</button></td>
-            </tr>
-            </tbody>
-        </table>
+        <% if (!age || !sex) { %>
+            <div class="missing-info-message">
+                <p>Введите возраст и пол, чтобы увидеть результаты</p>
+            </div>
+        <% } else { %>
+            <div class="test-results-content">
+                <h3>разрабы - вы лучшие!</h3>
+                <h4>Section 1</h4>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>№</th>
+                        <th>Тест</th>
+                        <th>Время прохождения</th>
+                        <th>Кол-во попыток</th>
+                        <th>Результат</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Тест 1</td>
+                        <td>10:00</td>
+                        <td>2</td>
+                        <td>80%</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        <% } %>
     </div>
     <div class="appearanceSettings">
         <h2>Настройки внешнего вида</h2>
@@ -117,30 +128,6 @@
                 console.error('Ошибка при проверке авторизации:', error);
             });
     });
-
-    // <button onclick="editEmail()">Изменить</button>
-    // function editEmail() {
-    <!--    const login = "<%= login %>";-->
-        // const newEmail = prompt("Введите новый email:");
-        // if (newEmail) {
-        //     Отправка запроса на сервер для изменения email
-        //     fetch(`http://localhost:3000/api/profile/${login}/update-email`, {
-        //         method: 'PUT',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //         },
-        //         body: JSON.stringify({ email: newEmail }),
-        //     }).then(response => response.json())
-        //         .then(data => {
-        //             if (data.success) {
-        //                 alert("Email успешно изменен!");
-        //                 window.location.reload();
-        //             } else {
-        //                 alert("Ошибка при изменении email.");
-        //             }
-        //         });
-        // }
-    // }
 
     function editSex() {
         const login = "<%= login %>";

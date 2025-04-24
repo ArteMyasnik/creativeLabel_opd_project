@@ -10,5 +10,5 @@ docker-compose.yml
 .env
 
 # Idea
-.idea
+.idea/
 ./develop/.idea
