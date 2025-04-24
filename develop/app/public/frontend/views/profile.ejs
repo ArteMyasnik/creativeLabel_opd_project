@@ -6,8 +6,70 @@
     <title>Профиль <%= login %></title>
     <link rel="stylesheet" href="../../Styles/profileStyles.css">
     <style>
-        .hidden {
-            display: none;
+        /* Основной класс для размытого контейнера */
+        .blurred {
+            /* Уровень размытия - можно регулировать от 1px (слабое) до 10px (сильное) */
+            filter: blur(5px);
+
+            /* Запрещаем взаимодействие с элементами под размытием */
+            pointer-events: none;
+
+            /* Запрещаем выделение текста под размытием */
+            user-select: none;
+
+            /* Нужно для позиционирования оверлея */
+            position: relative;
+
+            /* Немного уменьшаем контраст для более мягкого вида */
+            opacity: 0.95;
+        }
+
+        /* Контейнер-оверлей, который будет поверх размытого контента */
+        .blur-overlay {
+            /* Позиционируем абсолютно, чтобы покрыть весь родительский блок */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+
+            /* Центрируем содержимое */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            /* Полупрозрачный белый фон для оверлея */
+            background-color: transparent;
+
+            /* Размещаем поверх размытого контента */
+            z-index: 10;
+        }
+
+        /* Стили для сообщения внутри оверлея */
+        .blur-message {
+            /* Сбрасываем размытие для этого элемента */
+            filter: blur(0);
+
+            /* Возвращаем возможность взаимодействия */
+            pointer-events: auto;
+
+            /* Белый фон сообщения */
+            background-color: transparent;
+
+            /* Внутренние отступы */
+            padding: 20px 30px;
+
+            /* Скругленные углы */
+            border-radius: 12px;
+
+            /* Центрируем текст */
+            text-align: center;
+
+            /* Максимальная ширина, чтобы не растягивалось на весь экран */
+            max-width: 80%;
+
+            /* Градиентная рамка (опционально) */
+            border: 1px solid rgba(0, 0, 0, 0.08);
         }
     </style>
 </head>
@@ -29,36 +91,37 @@
     </div>
     <div class="testResults">
         <h2>Результаты тестов</h2>
-        <% if (!age || !sex) { %>
-            <div class="missing-info-message">
-                <p>Введите возраст и пол, чтобы увидеть результаты</p>
-            </div>
-        <% } else { %>
-            <div class="test-results-content">
-                <h3>разрабы - вы лучшие!</h3>
-                <h4>Section 1</h4>
-                <table>
-                    <thead>
-                    <tr>
-                        <th>№</th>
-                        <th>Тест</th>
-                        <th>Время прохождения</th>
-                        <th>Кол-во попыток</th>
-                        <th>Результат</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Тест 1</td>
-                        <td>10:00</td>
-                        <td>2</td>
-                        <td>80%</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        <% } %>
+        <div class="test-results-content <%= (!age || !sex) ? 'blurred' : '' %>">
+            <h3>разрабы - вы лучшие!</h3>
+            <h4>Section 1</h4>
+            <table>
+                <thead>
+                <tr>
+                    <th>№</th>
+                    <th>Тест</th>
+                    <th>Время прохождения</th>
+                    <th>Кол-во попыток</th>
+                    <th>Результат</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Тест 1</td>
+                    <td>10:00</td>
+                    <td>2</td>
+                    <td>80%</td>
+                </tr>
+                </tbody>
+            </table>
+            <% if (!age || !sex) { %>
+                <div class="blur-overlay">
+                    <div class="blur-message">
+                        Введите возраст и пол, чтобы увидеть результаты
+                    </div>
+                </div>
+            <% } %>
+        </div>
     </div>
     <div class="appearanceSettings">
         <h2>Настройки внешнего вида</h2>
@@ -145,60 +208,3 @@
                     if (data.success) {
                         alert("Пол успешно изменен!");
                         window.location.reload();
-                    } else {
-                        alert("Ошибка при изменении пола.");
-                    }
-                });
-        }
-    }
-
-    function editAge() {
-        const login = "<%= login %>";
-        const newAge = prompt("Введите новый возраст:");
-        if (newAge) {
-            // Отправка запроса на сервер для изменения возраста
-            fetch(`http://localhost:3000/api/profile/${login}/update-age`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ age: newAge }),
-            }).then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert("Возраст успешно изменен!");
-                        window.location.reload();
-                    } else {
-                        alert("Ошибка при изменении возраста.");
-                    }
-                });
-        }
-    }
-
-    function changePassword() {
-        const login = "<%= login %>";
-        const oldPassword = prompt("Введите старый пароль:");
-        const newPassword = prompt("Введите новый пароль:");
-        const confirmNewPassword = prompt("Введите новый пароль ещё раз:");
-        if (oldPassword && newPassword && confirmNewPassword) {
-            // Отправка запроса на сервер для изменения пароля
-            fetch(`http://localhost:3000/api/profile/${login}/update-password`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ oldPassword: oldPassword, newPassword: newPassword, confirmNewPassword: confirmNewPassword }),
-            }).then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert("Пароль успешно изменен!");
-                        window.location.reload();
-                    } else {
-                        alert("Ошибка при изменении пароля.");
-                    }
-                });
-        }
-    }
-</script>
-</body>
-</html>
