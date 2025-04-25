@@ -8,7 +8,7 @@
     <style>
         /* Основной класс для размытого контейнера */
         .blurred {
-            /* Уровень размытия - можно регулировать от 1px (слабое) до 10px (сильное) */
+            /* Уровень размытия */
             filter: blur(5px);
 
             /* Запрещаем взаимодействие с элементами под размытием */
@@ -19,9 +19,6 @@
 
             /* Нужно для позиционирования оверлея */
             position: relative;
-
-            /* Немного уменьшаем контраст для более мягкого вида */
-            opacity: 0.95;
         }
 
         /* Контейнер-оверлей, который будет поверх размытого контента */
@@ -38,7 +35,7 @@
             justify-content: center;
             align-items: center;
 
-            /* Полупрозрачный белый фон для оверлея */
+            /* Прозрачный фон */
             background-color: transparent;
 
             /* Размещаем поверх размытого контента */
@@ -47,29 +44,40 @@
 
         /* Стили для сообщения внутри оверлея */
         .blur-message {
-            /* Сбрасываем размытие для этого элемента */
+            /* Отключаем размытие для текста */
             filter: blur(0);
 
             /* Возвращаем возможность взаимодействия */
             pointer-events: auto;
 
-            /* Белый фон сообщения */
-            background-color: transparent;
+            /* Белый фон с небольшой прозрачностью */
+            background-color: rgba(255, 255, 255, 0.9);
 
             /* Внутренние отступы */
-            padding: 20px 30px;
+            padding: 15px 25px;
 
             /* Скругленные углы */
-            border-radius: 12px;
+            border-radius: 8px;
+
+            /* Тень для лучшей читаемости */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 
             /* Центрируем текст */
             text-align: center;
 
-            /* Максимальная ширина, чтобы не растягивалось на весь экран */
+            /* Максимальная ширина */
             max-width: 80%;
 
-            /* Градиентная рамка (опционально) */
-            border: 1px solid rgba(0, 0, 0, 0.08);
+            /* Четкий черный цвет текста */
+            color: #000;
+
+            /* Жирный шрифт */
+            font-weight: bold;
+        }
+
+        /* Стили для основного контейнера */
+        .test-results-content {
+            position: relative;
         }
     </style>
 </head>
@@ -85,35 +93,41 @@
         <h2>Мой профиль</h2>
         <p>Логин: <%= login %></p>
         <p>Почта: <%= email %></p>
-        <p>Пол: <%= sex || 'Не указан' %> <button class="edit-button" onclick="editSex()">Изменить</button></p>
-        <p>Возраст: <%= age || 'Не указан' %> <button class="edit-button" onclick="editAge()">Изменить</button></p>
+        <p>Пол: <%= sex || 'Не указан' %>
+            <button class="edit-button" onclick="editSex()">Изменить</button>
+        </p>
+        <p>Возраст: <%= age || 'Не указан' %>
+            <button class="edit-button" onclick="editAge()">Изменить</button>
+        </p>
         <button class="edit-button" onclick="changePassword()">Изменить пароль</button>
     </div>
     <div class="testResults">
         <h2>Результаты тестов</h2>
-        <div class="test-results-content <%= (!age || !sex) ? 'blurred' : '' %>">
-            <h3>разрабы - вы лучшие!</h3>
-            <h4>Section 1</h4>
-            <table>
-                <thead>
-                <tr>
-                    <th>№</th>
-                    <th>Тест</th>
-                    <th>Время прохождения</th>
-                    <th>Кол-во попыток</th>
-                    <th>Результат</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>Тест 1</td>
-                    <td>10:00</td>
-                    <td>2</td>
-                    <td>80%</td>
-                </tr>
-                </tbody>
-            </table>
+        <div class="test-results-content">
+            <div class="<%= (!age || !sex) ? 'blurred' : '' %>">
+                <h3>разрабы - вы лучшие!</h3>
+                <h4>Section 1</h4>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>№</th>
+                        <th>Тест</th>
+                        <th>Время прохождения</th>
+                        <th>Кол-во попыток</th>
+                        <th>Результат</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Тест 1</td>
+                        <td>10:00</td>
+                        <td>2</td>
+                        <td>80%</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
             <% if (!age || !sex) { %>
                 <div class="blur-overlay">
                     <div class="blur-message">
@@ -208,3 +222,245 @@
                     if (data.success) {
                         alert("Пол успешно изменен!");
                         window.location.reload();
+                    } else {
+                        alert("Ошибка при изменении пола.");
+                    }
+                });
+        }
+    }
+
+    function editAge() {
+        const login = "<%= login %>";
+        const newAge = prompt("Введите новый возраст:");
+        if (newAge) {
+            // Отправка запроса на сервер для изменения возраста
+            fetch(`http://localhost:3000/api/profile/${login}/update-age`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ age: newAge }),
+            }).then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Возраст успешно изменен!");
+                        window.location.reload();
+                    } else {
+                        alert("Ошибка при изменении возраста.");
+                    }
+                });
+        }
+    }
+
+    function changePassword() {
+        const login = "<%= login %>";
+        const oldPassword = prompt("Введите старый пароль:");
+        const newPassword = prompt("Введите новый пароль:");
+        const confirmNewPassword = prompt("Введите новый пароль ещё раз:");
+        if (oldPassword && newPassword && confirmNewPassword) {
+            // Отправка запроса на сервер для изменения пароля
+            fetch(`http://localhost:3000/api/profile/${login}/update-password`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ oldPassword: oldPassword, newPassword: newPassword, confirmNewPassword: confirmNewPassword }),
+            }).then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Пароль успешно изменен!");
+                        window.location.reload();
+                    } else {
+                        alert("Ошибка при изменении пароля.");
+                    }
+                });
+        }
+    }
+</script>
+</body>
+</html>
+
+<!--В дальнейшем надо будет вставить в наш проект, предварительно сделав пару изображений-->
+<!--<div class="appearanceSettings">-->
+<!--    <h2>Настройки внешнего вида</h2>-->
+<!--    &lt;!&ndash; Превью персонажа с наложением слоев &ndash;&gt;-->
+<!--    <div class="character-preview">-->
+<!--        <div class="character-layers">-->
+<!--            <img id="character-base" src="base-character.png" alt="База персонажа">-->
+<!--            <img id="character-hat" class="character-layer" src="" alt="Головной убор" style="display:none">-->
+<!--            <img id="character-clothes" class="character-layer" src="" alt="Одежда" style="display:none">-->
+<!--            <img id="character-accessory" class="character-layer" src="" alt="Аксессуар" style="display:none">-->
+<!--        </div>-->
+<!--    </div>-->
+<!--    &lt;!&ndash; Интерфейс выбора с вашими стилями &ndash;&gt;-->
+<!--    <div class="appearanceOptions">-->
+<!--        <div class="option" onclick="toggleDropdown('hat')">-->
+<!--            <button class="squareButton">Головной убор</button>-->
+<!--            <div class="dropdownContent" id="hatDropdown">-->
+<!--                <button class="squareButton" onclick="selectItem('hat', 'hat1.png')">1</button>-->
+<!--                <button class="squareButton" onclick="selectItem('hat', 'hat2.png')">2</button>-->
+<!--                <button class="squareButton" onclick="selectItem('hat', 'hat3.png')">3</button>-->
+<!--                <button class="squareButton" onclick="removeItem('hat')">×</button>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="option" onclick="toggleDropdown('clothes')">-->
+<!--            <button class="squareButton">Одежда</button>-->
+<!--            <div class="dropdownContent" id="clothesDropdown">-->
+<!--                <button class="squareButton" onclick="selectItem('clothes', 'clothes1.png')">1</button>-->
+<!--                <button class="squareButton" onclick="selectItem('clothes', 'clothes2.png')">2</button>-->
+<!--                <button class="squareButton" onclick="selectItem('clothes', 'clothes3.png')">3</button>-->
+<!--                <button class="squareButton" onclick="removeItem('clothes')">×</button>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="option" onclick="toggleDropdown('accessories')">-->
+<!--            <button class="squareButton">Аксессуары</button>-->
+<!--            <div class="dropdownContent" id="accessoriesDropdown">-->
+<!--                <button class="squareButton" onclick="selectItem('accessory', 'accessory1.png')">1</button>-->
+<!--                <button class="squareButton" onclick="selectItem('accessory', 'accessory2.png')">2</button>-->
+<!--                <button class="squareButton" onclick="selectItem('accessory', 'accessory3.png')">3</button>-->
+<!--                <button class="squareButton" onclick="removeItem('accessory')">×</button>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+<!--<style>-->
+<!--    /* Ваши стили */-->
+<!--    .appearanceSettings {-->
+<!--        width: 100%;-->
+<!--    }-->
+<!--    .appearanceOptions {-->
+<!--        display: flex;-->
+<!--        justify-content: space-between;-->
+<!--        gap: 10px;-->
+<!--    }-->
+<!--    .option {-->
+<!--        flex: 1;-->
+<!--        text-align: center;-->
+<!--        position: relative;-->
+<!--    }-->
+<!--    .squareButton {-->
+<!--        width: 100px;-->
+<!--        height: 100px;-->
+<!--        display: flex;-->
+<!--        justify-content: center;-->
+<!--        align-items: center;-->
+<!--        background-color: #333;-->
+<!--        border-radius: 10px;-->
+<!--        margin: 5px;-->
+<!--        color: white;-->
+<!--        border: none;-->
+<!--        cursor: pointer;-->
+<!--        font-size: 16px;-->
+<!--    }-->
+<!--    .dropdownContent {-->
+<!--        display: none;-->
+<!--        position: absolute;-->
+<!--        background-color: #444;-->
+<!--        border-radius: 10px;-->
+<!--        padding: 10px;-->
+<!--        z-index: 1;-->
+<!--        flex-direction: row;-->
+<!--        gap: 10px;-->
+<!--        top: 110px;-->
+<!--        left: 0;-->
+<!--        right: 0;-->
+<!--        flex-wrap: wrap;-->
+<!--        justify-content: center;-->
+<!--    }-->
+<!--    /* Дополнительные стили для превью */-->
+<!--    .character-preview {-->
+<!--        width: 200px;-->
+<!--        height: 300px;-->
+<!--        margin: 20px auto;-->
+<!--        position: relative;-->
+<!--        background-color: #f0f0f0;-->
+<!--        border-radius: 10px;-->
+<!--        overflow: hidden;-->
+<!--    }-->
+<!--    .character-layers {-->
+<!--        position: relative;-->
+<!--        width: 100%;-->
+<!--        height: 100%;-->
+<!--    }-->
+<!--    .character-layer {-->
+<!--        position: absolute;-->
+<!--        top: 0;-->
+<!--        left: 0;-->
+<!--        width: 100%;-->
+<!--        height: 100%;-->
+<!--        object-fit: contain;-->
+<!--    }-->
+<!--    /* Анимация для кнопок */-->
+<!--    .squareButton:hover {-->
+<!--        background-color: #555;-->
+<!--        transform: scale(1.05);-->
+<!--        transition: all 0.2s ease;-->
+<!--    }-->
+<!--    .squareButton:active {-->
+<!--        transform: scale(0.95);-->
+<!--    }-->
+<!--</style>-->
+<!--<script>-->
+<!--    // Текущие выбранные элементы-->
+<!--    const currentItems = {-->
+<!--        hat: null,-->
+<!--        clothes: null,-->
+<!--        accessory: null-->
+<!--    };-->
+<!--    // Переключение dropdown-->
+<!--    function toggleDropdown(type) {-->
+<!--        const dropdown = document.getElementById(`${type}Dropdown`);-->
+<!--        dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';-->
+<!--        // Закрываем другие dropdown-->
+<!--        document.querySelectorAll('.dropdownContent').forEach(dd => {-->
+<!--            if(dd.id !== `${type}Dropdown`) {-->
+<!--                dd.style.display = 'none';-->
+<!--            }-->
+<!--        });-->
+<!--    }-->
+<!--    // Выбор элемента-->
+<!--    function selectItem(type, imagePath) {-->
+<!--        const layer = document.getElementById(`character-${type}`);-->
+<!--        layer.src = `images/${imagePath}`;-->
+<!--        layer.style.display = 'block';-->
+<!--        currentItems[type] = imagePath;-->
+<!--        // Закрываем dropdown-->
+<!--        document.getElementById(`${type}Dropdown`).style.display = 'none';-->
+<!--        saveCustomization();-->
+<!--    }-->
+<!--    // Удаление элемента-->
+<!--    function removeItem(type) {-->
+<!--        document.getElementById(`character-${type}`).style.display = 'none';-->
+<!--        currentItems[type] = null;-->
+<!--        document.getElementById(`${type}Dropdown`).style.display = 'none';-->
+<!--        saveCustomization();-->
+<!--    }-->
+<!--    // Сохранение в базу данных-->
+<!--    function saveCustomization() {-->
+<!--        fetch('/api/save-character', {-->
+<!--            method: 'POST',-->
+<!--            headers: {-->
+<!--                'Content-Type': 'application/json',-->
+<!--            },-->
+<!--            body: JSON.stringify(currentItems)-->
+<!--        });-->
+<!--    }-->
+<!--    // Закрытие dropdown при клике вне его-->
+<!--    document.addEventListener('click', function(event) {-->
+<!--        if (!event.target.closest('.option')) {-->
+<!--            document.querySelectorAll('.dropdownContent').forEach(dd => {-->
+<!--                dd.style.display = 'none';-->
+<!--            });-->
+<!--        }-->
+<!--    });-->
+<!--    // Загрузка сохраненного персонажа при старте-->
+<!--    document.addEventListener('DOMContentLoaded', function() {-->
+<!--        fetch('/api/get-character')-->
+<!--            .then(response => response.json())-->
+<!--            .then(data => {-->
+<!--                if(data.hat) selectItem('hat', data.hat);-->
+<!--                if(data.clothes) selectItem('clothes', data.clothes);-->
+<!--                if(data.accessory) selectItem('accessory', data.accessory);-->
+<!--            });-->
+<!--    });-->
+<!--</script>-->
