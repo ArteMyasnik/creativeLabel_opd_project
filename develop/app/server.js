@@ -242,8 +242,8 @@ app.get('/results', async (req, res) => {
         const result = await pool.query(`
             SELECT pp.profession_id, pp.pvk_id, p.name AS profession_name, pvk.pvk AS pvk_name
             FROM profession_pvk pp
-                     JOIN professions p ON pp.profession_id = p.id
-                     JOIN pvks pvk ON pp.pvk_id = pvk.id
+            JOIN professions p ON pp.profession_id = p.id
+            JOIN pvks pvk ON pp.pvk_id = pvk.id
         `);
 
         async function calculateStats(professionId, pvkId) {
@@ -253,7 +253,7 @@ app.get('/results', async (req, res) => {
                     SELECT mark
                     FROM profession_pvk
                     WHERE profession_id = $1
-                      AND pvk_id = $2;
+                    AND pvk_id = $2;
                 `, [professionId, pvkId]);
 
                 // Извлекаем оценки
@@ -274,7 +274,7 @@ app.get('/results', async (req, res) => {
                 // Вычисляем дисперсию
                 const variance = marks.reduce((sum, mark) => sum + Math.abs(mark - mean), 0) / expertCount;
 
-                return mean - variance; // {variance, mean}
+                return {variance, mean};
             } catch (err) {
                 console.error('Ошибка при расчете статистики:', err);
                 return 0;
@@ -310,14 +310,43 @@ app.get('/results', async (req, res) => {
         const grades = {};
         for (const professionName in gradesPromises) {
             grades[professionName] = {};
+            
+            // Заполняем оценки
             for (const pvkName in gradesPromises[professionName]) {
                 grades[professionName][pvkName] = await gradesPromises[professionName][pvkName];
             }
+            
+            // Преобразуем в массив пар [key, value] для сортировки
+            const entries = Object.entries(grades[professionName]);
+            console.log("До сортировки:", grades[professionName]);
+        
+            // Сортируем: сначала по variance (по возрастанию), затем по mean (по убыванию)
+            entries.sort((a, b) => {
+                const aValue = a[1];
+                const bValue = b[1];
+                
+                // Сначала сравниваем variance
+                if (aValue.variance !== bValue.variance) {
+                    return aValue.variance - bValue.variance; // по убыванию
+                }
+                // Если variance равны, сравниваем mean
+                return bValue.mean - aValue.mean; // по убыванию
+            });
+        
+            console.log("После сортировки (массив entries):", entries);
+        
+            // Восстанавливаем объект из отсортированного массива
+            const sortedObject = {};
+            for (const [key, value] of entries) {
+                sortedObject[key] = value.mean;
+            }
+            
+            // Заменяем исходный объект на отсортированный
+            grades[professionName] = sortedObject;
         }
-
+        
         const professionsResult = await pool.query('SELECT * FROM professions ORDER BY id');
-
-        console.log(grades);
+        console.log("Итоговый grades:", grades);
 
         res.render('results', {
             grades: grades,
