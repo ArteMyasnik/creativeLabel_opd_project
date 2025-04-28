@@ -327,7 +327,7 @@ app.get('/results', async (req, res) => {
                 
                 // Сначала сравниваем variance
                 if (aValue.variance !== bValue.variance) {
-                    return aValue.variance - bValue.variance; // по убыванию
+                    return aValue.variance - bValue.variance; // по возрастанию
                 }
                 // Если variance равны, сравниваем mean
                 return bValue.mean - aValue.mean; // по убыванию
@@ -365,41 +365,26 @@ app.get('/results', async (req, res) => {
 // Pages HTML tests ------------------------------------------------------------------------
 app.get('/test_visual_signal', async (req, res) => {
     const login = req.session.login || null;
-    const result_age_sex = await pool.query('SELECT age, sex FROM users WHERE login=$1', [req.session.login])
-    const age = result_age_sex.rows[0].age;
-    const sex = result_age_sex.rows[0].sex;
-    res.render('tests/test_visual_signal', { login, age: age || null, sex: sex || null });
+    res.render('tests/test_visual_signal', { login });
 });
 
 app.get('/test_color_signal', async (req, res) => {
     const login = req.session.login || null;
-    const result_age_sex = await pool.query('SELECT age, sex FROM users WHERE login=$1', [req.session.login])
-    const age = result_age_sex.rows[0].age;
-    const sex = result_age_sex.rows[0].sex;
-    res.render('tests/test_color_signal', { login, age: age || null, sex: sex || null });
+    res.render('tests/test_color_signal', { login });
 });
 
 app.get('/test_digital_signal', async (req, res) => {
     const login = req.session.login || null;
-    const result_age_sex = await pool.query('SELECT age, sex FROM users WHERE login=$1', [req.session.login])
-    const age = result_age_sex.rows[0].age;
-    const sex = result_age_sex.rows[0].sex;
-    res.render('tests/test_digital_signal', { login, age: age || null, sex: sex || null });
+    res.render('tests/test_digital_signal', { login });
 });
 
 app.get('/test_simple_rdo', async (req, res) => {
     const login = req.session.login || null;
-    const result_age_sex = await pool.query('SELECT age, sex FROM users WHERE login=$1', [req.session.login])
-    const age = result_age_sex.rows[0].age;
-    const sex = result_age_sex.rows[0].sex;
-    res.render('tests/test_simple_rdo', { login, age: age || null, sex: sex || null });
+    res.render('tests/test_simple_rdo', { login });
 });
 app.get('/test_complex_rdo', async (req, res) => {
     const login = req.session.login || null;
-    const result_age_sex = await pool.query('SELECT age, sex FROM users WHERE login=$1', [req.session.login])
-    const age = result_age_sex.rows[0].age;
-    const sex = result_age_sex.rows[0].sex;
-    res.render('tests/test_complex_rdo', { login, age: age || null, sex: sex || null });
+    res.render('tests/test_complex_rdo', { login });
 });
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------

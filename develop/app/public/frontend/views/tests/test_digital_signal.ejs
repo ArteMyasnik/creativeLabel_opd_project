@@ -75,302 +75,154 @@
         .disabled{
             opacity:0.5;
         }
-        /* Модальное окно для данных пользователя */
-        #userDataModal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.7);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        #userDataForm {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            color: black;
-            width: 300px;
-        }
-        #userDataForm label {
-            display: block;
-            margin-bottom: 10px;
-        }
-        #userDataForm input, #userDataForm select {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 15px;
-            box-sizing: border-box;
-        }
-        #userDataForm button {
-            background-color: #479C92;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
-    <h2>Определите чётность суммы чисел</h2>
-    <!-- Добавлены кнопки выбора длительности теста -->
-    <div id="durationButtons">
-        <button class="durationBtn" data-duration="30">30 с</button>
-        <button class="durationBtn" data-duration="60">60 с</button>
-        <button class="durationBtn" data-duration="120">120 с</button>
-    </div>
-    <button id="startBtn">Старт</button>
-    <div class="numbers" id="numbers"></div>
-    <button class="answerBtn" id="evenBtn">Чётная сумма</button>
-    <button class="answerBtn" id="oddBtn">Нечётная сумма</button>
-    <div id="results"></div>
+<h2>Определите чётность суммы чисел</h2>
+<!-- Добавлены кнопки выбора длительности теста -->
+<div id="durationButtons">
+    <button class="durationBtn" data-duration="30">30 с</button>
+    <button class="durationBtn" data-duration="60">60 с</button>
+    <button class="durationBtn" data-duration="120">120 с</button>
+</div>
+<button id="startBtn">Старт</button>
+<div class="numbers" id="numbers"></div>
+<button class="answerBtn" id="evenBtn">Чётная сумма</button>
+<button class="answerBtn" id="oddBtn">Нечётная сумма</button>
+<div id="results"></div>
 
-    <!-- Модальное окно для ввода данных пользователя -->
-    <div id="userDataModal">
-        <div id="userDataForm">
-            <h2>Пожалуйста, укажите ваши данные</h2>
-            <label for="age">Возраст:</label>
-            <input type="number" id="age" min="1" max="120" required>
+<script>
+    let startTime;
+    let reactionTimes = [];
+    let correctAnswers = 0;
+    let wrongAnswers = 0;
+    let missedAttempts = 0;
+    let currentNumbers = [0, 0];
+    let testActive = false;
+    let timeoutId;
+    let testTimerId;
+    let testDuration = null; // длительность теста в секундах
 
-            <label for="sex">Пол:</label>
-            <select id="sex" required>
-                <option value="">Выберите пол</option>
-                <option value="male">Мужской</option>
-                <option value="female">Женский</option>
-                <option value="other">Другой</option>
-            </select>
+    const startBtn = document.getElementById('startBtn');
+    const numbersElement = document.getElementById('numbers');
+    const evenBtn = document.getElementById('evenBtn');
+    const oddBtn = document.getElementById('oddBtn');
+    const resultsElement = document.getElementById('results');
+    const durationButtons = document.querySelectorAll('.durationBtn');
 
-            <button onclick="saveUserData()">Сохранить</button>
-        </div>
-    </div>
-
-    <script>
-        let startTime;
-        let reactionTimes = [];
-        let correctAnswers = 0;
-        let wrongAnswers = 0;
-        let missedAttempts = 0;
-        let currentNumbers = [0, 0];
-        let testActive = false;
-        let timeoutId;
-        let testTimerId;
-        let testDuration = null; // длительность теста в секундах
-        let userAge = null;
-        let userSex = null;
-
-        const startBtn = document.getElementById('startBtn');
-        const numbersElement = document.getElementById('numbers');
-        const evenBtn = document.getElementById('evenBtn');
-        const oddBtn = document.getElementById('oddBtn');
-        const resultsElement = document.getElementById('results');
-        const durationButtons = document.querySelectorAll('.durationBtn');
-
-        // Добавляем обработчик для кнопок выбора длительности
-        durationButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                durationButtons.forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-                testDuration = parseInt(btn.dataset.duration);
-            });
+    // Добавляем обработчик для кнопок выбора длительности
+    durationButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            durationButtons.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            testDuration = parseInt(btn.dataset.duration);
         });
+    });
 
-        function startTest() {
-            if (!testDuration) {
-                alert("Пожалуйста, выберите длительность теста");
-                return;
-            }
-            testActive = true;
-            startBtn.disabled = true;
-            reactionTimes = [];
-            correctAnswers = 0;
-            wrongAnswers = 0;
-            missedAttempts = 0;
+    function startTest() {
+        if (!testDuration) {
+            alert("Пожалуйста, выберите длительность теста");
+            return;
+        }
+        testActive = true;
+        startBtn.disabled = true;
+        reactionTimes = [];
+        correctAnswers = 0;
+        wrongAnswers = 0;
+        missedAttempts = 0;
 
-            resultsElement.style.display = 'none';
-            evenBtn.style.display = 'inline-block';
-            oddBtn.style.display = 'inline-block';
+        resultsElement.style.display = 'none';
+        evenBtn.style.display = 'inline-block';
+        oddBtn.style.display = 'inline-block';
 
-            // Запускаем таймер теста на выбранное время
-            testTimerId = setTimeout(endTest, testDuration * 1000);
+        // Запускаем таймер теста на выбранное время
+        testTimerId = setTimeout(endTest, testDuration * 1000);
 
+        showNextNumbers();
+    }
+
+    function generateNumbers() {
+        currentNumbers = [
+            Math.floor(Math.random() * 10),
+            Math.floor(Math.random() * 10)
+        ];
+        return currentNumbers;
+    }
+
+    function showNextNumbers() {
+        if (reactionTimes.length + missedAttempts >= 20) {
+            endTest();
+            return;
+        }
+
+        if (timeoutId) clearTimeout(timeoutId);
+        generateNumbers();
+        numbersElement.textContent = currentNumbers.join(' ');
+        startTime = Date.now();
+
+        evenBtn.classList.add('active');
+        oddBtn.classList.add('active');
+
+        timeoutId = setTimeout(() => {
+            handleMissedAttempt();
+        }, 5000);
+    }
+
+    function handleMissedAttempt() {
+        if (!testActive) return;
+
+        missedAttempts++;
+        numbersElement.textContent = '';
+        evenBtn.classList.remove('active');
+        oddBtn.classList.remove('active');
+
+        setTimeout(() => {
             showNextNumbers();
+        }, 1000);
+    }
+
+    function handleAnswer(isEven) {
+        if (!testActive || !evenBtn.classList.contains('active')) return;
+
+        clearTimeout(timeoutId);
+        const sum = currentNumbers[0] + currentNumbers[1];
+        const reactionTime = Date.now() - startTime;
+        reactionTimes.push(reactionTime);
+
+        if ((sum % 2 === 0) === isEven) {
+            correctAnswers++;
+        } else {
+            wrongAnswers++;
         }
 
-        function generateNumbers() {
-            currentNumbers = [
-                Math.floor(Math.random() * 10),
-                Math.floor(Math.random() * 10)
-            ];
-            return currentNumbers;
-        }
+        numbersElement.textContent = '';
+        evenBtn.classList.remove('active');
+        oddBtn.classList.remove('active');
 
-        function showNextNumbers() {
-            if (reactionTimes.length + missedAttempts >= 20) {
-                endTest();
-                return;
-            }
+        setTimeout(() => {
+            showNextNumbers();
+        }, 1000);
+    }
 
-            if (timeoutId) clearTimeout(timeoutId);
-            generateNumbers();
-            numbersElement.textContent = currentNumbers.join(' ');
-            startTime = Date.now();
+    function endTest() {
+        testActive = false;
+        startBtn.disabled = false;
+        evenBtn.style.display = 'none';
+        oddBtn.style.display = 'none';
+        numbersElement.textContent = '';
+        if (timeoutId) clearTimeout(timeoutId);
+        if (testTimerId) clearTimeout(testTimerId);
+        showResults();
+    }
 
-            evenBtn.classList.add('active');
-            oddBtn.classList.add('active');
+    function showResults() {
+        const average = reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length || 0;
+        const variance = reactionTimes.reduce((a, b) => a + Math.pow(b - average, 2), 0) / reactionTimes.length || 0;
+        const stdDev = Math.sqrt(variance);
+        const totalAttempts = correctAnswers + wrongAnswers + missedAttempts;
+        const accuracy = totalAttempts > 0 ? (correctAnswers / totalAttempts) * 100 : 0;
 
-            timeoutId = setTimeout(() => {
-                handleMissedAttempt();
-            }, 5000);
-        }
-
-        function handleMissedAttempt() {
-            if (!testActive) return;
-
-            missedAttempts++;
-            numbersElement.textContent = '';
-            evenBtn.classList.remove('active');
-            oddBtn.classList.remove('active');
-
-            setTimeout(() => {
-                showNextNumbers();
-            }, 1000);
-        }
-
-        function handleAnswer(isEven) {
-            if (!testActive || !evenBtn.classList.contains('active')) return;
-
-            clearTimeout(timeoutId);
-            const sum = currentNumbers[0] + currentNumbers[1];
-            const reactionTime = Date.now() - startTime;
-            reactionTimes.push(reactionTime);
-
-            if ((sum % 2 === 0) === isEven) {
-                correctAnswers++;
-            } else {
-                wrongAnswers++;
-            }
-
-            numbersElement.textContent = '';
-            evenBtn.classList.remove('active');
-            oddBtn.classList.remove('active');
-
-            setTimeout(() => {
-                showNextNumbers();
-            }, 1000);
-        }
-
-        function saveTestResults(averageReactionTime, standardDeviation, correctAnswers, wrongAnswers, missedAttempts, accuracy) {
-            const login = "<%= login %>";
-            const age = userAge;
-            const sex = userSex;
-
-            fetch('http://localhost:3000/api/test_digital_signal', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    login: login,
-                    averageReactionTime: averageReactionTime,
-                    standardDeviation: standardDeviation,
-                    correctAnswers: correctAnswers,
-                    wrongAnswers: wrongAnswers,
-                    missedAttempts: missedAttempts,
-                    accuracy: accuracy,
-                    age: age,
-                    sex: sex
-                }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert("Результаты теста успешно сохранены!");
-                } else {
-                    alert("Ошибка при сохранении результатов: " + data.message);
-                }
-            })
-            .catch(error => {
-                alert("Ошибка сети: " + error.message);
-            });
-        }
-
-        function showUserDataModal(averageReactionTime, standardDeviation, correctAnswers, wrongAnswers, missedAttempts, accuracy) {
-            const modal = document.getElementById('userDataModal');
-            modal.style.display = 'flex';
-
-            // Сохраняем результаты теста для последующего сохранения
-            modal.dataset.averageReactionTime = averageReactionTime;
-            modal.dataset.standardDeviation = standardDeviation;
-            modal.dataset.correctAnswers = correctAnswers;
-            modal.dataset.wrongAnswers = wrongAnswers;
-            modal.dataset.missedAttempts = missedAttempts;
-            modal.dataset.accuracy = accuracy;
-        }
-
-        function saveUserData() {
-            const ageInput = document.getElementById('age');
-            const sexSelect = document.getElementById('sex');
-
-            if (!ageInput.value || !sexSelect.value) {
-                alert("Пожалуйста, заполните все поля");
-                return;
-            }
-
-            userAge = ageInput.value;
-            userSex = sexSelect.value;
-
-            const modal = document.getElementById('userDataModal');
-            modal.style.display = 'none';
-
-            // Получаем сохраненные результаты теста
-            const averageReactionTime = parseFloat(modal.dataset.averageReactionTime);
-            const standardDeviation = parseFloat(modal.dataset.standardDeviation);
-            const correctAnswers = parseInt(modal.dataset.correctAnswers);
-            const wrongAnswers = parseInt(modal.dataset.wrongAnswers);
-            const missedAttempts = parseInt(modal.dataset.missedAttempts);
-            const accuracy = parseFloat(modal.dataset.accuracy);
-
-            // Сохраняем результаты с данными пользователя
-            saveTestResults(averageReactionTime, standardDeviation, correctAnswers, wrongAnswers, missedAttempts, accuracy);
-        }
-
-        function endTest() {
-            testActive = false;
-            startBtn.disabled = false;
-            evenBtn.style.display = 'none';
-            oddBtn.style.display = 'none';
-            numbersElement.textContent = '';
-            if (timeoutId) clearTimeout(timeoutId);
-            if (testTimerId) clearTimeout(testTimerId);
-            showResults();
-
-            // Рассчитываем результаты теста
-            const average = reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length || 0;
-            const variance = reactionTimes.reduce((a, b) => a + Math.pow(b - average, 2), 0) / reactionTimes.length || 0;
-            const stdDev = Math.sqrt(variance);
-            const totalAttempts = correctAnswers + wrongAnswers + missedAttempts;
-            const accuracy = totalAttempts > 0 ? (correctAnswers / totalAttempts) * 100 : 0;
-
-            // Проверяем, нужно ли запросить данные пользователя
-            if (userAge === null || userSex === null) {
-                showUserDataModal(average, stdDev, correctAnswers, wrongAnswers, missedAttempts, accuracy);
-            } else {
-                saveTestResults(average, stdDev, correctAnswers, wrongAnswers, missedAttempts, accuracy);
-            }
-        }
-
-        function showResults() {
-            const average = reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length || 0;
-            const variance = reactionTimes.reduce((a, b) => a + Math.pow(b - average, 2), 0) / reactionTimes.length || 0;
-            const stdDev = Math.sqrt(variance);
-            const totalAttempts = correctAnswers + wrongAnswers + missedAttempts;
-            const accuracy = totalAttempts > 0 ? (correctAnswers / totalAttempts) * 100 : 0;
-
-            resultsElement.innerHTML = `
+        resultsElement.innerHTML = `
                 <h3>Результаты теста:</h3>
                 <p>Среднее время реакции: ${average.toFixed(2)} мс</p>
                 <p>Стандартное отклонение: ${stdDev.toFixed(2)} мс</p>
@@ -379,12 +231,12 @@
                 <p>Пропущенные попытки: ${missedAttempts}</p>
                 <p>Точность: ${accuracy.toFixed(1)}%</p>
             `;
-            resultsElement.style.display = 'block';
-        }
+        resultsElement.style.display = 'block';
+    }
 
-        startBtn.addEventListener('click', startTest);
-        evenBtn.addEventListener('click', () => handleAnswer(true));
-        oddBtn.addEventListener('click', () => handleAnswer(false));
-    </script>
+    startBtn.addEventListener('click', startTest);
+    evenBtn.addEventListener('click', () => handleAnswer(true));
+    oddBtn.addEventListener('click', () => handleAnswer(false));
+</script>
 </body>
 </html>

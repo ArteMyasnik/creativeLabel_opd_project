@@ -51,7 +51,7 @@ CREATE TABLE profession_pvk
 );
 
 -- Создание таблицы test_visual_signal
-CREATE TABLE roles
+CREATE TABLE personality
 (
     id   SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE
@@ -61,11 +61,11 @@ CREATE TABLE user_roles
 (
     id      SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users (id) ON DELETE CASCADE,
-    role_id INTEGER REFERENCES roles (id) ON DELETE CASCADE,
+    role_id INTEGER REFERENCES personality (id) ON DELETE CASCADE,
     UNIQUE (user_id, role_id)
 );
 
-INSERT INTO roles (name)
+INSERT INTO personality (name)
 VALUES ('admin'),
        ('moderator'),
        ('expert'),
@@ -84,7 +84,7 @@ VALUES ('Простая сенсомоторная реакция'),
        ('Сложная сенсомоторная реакция'),
        ('Простая реакция на движущийся объект'),
        ('Сложная реакция на движущийся объект'),
-       ('');
+       ('Аналоговое слежение');
 
 -- Создание таблицы test_digital_signal
 CREATE TABLE test_visual_signal
@@ -433,15 +433,15 @@ BEGIN
     -- Получаем ID для ролей
 SELECT id
 INTO r_admin
-FROM roles
+FROM personality
 WHERE name = 'admin';
 SELECT id
 INTO r_moderator
-FROM roles
+FROM personality
 WHERE name = 'moderator';
 SELECT id
 INTO r_user
-FROM roles
+FROM personality
 WHERE name = 'user';
 
 -- Пробегаем по всем пользователям

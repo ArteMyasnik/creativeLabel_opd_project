@@ -63,7 +63,7 @@
         // Топ-10 ПВК для каждой профессии
         // Сортируем ПВК по оценкам (по убыванию) и берем топ-10
         const sortedPvks = Object.entries(data.pvks)
-            .sort((a, b) => b[1] - a[1])
+            // .sort((a, b) => b[1] - a[1])
             .slice(0, 10);
 
         const labels = sortedPvks.map(item => item[0]);
