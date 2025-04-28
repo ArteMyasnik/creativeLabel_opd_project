@@ -89,27 +89,26 @@ VALUES ('Простая сенсомоторная реакция'),
 -- Создание таблицы test_digital_signal
 CREATE TABLE test_visual_signal
 (
-    id                    SERIAL PRIMARY KEY,
-    user_id               INTEGER REFERENCES users (id) ON DELETE CASCADE,
-    average_reaction_time NUMERIC(10, 2) NOT NULL,
-    standard_deviation    NUMERIC(10, 2) NOT NULL,
-    missed_signals        INTEGER            NOT NULL,
-    created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    test_id INTEGER REFERENCES tests (id) ON DELETE CASCADE
+    id             SERIAL PRIMARY KEY,
+    user_id        INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    reaction_times INTEGER[] NOT NULL,
+    missed_signals INTEGER   NOT NULL CHECK ( missed_signals >= 0 ),
+    test_duration  SMALLINT  NOT NULL CHECK ( test_duration > 0 ),
+    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Создание таблицы test_simple_rdo
 CREATE TABLE test_color_signal
 (
     id                    SERIAL PRIMARY KEY,
-    user_id               INTEGER            NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    user_id               INTEGER        NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     average_reaction_time NUMERIC(10, 2) NOT NULL,
     standard_deviation    NUMERIC(10, 2) NOT NULL,
-    correct_answers       INTEGER            NOT NULL,
-    missed_clicks         INTEGER            NOT NULL,
-    wrong_clicks          INTEGER            NOT NULL,
+    correct_answers       INTEGER        NOT NULL,
+    missed_clicks         INTEGER        NOT NULL,
+    wrong_clicks          INTEGER        NOT NULL,
     created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    test_id INTEGER REFERENCES tests (id) ON DELETE CASCADE
+    test_id               INTEGER REFERENCES tests (id) ON DELETE CASCADE
 );
 
 -- Создание таблицы test_complex_rdo
@@ -119,12 +118,12 @@ CREATE TABLE test_digital_signal
     user_id               INTEGER REFERENCES users (id) ON DELETE CASCADE,
     average_reaction_time DOUBLE PRECISION NOT NULL CHECK (average_reaction_time >= 0),
     standard_deviation    DOUBLE PRECISION NOT NULL CHECK (standard_deviation >= 0),
-    correct_answers       INTEGER              NOT NULL CHECK (correct_answers >= 0),
-    wrong_answers         INTEGER              NOT NULL CHECK (wrong_answers >= 0),
-    missed_attempts       INTEGER              NOT NULL CHECK (missed_attempts >= 0),
+    correct_answers       INTEGER          NOT NULL CHECK (correct_answers >= 0),
+    wrong_answers         INTEGER          NOT NULL CHECK (wrong_answers >= 0),
+    missed_attempts       INTEGER          NOT NULL CHECK (missed_attempts >= 0),
     accuracy              DOUBLE PRECISION NOT NULL CHECK (accuracy >= 0 AND accuracy <= 100),
     created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    test_id INTEGER REFERENCES tests (id) ON DELETE CASCADE
+    test_id               INTEGER REFERENCES tests (id) ON DELETE CASCADE
 );
 
 -- Создание таблицы pvks (Профессионально-важные качества)
@@ -140,7 +139,7 @@ CREATE TABLE test_simple_rdo
     stdSigned    NUMERIC(10, 2) NOT NULL,
     CONSTRAINT chk_sign_response CHECK (signResponse IN ('+', '-', '0')),
     created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    test_id INTEGER REFERENCES tests (id) ON DELETE CASCADE
+    test_id      INTEGER REFERENCES tests (id) ON DELETE CASCADE
 );
 
 -- Создание таблицы test_pvk (Связь тестов и PVK)
@@ -153,7 +152,7 @@ CREATE TABLE test_complex_rdo
     circle3    JSONB NOT NULL,
     overall    JSONB NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    test_id INTEGER REFERENCES tests (id) ON DELETE CASCADE
+    test_id    INTEGER REFERENCES tests (id) ON DELETE CASCADE
 );
 
 -- Создание таблицы test_user (Связь пользователей и тестов)
@@ -417,56 +416,61 @@ VALUES ('Ценностно-побудительные качества личн
 -- Распределение ролей
 DO
 $$
-DECLARE
-r_admin INTEGER;
-    r_moderator
-INTEGER;
-    r_user
-INTEGER;
-    u_id
-INTEGER;
-    u_isAdmin
-BOOLEAN;
-    u_isModerator
-BOOLEAN;
-BEGIN
-    -- Получаем ID для ролей
-SELECT id
-INTO r_admin
-FROM personality
-WHERE name = 'admin';
-SELECT id
-INTO r_moderator
-FROM personality
-WHERE name = 'moderator';
-SELECT id
-INTO r_user
-FROM personality
-WHERE name = 'user';
+    DECLARE
+        r_admin INTEGER;
+        r_moderator
+                INTEGER;
+        r_user
+                INTEGER;
+        u_id
+                INTEGER;
+        u_isAdmin
+                BOOLEAN;
+        u_isModerator
+                BOOLEAN;
+    BEGIN
+        -- Получаем ID для ролей
+        SELECT id
+        INTO r_admin
+        FROM personality
+        WHERE name = 'admin';
+        SELECT id
+        INTO r_moderator
+        FROM personality
+        WHERE name = 'moderator';
+        SELECT id
+        INTO r_user
+        FROM personality
+        WHERE name = 'user';
 
 -- Пробегаем по всем пользователям
-FOR u_id IN (SELECT id FROM users) LOOP
-        -- Получаем значения isAdmin и isModerator для текущего пользователя
-SELECT isAdmin, isModerator
-INTO u_isAdmin, u_isModerator
-FROM users
-WHERE id = u_id;
+        FOR u_id IN (SELECT id FROM users)
+            LOOP
+                -- Получаем значения isAdmin и isModerator для текущего пользователя
+                SELECT isAdmin, isModerator
+                INTO u_isAdmin, u_isModerator
+                FROM users
+                WHERE id = u_id;
 
 -- Присваиваем роли в зависимости от флагов
-IF
-u_isAdmin THEN
-            -- Если isAdmin = true, присваиваем роль admin
-            INSERT INTO user_roles (user_id, role_id) VALUES (u_id, r_admin)
-            ON CONFLICT (user_id, role_id) DO NOTHING;
-        ELSIF
-u_isModerator THEN
-            -- Если isModerator = true, присваиваем роль moderator
-            INSERT INTO user_roles (user_id, role_id) VALUES (u_id, r_moderator)
-            ON CONFLICT (user_id, role_id) DO NOTHING;
-ELSE
-            -- Если ни один флаг не установлен, присваиваем роль user
-            INSERT INTO user_roles (user_id, role_id) VALUES (u_id, r_user)
-            ON CONFLICT (user_id, role_id) DO NOTHING;
-END IF;
-END LOOP;
-END $$;
+                IF
+                    u_isAdmin THEN
+                    -- Если isAdmin = true, присваиваем роль admin
+                    INSERT INTO user_roles (user_id, role_id)
+                    VALUES (u_id, r_admin)
+                    ON CONFLICT (user_id, role_id) DO NOTHING;
+                ELSIF
+                    u_isModerator THEN
+                    -- Если isModerator = true, присваиваем роль moderator
+                    INSERT INTO user_roles (user_id, role_id)
+                    VALUES (u_id, r_moderator)
+                    ON CONFLICT (user_id, role_id) DO NOTHING;
+                ELSE
+                    -- Если ни один флаг не установлен, присваиваем роль user
+                    INSERT INTO user_roles (user_id, role_id)
+                    VALUES (u_id, r_user)
+                    ON CONFLICT (user_id, role_id) DO NOTHING;
+                END IF;
+            END LOOP;
+    END
+$$;

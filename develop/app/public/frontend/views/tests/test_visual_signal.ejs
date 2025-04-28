@@ -222,14 +222,12 @@
         missedSignalsElement.textContent = missedSignals;
         resultsElement.style.display = 'block';
 
-        // Собираем данные для отправки
+        // Собираем только минимально необходимые данные для отправки
         const testResults = {
-            averageTime: averageReactionTime,
-            stdDev: standardDeviation,
-            missedSignals: missedSignals,
-            totalSignals: signalCount,
-            reactionTimes: reactionTimes,
-            testDuration: testDuration / 1000, // в секундах
+            login: "<%= login %>",
+            reactionTimes: reactionTimes, // Основные данные - все времена реакций
+            missedSignals: missedSignals, // Количество пропущенных сигналов
+            testDuration: testDuration / 1000, // Длительность теста в секундах
         };
 
         // Отправляем результаты на сервер
@@ -238,8 +236,8 @@
 
     // Функция для отправки результатов на сервер
     function sendResultsToServer(results) {
-        fetch('http://localhost:3000/api//test_visual_signal', {
-            method: 'POST', // Используем POST для отправки результатов
+        fetch('http://localhost:3000/api/test_visual_signal', {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -247,9 +245,8 @@
         })
             .then(response => response.json())
             .then(data => {
-                if (data.message === 'Результаты сохранены') {
-                    console.log('Результаты успешно отправлены на сервер');
-                    // Можно добавить уведомление для пользователя
+                if (data.success === true) {
+                    console.log(data.message);
                 } else {
                     console.error('Ошибка при сохранении результатов:', data.message);
                     alert('Ошибка при сохранении результатов.');

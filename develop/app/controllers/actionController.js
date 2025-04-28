@@ -76,7 +76,7 @@ class ActionController {
 
     async testVisualSignal(req, res) {
         try {
-            const {login, average_reaction_time, standard_deviation, missed_signals, age, sex} = req.body;
+            const { login, reactionTimes, missedSignals, testDuration } = req.body;
 
             const checkUser = await pool.query(
                 'SELECT COUNT(*) FROM users WHERE login = $1',
@@ -93,8 +93,8 @@ class ActionController {
 
                 // Сохраняем результаты теста в базу данных
                 const result = await pool.query(
-                    'INSERT INTO test_visual_signal (user_id, average_reaction_time, standard_deviation, missed_signals) VALUES ($1, $2, $3, $4) RETURNING *',
-                    [user.rows[0].id, average_reaction_time, standard_deviation, missed_signals]
+                    'INSERT INTO test_visual_signal (user_id, reaction_times, missed_signals, test_duration) VALUES ($1, $2, $3, $4) RETURNING *',
+                    [user.rows[0].id, reactionTimes, missedSignals, testDuration]
                 );
 
                 res.status(200).json({
@@ -114,16 +114,7 @@ class ActionController {
 
     async testColorSignal(req, res) {
         try {
-            const {
-                login,
-                average_reaction_time,
-                standard_deviation,
-                correct_answers,
-                missed_clicks,
-                wrong_clicks,
-                age,
-                sex
-            } = req.body;
+            const { login, average_reaction_time, standard_deviation, correct_answers, missed_clicks, wrong_clicks } = req.body;
 
             const checkUser = await pool.query(
                 'SELECT COUNT(*) FROM users WHERE login = $1',
@@ -162,17 +153,7 @@ class ActionController {
 
     async testDigitalSignal(req, res) {
         try {
-            const {
-                login,
-                average_reaction_time,
-                standard_deviation,
-                correct_answers,
-                wrong_answers,
-                missed_attempts,
-                accuracy,
-                age,
-                sex
-            } = req.body;
+            const { login, reactionTimes, missedSignals, testDuration, timestamp } = req.body;
 
             const checkUser = await pool.query(
                 'SELECT COUNT(*) FROM users WHERE login = $1',
@@ -211,7 +192,7 @@ class ActionController {
 
     async testSimpleRdo(req, res) {
         try {
-            const {login, avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned, age, sex} = req.body;
+            const {login, avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned} = req.body;
 
             const checkUser = await pool.query(
                 'SELECT COUNT(*) FROM users WHERE login = $1',
@@ -250,7 +231,7 @@ class ActionController {
 
     async testComplexRdo(req, res) {
         try {
-            const {login, circle1, circle2, circle3, overall, age, sex} = req.body;
+            const {login, circle1, circle2, circle3, overall} = req.body;
 
             const checkUser = await pool.query(
                 'SELECT COUNT(*) FROM users WHERE login = $1',
