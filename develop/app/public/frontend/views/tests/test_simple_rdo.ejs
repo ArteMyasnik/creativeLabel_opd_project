@@ -172,306 +172,227 @@
             width: 100%;
             max-width: 600px;
         }
-
-        /* Модальное окно для данных пользователя */
-        #userDataModal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.7);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        #userDataForm {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            color: black;
-            width: 300px;
-        }
-        #userDataForm label {
-            display: block;
-            margin-bottom: 10px;
-        }
-        #userDataForm input, #userDataForm select {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 15px;
-            box-sizing: border-box;
-        }
-        #userDataForm button {
-            background-color: #479C92;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
-    <!-- Новая секция для кнопок выбора длительности -->
-    <div id="durationButtons">
-        <button class="durationBtn" data-duration="30">30 с</button>
-        <button class="durationBtn" data-duration="60">60 с</button>
-        <button class="durationBtn" data-duration="120">120 с</button>
+<div class="button-container">
+    <div class="left-button">
+        <button onclick="window.location.href='/main'">Главная страница</button>
     </div>
+</div>
 
-    <div id="test-container">
-        <div id="divider"></div>
-        <div id="left-side" class="side">+</div>
-        <div id="right-side" class="side">-</div>
-        <div id="ball"></div>
-        <div id="star">★</div>
-    </div>
-    <div class="button-container">
-        <button onclick="startTest()">Начать тест</button>
-        <button onclick="stopTest()">Нажмите на кнопку</button>
-    </div>
-    <div id="results"></div>
+<!-- Новая секция для кнопок выбора длительности -->
+<div id="durationButtons">
+    <button class="durationBtn" data-duration="30">30 с</button>
+    <button class="durationBtn" data-duration="60">60 с</button>
+    <button class="durationBtn" data-duration="120">120 с</button>
+</div>
 
-    <!-- Модальное окно для ввода данных пользователя -->
-    <div id="userDataModal">
-        <div id="userDataForm">
-            <h2>Пожалуйста, укажите ваши данные</h2>
-            <label for="age">Возраст:</label>
-            <input type="number" id="age" min="1" max="120" required>
+<div id="test-container">
+    <div id="divider"></div>
+    <div id="left-side" class="side">+</div>
+    <div id="right-side" class="side">-</div>
+    <div id="ball"></div>
+    <div id="star">★</div>
+</div>
+<div class="button-container">
+    <button onclick="startTest()">Начать тест</button>
+    <button onclick="stopTest()">Нажмите на кнопку</button>
+</div>
+<div id="results"></div>
 
-            <label for="sex">Пол:</label>
-            <select id="sex" required>
-                <option value="">Выберите пол</option>
-                <option value="male">Мужской</option>
-                <option value="female">Женский</option>
-                <option value="other">Другой</option>
-            </select>
+<script>
+    // Обработка выбора длительности теста:
+    // По умолчанию длительность теста 120 с (120000 мс)
+    let testDuration = 120000;
+    const durationButtons = document.querySelectorAll('.durationBtn');
+    durationButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            durationButtons.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            testDuration = parseInt(btn.dataset.duration) * 1000;
+        });
+    });
 
-            <button onclick="saveUserData()">Сохранить</button>
-        </div>
-    </div>
+    // Массив для хранения результатов каждой попытки:
+    // Каждый элемент: { attempt, signedError, absoluteError }
+    let results = [];
+    let testRunning = false;
+    let angle = 180;
+    let interval;
+    const radius = 130;
+    const centerX = 150, centerY = 150;
+    let stoppedAngle = null;
+    let startTime;
+    let bestResult = null;
+    let testTimeout;
+    const starAngle = 90; // Целевой угол
 
-    <script>
-        // Обработка выбора длительности теста:
-        // По умолчанию длительность теста 120 с (120000 мс)
-        let testDuration = 120000;
-        const durationButtons = document.querySelectorAll('.durationBtn');
-        durationButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                durationButtons.forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-                testDuration = parseInt(btn.dataset.duration) * 1000;
-            });
+    function startTest() {
+        if (testRunning) return;
+        testRunning = true;
+        angle = 180;
+        stoppedAngle = null;
+        startTime = Date.now();
+        bestResult = null;
+        results = [];
+        document.getElementById("results").innerHTML = "";
+        clearInterval(interval);
+        clearTimeout(testTimeout);
+        interval = setInterval(moveBall, 20);
+
+        // Используем выбранную длительность теста
+        testTimeout = setTimeout(() => {
+            clearInterval(interval);
+            testRunning = false;
+            showFinalResults();
+        }, testDuration);
+    }
+
+    function moveBall() {
+        if (stoppedAngle !== null) return;
+        let ball = document.getElementById("ball");
+        let radian = angle * (Math.PI / 180);
+        let x = centerX + radius * Math.cos(radian);
+        let y = centerY - radius * Math.sin(radian);
+        ball.style.left = x + "px";
+        ball.style.top = y + "px";
+        angle -= 2;
+        if (angle < 0) {
+            angle = 360;
+        }
+    }
+
+    function stopTest() {
+        if (!testRunning || stoppedAngle !== null) return;
+        stoppedAngle = angle;
+        clearInterval(interval);
+        let signedError = stoppedAngle - starAngle;
+        let absoluteError = Math.abs(signedError);
+        results.push({
+            attempt: results.length + 1,
+            signedError: signedError,
+            absoluteError: absoluteError
+        });
+        if (bestResult === null || absoluteError < bestResult) {
+            bestResult = absoluteError;
+        }
+        if (Date.now() - startTime < testDuration) {
+            setTimeout(() => {
+                stoppedAngle = null;
+                interval = setInterval(moveBall, 20);
+            }, 1000);
+        } else {
+            testRunning = false;
+            showFinalResults();
+        }
+    }
+
+    function average(arr) {
+        if (arr.length === 0) return 0;
+        return arr.reduce((sum, val) => sum + val, 0) / arr.length;
+    }
+
+    function stdDeviation(arr) {
+        if (arr.length === 0) return 0;
+        let avg = average(arr);
+        let squareDiffs = arr.map(val => Math.pow(val - avg, 2));
+        let avgSquareDiff = average(squareDiffs);
+        return Math.sqrt(avgSquareDiff);
+    }
+
+    function showFinalResults() {
+        let resultDiv = document.getElementById("results");
+        let html = "<h2>Результаты теста</h2>";
+
+        if (results.length === 0) {
+            html += "<p>Нет результатов.</p>";
+            resultDiv.innerHTML = html;
+            return;
+        }
+
+        // Вычисляем все показатели
+        let premature = results.filter(r => r.signedError > 0).map(r => r.signedError);
+        let delayed = results.filter(r => r.signedError < 0).map(r => r.signedError);
+        let absErrors = results.map(r => r.absoluteError);
+
+        let avgPremature = premature.length ? average(premature).toFixed(2) : "N/A";
+        let avgDelayed = delayed.length ? average(delayed).toFixed(2) : "N/A";
+        let avgAbsolute = average(absErrors).toFixed(2);
+        let stdAbs = stdDeviation(absErrors).toFixed(2);
+        let stdSigned = stdDeviation(results.map(r => r.signedError)).toFixed(2);
+        let avgSigned = average(results.map(r => r.signedError));
+        let signResponse = avgSigned > 0 ? "+" : (avgSigned < 0 ? "–" : "0");
+
+        // Отображаем результаты
+        html += `<table>
+                <tr>
+                  <th>Попытка</th>
+                  <th>Подписанная ошибка (°)</th>
+                  <th>Абсолютная ошибка (°)</th>
+                </tr>`;
+
+        results.forEach(r => {
+            let sign = r.signedError > 0 ? "+" : (r.signedError < 0 ? "–" : "0");
+            html += `<tr>
+                  <td>${r.attempt}</td>
+                  <td>${sign} ${Math.abs(r.signedError).toFixed(2)}</td>
+                  <td>${r.absoluteError.toFixed(2)}</td>
+                </tr>`;
         });
 
-        // Массив для хранения результатов каждой попытки:
-        // Каждый элемент: { attempt, signedError, absoluteError }
-        let results = [];
-        let testRunning = false;
-        let angle = 180;
-        let interval;
-        const radius = 130;
-        const centerX = 150, centerY = 150;
-        let stoppedAngle = null;
-        let startTime;
-        let bestResult = null;
-        let testTimeout;
-        const starAngle = 90; // Целевой угол
-        let userAge = null;
-        let userSex = null;
+        html += `</table>
+            <div class="result-block">
+                <h3>Оценка:</h3>
+                <p><strong>1. Точность ответов:</strong></p>
+                <ul>
+                  <li>Время преждевременного ответа (знак "+"): ${avgPremature}</li>
+                  <li>Время запаздывания ответа (знак "–"): ${avgDelayed}</li>
+                </ul>
+                <p><strong>2. Значение по модулю:</strong> ${avgAbsolute}°</p>
+                <p><strong>3. Знак ответа:</strong> ${signResponse}</p>
+                <p><strong>4. Стандартное отклонение (абсолютное):</strong> ${stdAbs}</p>
+                <p><strong>5. Стандартное отклонение (с учётом знака):</strong> ${stdSigned}</p>
+            </div>`;
 
-        function startTest() {
-            if (testRunning) return;
-            testRunning = true;
-            angle = 180;
-            stoppedAngle = null;
-            startTime = Date.now();
-            bestResult = null;
-            results = [];
-            document.getElementById("results").innerHTML = "";
-            clearInterval(interval);
-            clearTimeout(testTimeout);
-            interval = setInterval(moveBall, 20);
+        resultDiv.innerHTML = html;
 
-            // Используем выбранную длительность теста
-            testTimeout = setTimeout(() => {
-                clearInterval(interval);
-                testRunning = false;
-                showFinalResults();
-            }, testDuration);
-        }
+        // Подготовка данных для отправки
+        const testData = {
+            login: "<%= login %>",  // Замените на реальный способ получения логина
+            attempts: results.map(r => ({
+                signedError: r.signedError,
+                absoluteError: r.absoluteError
+            })),
+            testDuration: testDuration / 1000
+        };
 
-        function moveBall() {
-            if (stoppedAngle !== null) return;
-            let ball = document.getElementById("ball");
-            let radian = angle * (Math.PI / 180);
-            let x = centerX + radius * Math.cos(radian);
-            let y = centerY - radius * Math.sin(radian);
-            ball.style.left = x + "px";
-            ball.style.top = y + "px";
-            angle -= 2;
-            if (angle < 0) {
-                angle = 360;
-            }
-        }
+        // Отправка данных на сервер
+        sendResultsToServer(testData);
+    }
 
-        function stopTest() {
-            if (!testRunning || stoppedAngle !== null) return;
-            stoppedAngle = angle;
-            clearInterval(interval);
-            let signedError = stoppedAngle - starAngle;
-            let absoluteError = Math.abs(signedError);
-            results.push({
-                attempt: results.length + 1,
-                signedError: signedError,
-                absoluteError: absoluteError
-            });
-            if (bestResult === null || absoluteError < bestResult) {
-                bestResult = absoluteError;
-            }
-            if (Date.now() - startTime < testDuration) {
-                setTimeout(() => {
-                    stoppedAngle = null;
-                    interval = setInterval(moveBall, 20);
-                }, 1000);
-            } else {
-                testRunning = false;
-                showFinalResults();
-            }
-        }
-
-        function average(arr) {
-            if (arr.length === 0) return 0;
-            return arr.reduce((sum, val) => sum + val, 0) / arr.length;
-        }
-
-        function stdDeviation(arr) {
-            if (arr.length === 0) return 0;
-            let avg = average(arr);
-            let squareDiffs = arr.map(val => Math.pow(val - avg, 2));
-            let avgSquareDiff = average(squareDiffs);
-            return Math.sqrt(avgSquareDiff);
-        }
-
-        function showFinalResults() {
-            let resultDiv = document.getElementById("results");
-            let html = "<h2>Результаты теста</h2>";
-            if (results.length === 0) {
-                html += "<p>Нет результатов.</p>";
-                resultDiv.innerHTML = html;
-                return;
-            }
-            let premature = results.filter(r => r.signedError > 0).map(r => r.signedError);
-            let delayed = results.filter(r => r.signedError < 0).map(r => r.signedError);
-            let absErrors = results.map(r => r.absoluteError);
-            let avgPremature = premature.length ? average(premature).toFixed(2) : "N/A";
-            let avgDelayed = delayed.length ? average(delayed).toFixed(2) : "N/A";
-            let avgAbsolute = average(absErrors).toFixed(2);
-            let stdAbs = stdDeviation(absErrors).toFixed(2);
-            let stdSigned = stdDeviation(results.map(r => r.signedError)).toFixed(2);
-            let avgSigned = average(results.map(r => r.signedError));
-            let signResponse = avgSigned > 0 ? "+" : (avgSigned < 0 ? "–" : "0");
-            html += `<table>
-                    <tr>
-                      <th>Попытка</th>
-                      <th>Подписанная ошибка (°)</th>
-                      <th>Абсолютная ошибка (°)</th>
-                    </tr>`;
-            results.forEach(r => {
-                let sign = r.signedError > 0 ? "+" : (r.signedError < 0 ? "–" : "0");
-                html += `<tr>
-                      <td>${r.attempt}</td>
-                      <td>${sign} ${Math.abs(r.signedError).toFixed(2)}</td>
-                      <td>${r.absoluteError.toFixed(2)}</td>
-                    </tr>`;
-            });
-            html += `</table>`;
-            html += `<div class="result-block">
-                    <h3>Оценка:</h3>
-                    <p><strong>1. Точность ответов:</strong></p>
-                    <ul>
-                      <li>Время преждевременного ответа (знак "+"): ${avgPremature}</li>
-                      <li>Время запаздывания ответа (знак "–"): ${avgDelayed}</li>
-                    </ul>
-                    <p><strong>2. Значение по модулю:</strong> ${avgAbsolute}°</p>
-                    <p><strong>3. Знак ответа:</strong> ${signResponse}</p>
-                    <p><strong>4. Стандартное отклонение (абсолютное):</strong> ${stdAbs}</p>
-                    <p><strong>5. Стандартное отклонение (с учётом знака):</strong> ${stdSigned}</p>
-                  </div>`;
-            resultDiv.innerHTML = html;
-            if (userAge === null || userSex === null) {
-                showUserDataModal(avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned);
-            } else {
-                saveReactionBallResults(avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned);
-            }
-        }
-
-        function showUserDataModal(avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned) {
-            const modal = document.getElementById('userDataModal');
-            modal.style.display = 'flex';
-            modal.dataset.avgPremature = avgPremature;
-            modal.dataset.avgDelayed = avgDelayed;
-            modal.dataset.avgAbsolute = avgAbsolute;
-            modal.dataset.signResponse = signResponse;
-            modal.dataset.stdAbs = stdAbs;
-            modal.dataset.stdSigned = stdSigned;
-        }
-
-        function saveUserData() {
-            const ageInput = document.getElementById('age');
-            const sexSelect = document.getElementById('sex');
-            if (!ageInput.value || !sexSelect.value) {
-                alert("Пожалуйста, заполните все поля");
-                return;
-            }
-            userAge = ageInput.value;
-            userSex = sexSelect.value;
-            const modal = document.getElementById('userDataModal');
-            modal.style.display = 'none';
-            const avgPremature = modal.dataset.avgPremature;
-            const avgDelayed = modal.dataset.avgDelayed;
-            const avgAbsolute = modal.dataset.avgAbsolute;
-            const signResponse = modal.dataset.signResponse;
-            const stdAbs = modal.dataset.stdAbs;
-            const stdSigned = modal.dataset.stdSigned;
-            saveReactionBallResults(avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned);
-        }
-
-        function saveReactionBallResults(avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned) {
-            const login = "<%= login %>";
-            const age = userAge;
-            const sex = userSex;
-            fetch('http://localhost:3000/api/test_simple_rdo', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    login: login,
-                    avgPremature: avgPremature,
-                    avgDelayed: avgDelayed,
-                    avgAbsolute: avgAbsolute,
-                    signResponse: signResponse,
-                    stdAbs: stdAbs,
-                    stdSigned: stdSigned,
-                    age: age,
-                    sex: sex
-                }),
+    // Функция для отправки результатов на сервер
+    function sendResultsToServer(results) {
+        // Замените URL на ваш реальный эндпоинт сервера
+        fetch('http://localhost:3000/api/test_simple_rdo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(results),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Результаты успешно сохранены:', data.message);
+                } else {
+                    console.error('Ошибка при сохранении результатов:', data.message);
+                }
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert("Результаты теста успешно сохранены!");
-                    } else {
-                        alert("Ошибка при сохранении результатов: " + data.message);
-                    }
-                })
-                .catch(error => {
-                    alert("Ошибка сети: " + error.message);
-                });
-        }
-    </script>
+            .catch(error => {
+                console.error('Ошибка при отправке результатов:', error);
+            });
+    }
+</script>
 </body>
 </html>

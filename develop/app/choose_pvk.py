@@ -1,8 +1,13 @@
 import requests
 import json
+import os
+from dotenv import load_dotenv
 
+
+load_dotenv()  # Загружает переменные из .env
 # API_KEY MUST BE ASSIGNED
-MODEL = "deepseek/deepseek-r1"
+API_KEY = os.getenv("DEEPSEEK_API_KEY")
+MODEL = "deepseek/deepseek-r1-zero:free"
 
 PVK_CATEGORIES = {
     "Ценностно-побудительные": [

@@ -1,0 +1,14 @@
+# .gitignore
+
+# Node.js
+node_modules/
+
+# Docker
+docker-compose.yml
+
+# .env
+.env
+
+# Idea
+.idea/
+./develop/.idea

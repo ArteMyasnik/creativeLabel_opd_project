@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Список профессионально-важных качеств</title>
+    <title>Список респондентов нашего сайта</title>
     <link rel="stylesheet" href="../../Styles/piqStyles.css" />
 </head>
 <body>
@@ -14,13 +14,12 @@
 </div>
 
 <div class="content">
-    <h1>Список профессионально-важных качеств</h1>
+    <h1>Список респондентов нашего сайта</h1>
     <div class="content">
         <ul class="simple-list">
-            <% pvks.forEach(function(pvk) { %>
+            <% respondents.forEach(function(respondent) { %>
                 <li>
-                    <strong>Тип:</strong> <%= pvk.type %><br>
-                    <strong>ПВК:</strong> <%= pvk.pvk %><br>
+                    <strong><%= respondent.login %></strong><br>
                 </li>
             <% }); %>
         </ul>

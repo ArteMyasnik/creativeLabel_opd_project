@@ -1,366 +1,431 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Тест реакции с оценкой</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 20px;
-    }
-    /* Скрытие и плавные переключения */
-    .hidden {
-      display: none !important;
-    }
-    /* Кнопки */
-    .reaction-button {
-      width: 60px;
-      height: 60px;
-      font-size: 24px;
-      font-weight: bold;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .reaction-button:hover {
-      transform: scale(1.1);
-    }
-    #btn1 {
-      background: linear-gradient(45deg, #ff6666, #ff0000);
-    }
-    #btn2 {
-      background: linear-gradient(45deg, #66a3ff, #0066ff);
-    }
-    #btn3 {
-      background: linear-gradient(45deg, #66ff66, #00cc00);
-    }
-    #startTest, #restart {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 18px;
-      cursor: pointer;
-      border: none;
-      border-radius: 5px;
-      background: #ffcc00;
-      color: #333;
-      transition: background 0.2s;
-    }
-    #startTest:hover, #restart:hover {
-      background: #ffdd33;
-    }
-    .canvas-container {
-      display: flex;
-      justify-content: center;
-      margin: 20px 0;
-    }
-    canvas {
-      background: #f8f8f8;
-      border: 1px solid #ccc;
-    }
-    .buttons-container {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-    .button-block {
-      text-align: center;
-    }
-    .arrow {
-      font-size: 24px;
-      margin-bottom: 5px;
-      display: block;
-    }
-    #message {
-      font-size: 20px;
-      color: #333;
-      min-height: 30px;
-      margin-bottom: 20px;
-    }
-    #results {
-      margin-top: 20px;
-      text-align: left;
-      max-width: 600px;
-      margin: 0 auto;
-      font-size: 16px;
-      border-top: 1px solid #ccc;
-      padding-top: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      padding: 5px;
-      border: 1px solid #ccc;
-      text-align: center;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Тест реакции с оценкой</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Скрытие и плавные переключения */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Кнопки */
+        .reaction-button {
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .reaction-button:hover {
+            transform: scale(1.1);
+        }
+
+        #btn1 {
+            background: linear-gradient(45deg, #ff6666, #ff0000);
+        }
+
+        #btn2 {
+            background: linear-gradient(45deg, #66a3ff, #0066ff);
+        }
+
+        #btn3 {
+            background: linear-gradient(45deg, #66ff66, #00cc00);
+        }
+
+        #startTest, #restart {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background: #ffcc00;
+            color: #333;
+            transition: background 0.2s;
+        }
+
+        #startTest:hover, #restart:hover {
+            background: #ffdd33;
+        }
+
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        canvas {
+            background: #f8f8f8;
+            border: 1px solid #ccc;
+        }
+
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .button-block {
+            text-align: center;
+        }
+
+        .arrow {
+            font-size: 24px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        #message {
+            font-size: 20px;
+            color: #333;
+            min-height: 30px;
+            margin-bottom: 20px;
+        }
+
+        #results {
+            margin-top: 20px;
+            text-align: left;
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 16px;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 5px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
+<div class="button-container">
+    <div class="left-button">
+        <button onclick="window.location.href='/main'">Главная страница</button>
+    </div>
+</div>
 
 <!-- Кнопка "Начать тест" (изначально видна) -->
 <button id="startTest">Начать тест</button>
 
 <!-- Кнопки выбора времени -->
 <div id="timeSelection" class="hidden">
-  <button onclick="setTestDuration(30000)">30 секунд</button>
-  <button onclick="setTestDuration(60000)">1 минута</button>
-  <button onclick="setTestDuration(120000)">2 минуты</button>
+    <button onclick="setTestDuration(30000)">30 секунд</button>
+    <button onclick="setTestDuration(60000)">1 минута</button>
+    <button onclick="setTestDuration(120000)">2 минуты</button>
 </div>
 
 <!-- Весь интерфейс теста (изначально скрыт) -->
 <div id="testInterface" class="hidden">
 
-  <h1>Тест реакции</h1>
+    <h1>Тест реакции</h1>
 
-  <div class="canvas-container">
-    <canvas id="canvas1" width="200" height="200"></canvas>
-    <canvas id="canvas2" width="200" height="200" class="hidden"></canvas>
-    <canvas id="canvas3" width="200" height="200" class="hidden"></canvas>
-  </div>
+    <div class="canvas-container">
+        <canvas id="canvas1" width="200" height="200"></canvas>
+        <canvas id="canvas2" width="200" height="200" class="hidden"></canvas>
+        <canvas id="canvas3" width="200" height="200" class="hidden"></canvas>
+    </div>
 
-  <div class="buttons-container">
-    <div class="button-block">
-      <span class="arrow">⬇</span>
-      <button class="reaction-button" id="btn1">1</button>
+    <div class="buttons-container">
+        <div class="button-block">
+            <span class="arrow">⬇</span>
+            <button class="reaction-button" id="btn1">1</button>
+        </div>
+        <div class="button-block">
+            <span class="arrow">⬇</span>
+            <button class="reaction-button" id="btn2">2</button>
+        </div>
+        <div class="button-block">
+            <span class="arrow">⬇</span>
+            <button class="reaction-button" id="btn3">3</button>
+        </div>
     </div>
-    <div class="button-block">
-      <span class="arrow">⬇</span>
-      <button class="reaction-button" id="btn2">2</button>
-    </div>
-    <div class="button-block">
-      <span class="arrow">⬇</span>
-      <button class="reaction-button" id="btn3">3</button>
-    </div>
-  </div>
 
-  <div id="message"></div>
+    <div id="message"></div>
 </div>
 
 <!-- Контейнер с кнопкой "Перезапустить" и результатами (скрыт до окончания теста) -->
 <div id="resultsContainer" class="hidden">
-  <button id="restart">Перезапустить тест</button>
-  <div id="results"></div>
+    <button id="restart">Перезапустить тест</button>
+    <div id="results"></div>
 </div>
 
 <script>
-  let testDuration = 120000;  // по умолчанию 2 минуты
-  let segmentDuration = testDuration / 3;
+    let testDuration = 120000;  // по умолчанию 2 минуты
+    let segmentDuration = testDuration / 3;
 
-  // Параметры теста
-  const threshold_ms = 100;
+    // Параметры теста
+    const threshold_ms = 100;
 
-  let startTime = null;
-  let lastTimestamp = null;
-  let currentCircle = 1;
-  let testActive = false;
-  let animationFrameId;
+    let startTime = null;
+    let lastTimestamp = null;
+    let currentCircle = 1;
+    let testActive = false;
+    let animationFrameId;
 
-  const circleData = {
-    1: { canvas: null, ctx: null, angle: 0, speed: 1.2, starAngle: Math.PI / 4, radius: 60, ballColor: "red" },
-    2: { canvas: null, ctx: null, angle: 0, speed: 1.8, starAngle: Math.PI / 4, radius: 60, ballColor: "blue" },
-    3: { canvas: null, ctx: null, angle: 0, speed: 2.4, starAngle: Math.PI / 4, radius: 60, ballColor: "green" }
-  };
+    const circleData = {
+        1: {canvas: null, ctx: null, angle: 0, speed: 1.2, starAngle: Math.PI / 4, radius: 60, ballColor: "red"},
+        2: {canvas: null, ctx: null, angle: 0, speed: 1.8, starAngle: Math.PI / 4, radius: 60, ballColor: "blue"},
+        3: {canvas: null, ctx: null, angle: 0, speed: 2.4, starAngle: Math.PI / 4, radius: 60, ballColor: "green"}
+    };
 
-  let responses = { 1: [], 2: [], 3: [] };
-  let circleResults = { 1: {}, 2: {}, 3: {} };
+    let responses = {1: [], 2: [], 3: []};
+    let circleResults = {1: {}, 2: {}, 3: {}};
 
-  function initCircle(num) {
-    const cd = circleData[num];
-    cd.canvas = document.getElementById("canvas" + num);
-    cd.ctx = cd.canvas.getContext("2d");
-    const centerX = cd.canvas.width / 2;
-    const centerY = cd.canvas.height / 2;
-    cd.starX = centerX + cd.radius * Math.cos(cd.starAngle);
-    cd.starY = centerY + cd.radius * Math.sin(cd.starAngle);
-  }
-
-  function normalizeAngle(angle) {
-    while (angle > Math.PI) angle -= 2 * Math.PI;
-    while (angle < -Math.PI) angle += 2 * Math.PI;
-    return angle;
-  }
-
-  function drawCircle(num) {
-    const cd = circleData[num];
-    const ctx = cd.ctx;
-    const w = cd.canvas.width;
-    const h = cd.canvas.height;
-    const centerX = w / 2;
-    const centerY = h / 2;
-
-    ctx.clearRect(0, 0, w, h);
-
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, cd.radius, 0, 2 * Math.PI);
-    ctx.strokeStyle = "#000";
-    ctx.stroke();
-
-    ctx.fillStyle = "orange";
-    ctx.beginPath();
-    for (let i = 0; i < 5; i++) {
-      let a = (i * 2 * Math.PI) / 5 - Math.PI / 2;
-      let x = cd.starX + 10 * Math.cos(a);
-      let y = cd.starY + 10 * Math.sin(a);
-      ctx.lineTo(x, y);
+    function initCircle(num) {
+        const cd = circleData[num];
+        cd.canvas = document.getElementById("canvas" + num);
+        cd.ctx = cd.canvas.getContext("2d");
+        const centerX = cd.canvas.width / 2;
+        const centerY = cd.canvas.height / 2;
+        cd.starX = centerX + cd.radius * Math.cos(cd.starAngle);
+        cd.starY = centerY + cd.radius * Math.sin(cd.starAngle);
     }
-    ctx.closePath();
-    ctx.fill();
 
-    cd.ballX = centerX + cd.radius * Math.cos(cd.angle);
-    cd.ballY = centerY + cd.radius * Math.sin(cd.angle);
-    ctx.fillStyle = cd.ballColor;
-    ctx.beginPath();
-    ctx.arc(cd.ballX, cd.ballY, 8, 0, 2 * Math.PI);
-    ctx.fill();
-  }
-
-  function updateCircle(num, dt) {
-    const cd = circleData[num];
-    cd.angle += cd.speed * (dt / 1000);
-    if (cd.angle > 2 * Math.PI) {
-      cd.angle -= 2 * Math.PI;
+    function normalizeAngle(angle) {
+        while (angle > Math.PI) angle -= 2 * Math.PI;
+        while (angle < -Math.PI) angle += 2 * Math.PI;
+        return angle;
     }
-    drawCircle(num);
-  }
 
-  function updateCanvasVisibility() {
-    for (let i = 1; i <= 3; i++) {
-      let canvasEl = document.getElementById("canvas" + i);
-      canvasEl.classList.toggle("hidden", i !== currentCircle);
+    function drawCircle(num) {
+        const cd = circleData[num];
+        const ctx = cd.ctx;
+        const w = cd.canvas.width;
+        const h = cd.canvas.height;
+        const centerX = w / 2;
+        const centerY = h / 2;
+
+        ctx.clearRect(0, 0, w, h);
+
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, cd.radius, 0, 2 * Math.PI);
+        ctx.strokeStyle = "#000";
+        ctx.stroke();
+
+        ctx.fillStyle = "orange";
+        ctx.beginPath();
+        for (let i = 0; i < 5; i++) {
+            let a = (i * 2 * Math.PI) / 5 - Math.PI / 2;
+            let x = cd.starX + 10 * Math.cos(a);
+            let y = cd.starY + 10 * Math.sin(a);
+            ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.fill();
+
+        cd.ballX = centerX + cd.radius * Math.cos(cd.angle);
+        cd.ballY = centerY + cd.radius * Math.sin(cd.angle);
+        ctx.fillStyle = cd.ballColor;
+        ctx.beginPath();
+        ctx.arc(cd.ballX, cd.ballY, 8, 0, 2 * Math.PI);
+        ctx.fill();
     }
-  }
 
-  function animationLoop(timestamp) {
-    if (!testActive) return;
-    if (!startTime) {
-      startTime = timestamp;
-      lastTimestamp = timestamp;
+    function updateCircle(num, dt) {
+        const cd = circleData[num];
+        cd.angle += cd.speed * (dt / 1000);
+        if (cd.angle > 2 * Math.PI) {
+            cd.angle -= 2 * Math.PI;
+        }
+        drawCircle(num);
     }
-    const elapsed = timestamp - startTime;
-    if (elapsed >= testDuration) {
-      endTest();
-      return;
+
+    function updateCanvasVisibility() {
+        for (let i = 1; i <= 3; i++) {
+            let canvasEl = document.getElementById("canvas" + i);
+            canvasEl.classList.toggle("hidden", i !== currentCircle);
+        }
     }
-    const segment = Math.floor(elapsed / segmentDuration) + 1;
-    if (segment !== currentCircle) {
-      currentCircle = segment;
-      updateCanvasVisibility();
+
+    function animationLoop(timestamp) {
+        if (!testActive) return;
+        if (!startTime) {
+            startTime = timestamp;
+            lastTimestamp = timestamp;
+        }
+        const elapsed = timestamp - startTime;
+        if (elapsed >= testDuration) {
+            endTest();
+            return;
+        }
+        const segment = Math.floor(elapsed / segmentDuration) + 1;
+        if (segment !== currentCircle) {
+            currentCircle = segment;
+            updateCanvasVisibility();
+        }
+        const dt = timestamp - lastTimestamp;
+        lastTimestamp = timestamp;
+        updateCircle(currentCircle, dt);
+        animationFrameId = requestAnimationFrame(animationLoop);
     }
-    const dt = timestamp - lastTimestamp;
-    lastTimestamp = timestamp;
-    updateCircle(currentCircle, dt);
-    animationFrameId = requestAnimationFrame(animationLoop);
-  }
 
-  function showMessage(text) {
-    const msgDiv = document.getElementById("message");
-    msgDiv.textContent = text;
-    setTimeout(() => { msgDiv.textContent = ""; }, 1500);
-  }
-
-  function checkReaction(num) {
-    if (!testActive) return;
-    if (num !== currentCircle) {
-      showMessage("Сейчас активен круг №" + currentCircle);
-      return;
+    function showMessage(text) {
+        const msgDiv = document.getElementById("message");
+        msgDiv.textContent = text;
+        setTimeout(() => {
+            msgDiv.textContent = "";
+        }, 1500);
     }
-    const cd = circleData[num];
-    let errorAngle = normalizeAngle(cd.starAngle - cd.angle);
-    let errorSec = errorAngle / cd.speed;
-    let errorMs = errorSec * 1000;
-    responses[num].push(errorMs);
-    let sign = errorMs >= 0 ? "+" : "";
-    if (Math.abs(errorMs) <= threshold_ms) {
-      showMessage("Верно! (Круг " + num + ")");
-      cd.starAngle = Math.random() * 2 * Math.PI;
-      const centerX = cd.canvas.width / 2;
-      const centerY = cd.canvas.height / 2;
-      cd.starX = centerX + cd.radius * Math.cos(cd.starAngle);
-      cd.starY = centerY + cd.radius * Math.sin(cd.starAngle);
-    } else {
-      showMessage("Промах: " + sign + errorMs.toFixed(0) + " ms (Круг " + num + ")");
+
+    function checkReaction(num) {
+        if (!testActive) return;
+        if (num !== currentCircle) {
+            showMessage("Сейчас активен круг №" + currentCircle);
+            return;
+        }
+        const cd = circleData[num];
+        let errorAngle = normalizeAngle(cd.starAngle - cd.angle);
+        let errorSec = errorAngle / cd.speed;
+        let errorMs = errorSec * 1000;
+        responses[num].push(errorMs);
+        let sign = errorMs >= 0 ? "+" : "";
+        if (Math.abs(errorMs) <= threshold_ms) {
+            showMessage("Верно! (Круг " + num + ")");
+            cd.starAngle = Math.random() * 2 * Math.PI;
+            const centerX = cd.canvas.width / 2;
+            const centerY = cd.canvas.height / 2;
+            cd.starX = centerX + cd.radius * Math.cos(cd.starAngle);
+            cd.starY = centerY + cd.radius * Math.sin(cd.starAngle);
+        } else {
+            showMessage("Промах: " + sign + errorMs.toFixed(0) + " ms (Круг " + num + ")");
+        }
     }
-  }
 
-  function average(arr) {
-    if (arr.length === 0) return 0;
-    return arr.reduce((sum, val) => sum + val, 0) / arr.length;
-  }
-
-  function stdDev(arr) {
-    if (arr.length === 0) return 0;
-    let avg = average(arr);
-    let variance = arr.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / arr.length;
-    return Math.sqrt(variance);
-  }
-
-  function endTest() {
-    testActive = false;
-    cancelAnimationFrame(animationFrameId);
-    showResults();
-    document.getElementById("testInterface").classList.add("hidden");
-    document.getElementById("resultsContainer").classList.remove("hidden");
-  }
-
-  function showResults() {
-    let resDiv = document.getElementById("results");
-    let html = "<h2>Результаты теста</h2>";
-    html += "<table><tr><th>Круг</th><th>Ответов</th><th>Средняя ошибка (мс)</th><th>Средняя абс. ошибка (мс)</th><th>Стандартное отклонение (мс)</th></tr>";
-    for (let i = 1; i <= 3; i++) {
-      let res = responses[i];
-      let mean = average(res).toFixed(0);
-      let absMean = average(res.map(Math.abs)).toFixed(0);
-      let std = stdDev(res).toFixed(0);
-      html += "<tr><td>" + i + "</td><td>" + res.length + "</td><td>" + mean + "</td><td>" + absMean + "</td><td>" + std + "</td></tr>";
+    function average(arr) {
+        if (arr.length === 0) return 0;
+        return arr.reduce((sum, val) => sum + val, 0) / arr.length;
     }
-    html += "</table>";
-    resDiv.innerHTML = html;
-  }
 
-  function restartTest() {
-    responses = { 1: [], 2: [], 3: [] };
-    circleResults = { 1: {}, 2: {}, 3: {} };
-    document.getElementById("resultsContainer").classList.add("hidden");
-    document.getElementById("startTest").classList.remove("hidden");
-  }
+    function stdDev(arr) {
+        if (arr.length === 0) return 0;
+        let avg = average(arr);
+        let variance = arr.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / arr.length;
+        return Math.sqrt(variance);
+    }
 
-  function setTestDuration(duration) {
-    testDuration = duration;
-    segmentDuration = testDuration / 3;
-    document.getElementById("timeSelection").classList.add("hidden");
-    document.getElementById("testInterface").classList.remove("hidden");
-    initCircle(1);
-    initCircle(2);
-    initCircle(3);
-    startTest();
-  }
+    function endTest() {
+        testActive = false;
+        cancelAnimationFrame(animationFrameId);
+        showResults();
+        document.getElementById("testInterface").classList.add("hidden");
+        document.getElementById("resultsContainer").classList.remove("hidden");
 
-  function startTest() {
-    testActive = true;
-    startTime = null;
-    lastTimestamp = null;
-    currentCircle = 1;
-    document.getElementById("startTest").classList.add("hidden");
-    document.getElementById("timeSelection").classList.add("hidden");
-    animationFrameId = requestAnimationFrame(animationLoop);
-  }
+        // Подготавливаем минимальные данные для отправки
+        const results = {
+            login: "<%= login %>",
+            responses: responses, // Все реакции пользователя по кругам
+            circleSpeeds: { // Скорости кругов (для вычисления угловых ошибок)
+                1: circleData[1].speed,
+                2: circleData[2].speed,
+                3: circleData[3].speed
+            },
+            testDuration: testDuration / 1000 // Длительность теста в секундах
+        };
 
-  document.getElementById("restart").addEventListener("click", restartTest);
-  document.getElementById("startTest").addEventListener("click", function() {
-    document.getElementById("timeSelection").classList.remove("hidden");
-    document.getElementById("startTest").classList.add("hidden");
-  });
+        // Отправляем результаты на сервер
+        sendResultsToServer(results);
+    }
 
-  // Слушатели событий для кнопок
-  document.getElementById("btn1").addEventListener("click", () => checkReaction(1));
-  document.getElementById("btn2").addEventListener("click", () => checkReaction(2));
-  document.getElementById("btn3").addEventListener("click", () => checkReaction(3));
+    function showResults() {
+        let resDiv = document.getElementById("results");
+        let html = "<h2>Результаты теста</h2>";
+        html += "<table><tr><th>Круг</th><th>Ответов</th><th>Средняя ошибка (мс)</th><th>Средняя абс. ошибка (мс)</th><th>Стандартное отклонение (мс)</th></tr>";
+        for (let i = 1; i <= 3; i++) {
+            let res = responses[i];
+            let mean = average(res).toFixed(0);
+            let absMean = average(res.map(Math.abs)).toFixed(0);
+            let std = stdDev(res).toFixed(0);
+            html += "<tr><td>" + i + "</td><td>" + res.length + "</td><td>" + mean + "</td><td>" + absMean + "</td><td>" + std + "</td></tr>";
+        }
+        html += "</table>";
+        resDiv.innerHTML = html;
+    }
+
+    function restartTest() {
+        responses = {1: [], 2: [], 3: []};
+        circleResults = {1: {}, 2: {}, 3: {}};
+        document.getElementById("resultsContainer").classList.add("hidden");
+        document.getElementById("startTest").classList.remove("hidden");
+    }
+
+    function setTestDuration(duration) {
+        testDuration = duration;
+        segmentDuration = testDuration / 3;
+        document.getElementById("timeSelection").classList.add("hidden");
+        document.getElementById("testInterface").classList.remove("hidden");
+        initCircle(1);
+        initCircle(2);
+        initCircle(3);
+        startTest();
+    }
+
+    function startTest() {
+        testActive = true;
+        startTime = null;
+        lastTimestamp = null;
+        currentCircle = 1;
+        document.getElementById("startTest").classList.add("hidden");
+        document.getElementById("timeSelection").classList.add("hidden");
+        animationFrameId = requestAnimationFrame(animationLoop);
+    }
+
+    // Функция для отправки результатов на сервер
+    function sendResultsToServer(results) {
+        // Отправка данных на сервер
+        fetch('http://localhost:3000/api/test_complex_rdo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(results),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success === true) {
+                    console.log(data.message);
+                } else {
+                    console.error('Ошибка при сохранении результатов:', data.message);
+                    alert('Ошибка при сохранении результатов.');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при отправке результатов.');
+            });
+    }
+
+
+    document.getElementById("restart").addEventListener("click", restartTest);
+    document.getElementById("startTest").addEventListener("click", function () {
+        document.getElementById("timeSelection").classList.remove("hidden");
+        document.getElementById("startTest").classList.add("hidden");
+    });
+
+    // Слушатели событий для кнопок
+    document.getElementById("btn1").addEventListener("click", () => checkReaction(1));
+    document.getElementById("btn2").addEventListener("click", () => checkReaction(2));
+    document.getElementById("btn3").addEventListener("click", () => checkReaction(3));
 </script>
 
 </body>

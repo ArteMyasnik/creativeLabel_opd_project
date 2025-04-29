@@ -3,7 +3,6 @@ const session = require('express-session');
 const path = require('path');
 const app = express();
 const userRouter = require('./controllers/userRoutes');
-const actionRouter = require('./controllers/backend/actionRoutes');
 const PORT = process.env.PORT || 3000;
 const pool = require('./db/db');
 const crypto = require('crypto');
@@ -208,6 +207,18 @@ app.get('/pvk', async (req, res) => {
     }
 });
 
+app.get('/respondents', async (req, res) => {
+    try {
+        const query = 'SELECT users.login\nFROM users\nLEFT OUTER JOIN test_visual_signal ON test_visual_signal.user_id = users.id\nLEFT OUTER JOIN test_color_signal ON test_color_signal.user_id = users.id\nLEFT OUTER JOIN test_digital_signal ON test_digital_signal.user_id = users.id\nLEFT OUTER JOIN test_simple_rdo ON test_simple_rdo.user_id = users.id\nLEFT OUTER JOIN test_complex_rdo ON test_complex_rdo.user_id = users.id\nWHERE test_visual_signal.user_id IS NOT NULL\nOR test_color_signal.user_id IS NOT NULL\nOR test_digital_signal.user_id IS NOT NULL\nOR test_simple_rdo.user_id IS NOT NULL\nOR test_complex_rdo.user_id IS NOT NULL'
+        const result = await pool.query(query);
+        const respondents = result.rows;
+        res.render('respondents', { respondents: respondents });
+    } catch (err) {
+        console.error('Ошибка при выполнении запроса:', err);
+        res.status(500).send('Ошибка сервера');
+    }
+});
+
 app.get('/experts', async (req, res) => {
     try {
         const users = await pool.query('SELECT * FROM users');
@@ -238,47 +249,117 @@ app.get('/professions_rating', async (req, res) => {
     }
 });
 
-// app.get('/results', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'public/frontend/Pages/menu', 'results.html'));
-// });
-
 app.get('/results', async (req, res) => {
     try {
         const result = await pool.query(`
-            SELECT 
-                pp.profession_id,
-                pp.pvk_id,
-                pp.mark,
-                p.name AS profession_name,
-                pvk.pvk AS pvk_name
+            SELECT pp.profession_id, pp.pvk_id, p.name AS profession_name, pvk.pvk AS pvk_name
             FROM profession_pvk pp
             JOIN professions p ON pp.profession_id = p.id
             JOIN pvks pvk ON pp.pvk_id = pvk.id
         `);
 
-        const gradesById = result.rows.reduce((acc, row) => {
-            if (!acc[row.profession_id]) {
-                acc[row.profession_id] = {};
-            }
-            acc[row.profession_id][row.pvk_id] = row.mark;
-            return acc;
-        }, {});
+        async function calculateStats(professionId, pvkId) {
+            try {
+                // Получаем все оценки для данной профессии и оцениваемого пвк
+                const resultMarks = await pool.query(`
+                    SELECT mark
+                    FROM profession_pvk
+                    WHERE profession_id = $1
+                    AND pvk_id = $2;
+                `, [professionId, pvkId]);
 
-        const grades = result.rows.reduce((acc, row) => {
-            if (!acc[row.profession_name]) {
-                acc[row.profession_name] = {};
-            }
-            acc[row.profession_name][row.pvk_name] = row.mark;
-            return acc;
-        }, {});
+                // Извлекаем оценки
+                const marks = resultMarks.rows.map(row => row.mark);
 
-        const professionsResult = await pool.query('SELECT * FROM professions');
-        const pvksResult = await pool.query('SELECT * FROM pvks');
+                // Кол-во экспертов, оценивших эту профессию
+                const expertCountResult = await pool.query(`
+                    SELECT expert_count
+                    FROM professions
+                    WHERE id = $1
+                `, [professionId]);
+
+                const expertCount = expertCountResult.rows[0].expert_count;
+
+                // Вычисляем среднее арифметическое
+                const mean = marks.reduce((sum, mark) => sum + mark, 0) / expertCount;
+
+                // Вычисляем дисперсию
+                const variance = marks.reduce((sum, mark) => sum + Math.abs(mark - mean), 0) / expertCount;
+
+                return {variance, mean};
+            } catch (err) {
+                console.error('Ошибка при расчете статистики:', err);
+                return 0;
+            }
+        }
+
+        // Создаем массивы для хранения промисов (ожиданий высчитывания оценок)
+        const gradesByIdPromises = {};
+        const gradesPromises = {};
+
+        // Сначала собираем все промисы (собираем все возможные расчёты)
+        result.rows.forEach(row => {
+            if (!gradesByIdPromises[row.profession_id]) {
+                gradesByIdPromises[row.profession_id] = {};
+            }
+            gradesByIdPromises[row.profession_id][row.pvk_id] = calculateStats(row.profession_id, row.pvk_id);
+
+            if (!gradesPromises[row.profession_name]) {
+                gradesPromises[row.profession_name] = {};
+            }
+            gradesPromises[row.profession_name][row.pvk_name] = calculateStats(row.profession_id, row.pvk_id);
+        });
+
+        // Дожидаемся выполнения всех промисов и готово
+        const gradesById = {};
+        for (const professionId in gradesByIdPromises) {
+            gradesById[professionId] = {};
+            for (const pvkId in gradesByIdPromises[professionId]) {
+                gradesById[professionId][pvkId] = await gradesByIdPromises[professionId][pvkId];
+            }
+        }
+
+        const grades = {};
+        for (const professionName in gradesPromises) {
+            grades[professionName] = {};
+            
+            // Заполняем оценки
+            for (const pvkName in gradesPromises[professionName]) {
+                grades[professionName][pvkName] = await gradesPromises[professionName][pvkName];
+            }
+            
+            // Преобразуем в массив пар [key, value] для сортировки
+            const entries = Object.entries(grades[professionName]);
+        
+            // Сортируем: сначала по variance (по возрастанию), затем по mean (по убыванию)
+            entries.sort((a, b) => {
+                const aValue = a[1];
+                const bValue = b[1];
+                
+                // Сначала сравниваем variance
+                if (aValue.variance !== bValue.variance) {
+                    return aValue.variance - bValue.variance; // по возрастанию
+                }
+                // Если variance равны, сравниваем mean
+                return bValue.mean - aValue.mean; // по убыванию
+            });
+
+        
+            // Восстанавливаем объект из отсортированного массива
+            const sortedObject = {};
+            for (const [key, value] of entries) {
+                sortedObject[key] = value.mean;
+            }
+            
+            // Заменяем исходный объект на отсортированный
+            grades[professionName] = sortedObject;
+        }
+        
+        const professionsResult = await pool.query('SELECT * FROM professions ORDER BY id');
 
         res.render('results', {
             grades: grades,
             professions: professionsResult.rows,
-            pvks: pvksResult.rows
         });
     } catch (err) {
         console.error('Ошибка при выполнении запроса:', err);
@@ -293,41 +374,26 @@ app.get('/results', async (req, res) => {
 // Pages HTML tests ------------------------------------------------------------------------
 app.get('/test_visual_signal', async (req, res) => {
     const login = req.session.login || null;
-    const result_age_sex = await pool.query('SELECT age, sex FROM users WHERE login=$1', [req.session.login])
-    const age = result_age_sex.rows[0].age;
-    const sex = result_age_sex.rows[0].sex;
-    res.render('tests/test_visual_signal', { login, age: age || null, sex: sex || null });
+    res.render('tests/test_visual_signal', { login });
 });
 
 app.get('/test_color_signal', async (req, res) => {
     const login = req.session.login || null;
-    const result_age_sex = await pool.query('SELECT age, sex FROM users WHERE login=$1', [req.session.login])
-    const age = result_age_sex.rows[0].age;
-    const sex = result_age_sex.rows[0].sex;
-    res.render('tests/test_color_signal', { login, age: age || null, sex: sex || null });
+    res.render('tests/test_color_signal', { login });
 });
 
 app.get('/test_digital_signal', async (req, res) => {
     const login = req.session.login || null;
-    const result_age_sex = await pool.query('SELECT age, sex FROM users WHERE login=$1', [req.session.login])
-    const age = result_age_sex.rows[0].age;
-    const sex = result_age_sex.rows[0].sex;
-    res.render('tests/test_digital_signal', { login, age: age || null, sex: sex || null });
+    res.render('tests/test_digital_signal', { login });
 });
 
 app.get('/test_simple_rdo', async (req, res) => {
     const login = req.session.login || null;
-    const result_age_sex = await pool.query('SELECT age, sex FROM users WHERE login=$1', [req.session.login])
-    const age = result_age_sex.rows[0].age;
-    const sex = result_age_sex.rows[0].sex;
-    res.render('tests/test_simple_rdo', { login, age: age || null, sex: sex || null });
+    res.render('tests/test_simple_rdo', { login });
 });
 app.get('/test_complex_rdo', async (req, res) => {
     const login = req.session.login || null;
-    const result_age_sex = await pool.query('SELECT age, sex FROM users WHERE login=$1', [req.session.login])
-    const age = result_age_sex.rows[0].age;
-    const sex = result_age_sex.rows[0].sex;
-    res.render('tests/test_complex_rdo', { login, age: age || null, sex: sex || null });
+    res.render('tests/test_complex_rdo', { login });
 });
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------

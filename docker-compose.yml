@@ -6,9 +6,9 @@ services:
     image: postgres
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "iloveopd"
-      POSTGRES_DB: creativeLabelDB
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - creativeLabel_opd_project_volume:/var/lib/postgresql/data
       - ./develop/app/db/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -26,12 +26,13 @@ services:
       - postgres
     environment:
       DB_HOST: postgres
-      DB_USER: postgres
-      DB_PASSWORD: "iloveopd"
-      DB_NAME: creativeLabelDB
-      DB_PORT: 5432
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_PORT: ${DB_PORT}
     volumes:
       - .:/app
+      - /app/node_modules
     networks:
       - internal
 

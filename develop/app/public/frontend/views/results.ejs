@@ -55,8 +55,19 @@
     (function() {
         const ctx = document.getElementById('professionChart<%= profession.id %>').getContext('2d');
         const data = professionData['<%= profession.id %>'];
-        const labels = Object.keys(data.pvks);
-        const values = Object.values(data.pvks);
+
+        // Все ПВК для каждой профессии
+        // const labels = Object.keys(data.pvks);
+        // const values = Object.values(data.pvks);
+
+        // Топ-10 ПВК для каждой профессии
+        // Сортируем ПВК по оценкам (по убыванию) и берем топ-10
+        const sortedPvks = Object.entries(data.pvks)
+            // .sort((a, b) => b[1] - a[1])
+            .slice(0, 10);
+
+        const labels = sortedPvks.map(item => item[0]);
+        const values = sortedPvks.map(item => item[1]);
 
         // Генерация цветов
         const backgroundColors = labels.map((_, i) => {
@@ -78,22 +89,37 @@
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         position: 'right',
+                        labels: {
+                            color: '#479C92',
+                            font: {
+                                size: 14,
+                                family: 'Arial, sans-serif'
+                            },
+                            padding: 10,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
                     },
                     title: {
                         display: true,
-                        text: 'Оценки ПВК для ' + data.name,
+                        text: 'Оценки для ' + data.name,
                         font: {
                             size: 16
-                        }
+                        },
+                        color:'#479C92'
                     },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return `${context.label}: ${context.raw}`;
+                                return `Оценка экспертов: ${context.raw}`; // Or pvk name `${context.label}: ${context.raw}`
                             }
+                        },
+                        bodyFont: {
+                            size: 14
                         }
                     }
                 }
