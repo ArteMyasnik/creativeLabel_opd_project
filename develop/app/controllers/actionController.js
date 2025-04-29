@@ -78,6 +78,13 @@ class ActionController {
         try {
             const { login, reactionTimes, missedSignals, testDuration } = req.body;
 
+            if (login == null) {
+                res.status(200).json({
+                    success: true,
+                    message: "Результаты теста не сохранены"
+                });
+            }
+
             const checkUser = await pool.query(
                 'SELECT COUNT(*) FROM users WHERE login = $1',
                 [login]
@@ -97,7 +104,7 @@ class ActionController {
                     [user.rows[0].id, reactionTimes, missedSignals, testDuration]
                 );
 
-                res.status(200).json({
+                res.status(201).json({
                     success: true,
                     message: 'Результаты теста успешно сохранены',
                     data: result.rows[0]
@@ -116,6 +123,13 @@ class ActionController {
         try {
             const { login, reactionTimes, correctAnswers, missedClicks, wrongClicks, testDuration } = req.body;
 
+            if (login == null) {
+                res.status(200).json({
+                    success: true,
+                    message: "Результаты теста не сохранены"
+                });
+            }
+
             const checkUser = await pool.query(
                 'SELECT COUNT(*) FROM users WHERE login = $1',
                 [login]
@@ -124,7 +138,6 @@ class ActionController {
             if (checkUser.rows[0].count === 0) {
                 res.status(404).json({message: 'Пользователь с таким логином не найден'});
             } else {
-
                 const user = await pool.query(
                     'SELECT id FROM users WHERE login = $1',
                     [login]
@@ -136,7 +149,7 @@ class ActionController {
                     [user.rows[0].id, reactionTimes, correctAnswers, missedClicks, wrongClicks, testDuration]
                 );
 
-                res.status(200).json({
+                res.status(201).json({
                     success: true,
                     message: 'Результаты теста успешно сохранены',
                     data: result.rows[0]
@@ -155,6 +168,13 @@ class ActionController {
         try {
             const { login, reactionTimes, correctAnswers, wrongAnswers, missedAttempts, testDuration } = req.body;
 
+            if (login == null) {
+                res.status(200).json({
+                    success: true,
+                    message: "Результаты теста не сохранены"
+                });
+            }
+
             const checkUser = await pool.query(
                 'SELECT COUNT(*) FROM users WHERE login = $1',
                 [login]
@@ -163,7 +183,6 @@ class ActionController {
             if (checkUser.rows[0].count === 0) {
                 res.status(404).json({message: 'Пользователь с таким логином не найден'});
             } else {
-
                 const user = await pool.query(
                     'SELECT id FROM users WHERE login = $1',
                     [login]
@@ -175,7 +194,7 @@ class ActionController {
                     [user.rows[0].id, reactionTimes, correctAnswers, wrongAnswers, missedAttempts, testDuration]
                 );
 
-                res.status(200).json({
+                res.status(201).json({
                     success: true,
                     message: 'Результаты теста успешно сохранены',
                     data: result.rows[0]
@@ -194,6 +213,13 @@ class ActionController {
         try {
             const { login, attempts, testDuration } = req.body;
 
+            if (login == null) {
+                res.status(200).json({
+                    success: true,
+                    message: "Результаты теста не сохранены"
+                });
+            }
+
             const checkUser = await pool.query(
                 'SELECT COUNT(*) FROM users WHERE login = $1',
                 [login]
@@ -202,7 +228,6 @@ class ActionController {
             if (checkUser.rows[0].count === 0) {
                 res.status(404).json({message: 'Пользователь с таким логином не найден'});
             } else {
-
                 const user = await pool.query(
                     'SELECT id FROM users WHERE login = $1',
                     [login]
@@ -220,7 +245,7 @@ class ActionController {
                     [user.rows[0].id, JSON.stringify(attempts), testDuration]
                 );
 
-                res.status(200).json({
+                res.status(201).json({
                     success: true,
                     message: 'Результаты теста успешно сохранены',
                     data: result.rows[0]
@@ -237,7 +262,14 @@ class ActionController {
 
     async testComplexRdo(req, res) {
         try {
-            const {login, circle1, circle2, circle3, overall} = req.body;
+            const { login, responses, circleSpeeds, testDuration } = req.body;
+
+            if (login == null) {
+                res.status(200).json({
+                    success: true,
+                    message: "Результаты теста не сохранены"
+                });
+            }
 
             const checkUser = await pool.query(
                 'SELECT COUNT(*) FROM users WHERE login = $1',
@@ -254,11 +286,11 @@ class ActionController {
 
                 // Сохраняем результаты теста в базу данных
                 const result = await pool.query(
-                    'INSERT INTO test_complex_rdo (user_id, circle1, circle2, circle3, overall) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-                    [user.rows[0].id, circle1, circle2, circle3, overall]
+                    'INSERT INTO test_complex_rdo (user_id, responses, circle_speeds, test_duration) VALUES ($1, $2, $3, $4) RETURNING *',
+                    [user.rows[0].id, JSON.stringify(responses), JSON.stringify(circleSpeeds), testDuration]
                 );
 
-                res.status(200).json({
+                res.status(201).json({
                     success: true,
                     message: 'Результаты теста успешно сохранены',
                     data: result.rows[0]

@@ -136,14 +136,12 @@ CREATE TABLE test_simple_rdo
 -- Создание таблицы test_pvk (Связь тестов и PVK)
 CREATE TABLE test_complex_rdo
 (
-    id         SERIAL PRIMARY KEY,
-    user_id    INTEGER REFERENCES users (id) ON DELETE CASCADE,
-    circle1    JSONB NOT NULL,
-    circle2    JSONB NOT NULL,
-    circle3    JSONB NOT NULL,
-    overall    JSONB NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    test_id    INTEGER REFERENCES tests (id) ON DELETE CASCADE
+    id            SERIAL PRIMARY KEY,
+    user_id       INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    responses     JSONB    NOT NULL,
+    circle_speeds JSONB    NOT NULL,
+    test_duration SMALLINT NOT NULL CHECK (test_duration > 0),
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Создание таблицы test_user (Связь пользователей и тестов)
