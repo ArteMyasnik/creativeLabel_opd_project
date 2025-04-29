@@ -192,7 +192,7 @@ class ActionController {
 
     async testSimpleRdo(req, res) {
         try {
-            const {login, avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned} = req.body;
+            const { login, attempts, testDuration } = req.body;
 
             const checkUser = await pool.query(
                 'SELECT COUNT(*) FROM users WHERE login = $1',
@@ -208,10 +208,16 @@ class ActionController {
                     [login]
                 )
 
+                // Если необходимо вычисляем все показатели на сервере
+                // const signedErrors = attempts.map(a => a.signedError);
+                // const absErrors = attempts.map(a => a.absoluteError);
+                // const premature = signedErrors.filter(e => e > 0);
+                // const delayed = signedErrors.filter(e => e < 0);
+
                 // Сохраняем результаты теста в базу данных
                 const result = await pool.query(
-                    'INSERT INTO test_simple_rdo (user_id, avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-                    [user.rows[0].id, avgPremature, avgDelayed, avgAbsolute, signResponse, stdAbs, stdSigned]
+                    'INSERT INTO test_simple_rdo (user_id, attempts, test_duration) VALUES ($1, $2, $3) RETURNING *',
+                    [user.rows[0].id, JSON.stringify(attempts), testDuration]
                 );
 
                 res.status(200).json({

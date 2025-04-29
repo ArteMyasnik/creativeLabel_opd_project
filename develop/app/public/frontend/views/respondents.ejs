@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список респондентов нашего сайта</title>
+    <link rel="stylesheet" href="../../Styles/piqStyles.css" />
+</head>
+<body>
+<div class="button-container">
+    <div class="left-button">
+        <button onclick="window.location.href='/main'">Главная страница</button>
+    </div>
+</div>
+
+<div class="content">
+    <h1>Список респондентов нашего сайта</h1>
+    <div class="content">
+        <ul class="simple-list">
+            <% respondents.forEach(function(respondent) { %>
+                <li>
+                    <strong><%= respondent.login %></strong><br>
+                </li>
+            <% }); %>
+        </ul>
+    </div>
+</div>
+</body>
+</html>

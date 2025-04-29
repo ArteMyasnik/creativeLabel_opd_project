@@ -118,7 +118,7 @@ CREATE TABLE test_digital_signal
     reaction_times  INTEGER[] NOT NULL,
     correct_answers INTEGER   NOT NULL CHECK ( correct_answers >= 0 ),
     wrong_answers   INTEGER   NOT NULL CHECK ( wrong_answers >= 0 ),
-    missed_attempts    INTEGER   NOT NULL CHECK ( missed_attempts >= 0 ),
+    missed_attempts INTEGER   NOT NULL CHECK ( missed_attempts >= 0 ),
     test_duration   SMALLINT  NOT NULL CHECK ( test_duration > 0 ),
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -126,17 +126,11 @@ CREATE TABLE test_digital_signal
 -- Создание таблицы pvks (Профессионально-важные качества)
 CREATE TABLE test_simple_rdo
 (
-    id           SERIAL PRIMARY KEY,
-    user_id      INTEGER REFERENCES users (id) ON DELETE CASCADE,
-    avgPremature NUMERIC(10, 2) NOT NULL,
-    avgDelayed   NUMERIC(10, 2) NOT NULL,
-    avgAbsolute  NUMERIC(10, 2) NOT NULL,
-    signResponse CHAR(1)        NOT NULL,
-    stdAbs       NUMERIC(10, 2) NOT NULL,
-    stdSigned    NUMERIC(10, 2) NOT NULL,
-    CONSTRAINT chk_sign_response CHECK (signResponse IN ('+', '-', '0')),
-    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    test_id      INTEGER REFERENCES tests (id) ON DELETE CASCADE
+    id            SERIAL PRIMARY KEY,
+    user_id       INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    attempts      JSONB    NOT NULL,
+    test_duration SMALLINT NOT NULL CHECK ( test_duration > 0 ),
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Создание таблицы test_pvk (Связь тестов и PVK)

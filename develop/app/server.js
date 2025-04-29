@@ -207,6 +207,18 @@ app.get('/pvk', async (req, res) => {
     }
 });
 
+app.get('/respondents', async (req, res) => {
+    try {
+        const query = 'SELECT users.login\nFROM users\nLEFT OUTER JOIN test_visual_signal ON test_visual_signal.user_id = users.id\nLEFT OUTER JOIN test_color_signal ON test_color_signal.user_id = users.id\nLEFT OUTER JOIN test_digital_signal ON test_digital_signal.user_id = users.id\nLEFT OUTER JOIN test_simple_rdo ON test_simple_rdo.user_id = users.id\nLEFT OUTER JOIN test_complex_rdo ON test_complex_rdo.user_id = users.id\nWHERE test_visual_signal.user_id IS NOT NULL\nOR test_color_signal.user_id IS NOT NULL\nOR test_digital_signal.user_id IS NOT NULL\nOR test_simple_rdo.user_id IS NOT NULL\nOR test_complex_rdo.user_id IS NOT NULL'
+        const result = await pool.query(query);
+        const respondents = result.rows;
+        res.render('respondents', { respondents: respondents });
+    } catch (err) {
+        console.error('Ошибка при выполнении запроса:', err);
+        res.status(500).send('Ошибка сервера');
+    }
+});
+
 app.get('/experts', async (req, res) => {
     try {
         const users = await pool.query('SELECT * FROM users');
@@ -318,7 +330,6 @@ app.get('/results', async (req, res) => {
             
             // Преобразуем в массив пар [key, value] для сортировки
             const entries = Object.entries(grades[professionName]);
-            console.log("До сортировки:", grades[professionName]);
         
             // Сортируем: сначала по variance (по возрастанию), затем по mean (по убыванию)
             entries.sort((a, b) => {
@@ -332,8 +343,7 @@ app.get('/results', async (req, res) => {
                 // Если variance равны, сравниваем mean
                 return bValue.mean - aValue.mean; // по убыванию
             });
-        
-            console.log("После сортировки (массив entries):", entries);
+
         
             // Восстанавливаем объект из отсортированного массива
             const sortedObject = {};
@@ -346,7 +356,6 @@ app.get('/results', async (req, res) => {
         }
         
         const professionsResult = await pool.query('SELECT * FROM professions ORDER BY id');
-        console.log("Итоговый grades:", grades);
 
         res.render('results', {
             grades: grades,
