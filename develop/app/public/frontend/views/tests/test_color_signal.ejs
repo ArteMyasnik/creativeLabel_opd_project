@@ -269,8 +269,11 @@
                 if (data.success === true) {
                     console.log(data.message);
                 } else {
-                    console.error('Ошибка при сохранении результатов:', data.message);
-                    alert('Ошибка при сохранении результатов.');
+                    if (data.message === 'Пользователь не зарегистрирован, результаты не сохраняются') {
+                        console.log('Пользователь не зарегистрирован, результаты не сохраняются')
+                    } else {
+                        console.error('Ошибка при сохранении результатов:', data.message);
+                    }
                 }
             })
             .catch(error => {
