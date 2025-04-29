@@ -100,15 +100,14 @@ CREATE TABLE test_visual_signal
 -- Создание таблицы test_simple_rdo
 CREATE TABLE test_color_signal
 (
-    id                    SERIAL PRIMARY KEY,
-    user_id               INTEGER        NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    average_reaction_time NUMERIC(10, 2) NOT NULL,
-    standard_deviation    NUMERIC(10, 2) NOT NULL,
-    correct_answers       INTEGER        NOT NULL,
-    missed_clicks         INTEGER        NOT NULL,
-    wrong_clicks          INTEGER        NOT NULL,
-    created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    test_id               INTEGER REFERENCES tests (id) ON DELETE CASCADE
+    id              SERIAL PRIMARY KEY,
+    user_id         INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    reaction_times  INTEGER[] NOT NULL,
+    correct_answers INTEGER   NOT NULL CHECK ( correct_answers >= 0 ),
+    missed_clicks   INTEGER   NOT NULL CHECK ( missed_clicks >= 0 ),
+    wrong_clicks    INTEGER   NOT NULL CHECK ( wrong_clicks >= 0 ),
+    test_duration   SMALLINT  NOT NULL CHECK ( test_duration > 0 ),
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Создание таблицы test_complex_rdo

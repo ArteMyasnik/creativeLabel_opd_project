@@ -1,100 +1,111 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Тест на сенсомоторную реакцию</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест на сенсомоторную реакцию</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
-    body {
-      font-family: Montserrat;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      background-color: black;
-      color: white;
-    }
-    .signal {
-      width: 200px;
-      height: 200px;
-      border-radius: 50%;
-      margin-bottom: 20px;
-    }
-    .buttons {
-      display: flex;
-      gap: 20px;
-    }
-    .button {
-      width: 100px;
-      height: 50px;
-      background-color: #479C92;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-family: Montserrat;
-      opacity: 0.96;
-      cursor: pointer;
-    }
-    .button.disabled {
-      opacity: 0.5;
-      pointer-events: none;
-    }
-    /* Блок с результатами — изначально скрыт и без белого фона */
-    #results {
-      margin-top: 20px;
-      display: none;
-      padding: 20px;
-      border-radius: 10px;
-      width: 300px;
-      text-align: center;
-      background-color: black;
-      color: white;
-    }
-    h1 {
-      color: white;
-      font-family: 'Montserrat', Arial, sans-serif;
-    }
-    #startButton {
-      margin-top: 20px;
-      background-color: #479C92;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 10px 20px;
-      font-family: 'Montserrat', Arial, sans-serif;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    #startButton.disabled {
-      opacity: 0.5;
-      pointer-events: none;
-    }
-    /* Кнопки выбора времени */
-    .time-buttons {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .time-button {
-      width: 80px;
-      height: 40px;
-      background-color: #479C92;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-family: Montserrat;
-      cursor: pointer;
-    }
-    .time-button.disabled {
-      opacity: 0.5;
-      pointer-events: none;
-    }
-  </style>
+        body {
+            font-family: Montserrat;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: black;
+            color: white;
+        }
+
+        .signal {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .button {
+            width: 100px;
+            height: 50px;
+            background-color: #479C92;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: Montserrat;
+            opacity: 0.96;
+            cursor: pointer;
+        }
+
+        .button.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Блок с результатами — изначально скрыт и без белого фона */
+        #results {
+            margin-top: 20px;
+            display: none;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+            background-color: black;
+            color: white;
+        }
+
+        h1 {
+            color: white;
+            font-family: 'Montserrat', Arial, sans-serif;
+        }
+
+        #startButton {
+            margin-top: 20px;
+            background-color: #479C92;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-family: 'Montserrat', Arial, sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #startButton.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Кнопки выбора времени */
+        .time-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .time-button {
+            width: 80px;
+            height: 40px;
+            background-color: #479C92;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: Montserrat;
+            cursor: pointer;
+        }
+
+        .time-button.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    </style>
 </head>
 <body>
 <h1>Тест на сенсомоторную реакцию</h1>
@@ -102,16 +113,16 @@
 
 <!-- Кнопки выбора времени теста -->
 <div class="time-buttons">
-  <button class="time-button" onclick="setTestDuration(30, this)">30 сек</button>
-  <button class="time-button" onclick="setTestDuration(60, this)">1 мин</button>
-  <button class="time-button" onclick="setTestDuration(120, this)">2 мин</button>
+    <button class="time-button" onclick="setTestDuration(30, this)">30 сек</button>
+    <button class="time-button" onclick="setTestDuration(60, this)">1 мин</button>
+    <button class="time-button" onclick="setTestDuration(120, this)">2 мин</button>
 </div>
 
 <!-- Кнопки для выбора цвета -->
 <div class="buttons">
-  <button class="button red disabled">Красный</button>
-  <button class="button blue disabled">Синий</button>
-  <button class="button green disabled">Зеленый</button>
+    <button class="button red disabled">Красный</button>
+    <button class="button blue disabled">Синий</button>
+    <button class="button green disabled">Зеленый</button>
 </div>
 
 <!-- Кнопка старта -->
@@ -121,111 +132,148 @@
 <div id="results"></div>
 
 <script>
-  const colors = ['red', 'blue', 'green'];
-  let currentColor = '';
-  let startTime = 0;
-  let reactionTimes = [];
-  let correctAnswers = 0;
-  let missedClicks = 0;
-  let wrongClicks = 0;
-  let testTimeout, signalTimeout;
-  let testDuration = 30; // По умолчанию 30 секунд
+    const colors = ['red', 'blue', 'green'];
+    let currentColor = '';
+    let startTime = 0;
+    let reactionTimes = [];
+    let correctAnswers = 0;
+    let missedClicks = 0;
+    let wrongClicks = 0;
+    let testTimeout, signalTimeout;
+    let testDuration = 30; // По умолчанию 30 секунд
 
-  function setTestDuration(seconds, button) {
-    testDuration = seconds;
-    const timeButtons = document.querySelectorAll('.time-button');
-    timeButtons.forEach(btn => btn.classList.remove('disabled'));
-    button.classList.add('disabled');
-  }
-
-  function startSignal() {
-    const signalElement = document.getElementById('signal');
-    // Выбираем случайный цвет
-    currentColor = colors[Math.floor(Math.random() * colors.length)];
-    signalElement.style.backgroundColor = currentColor;
-    startTime = Date.now();
-
-    // Если за 5 секунд не нажали - считаем пропуск
-    signalTimeout = setTimeout(() => {
-      missedClicks++;
-      signalElement.style.backgroundColor = 'transparent';
-      startSignal();
-    }, 5000);
-  }
-
-  function checkAnswer(answer) {
-    clearTimeout(signalTimeout);
-    const reactionTime = Date.now() - startTime;
-
-    if (answer === currentColor) {
-      correctAnswers++;
-      reactionTimes.push(reactionTime);
-    } else {
-      wrongClicks++;
-    }
-    // Сбрасываем сигнал и запускаем следующий
-    document.getElementById('signal').style.backgroundColor = 'transparent';
-    startSignal();
-  }
-
-  function showResults() {
-    let averageReactionTime = 0, standardDeviation = 0;
-    if (reactionTimes.length > 0) {
-      averageReactionTime = reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length;
-      const variance = reactionTimes
-              .map(x => Math.pow(x - averageReactionTime, 2))
-              .reduce((a, b) => a + b, 0) / reactionTimes.length;
-      standardDeviation = Math.sqrt(variance);
+    function setTestDuration(seconds, button) {
+        testDuration = seconds;
+        const timeButtons = document.querySelectorAll('.time-button');
+        timeButtons.forEach(btn => btn.classList.remove('disabled'));
+        button.classList.add('disabled');
     }
 
-    const resultsDiv = document.getElementById('results');
-    resultsDiv.innerHTML = `
+    function startSignal() {
+        const signalElement = document.getElementById('signal');
+        // Выбираем случайный цвет
+        currentColor = colors[Math.floor(Math.random() * colors.length)];
+        signalElement.style.backgroundColor = currentColor;
+        startTime = Date.now();
+
+        // Если за 5 секунд не нажали - считаем пропуск
+        signalTimeout = setTimeout(() => {
+            missedClicks++;
+            signalElement.style.backgroundColor = 'transparent';
+            startSignal();
+        }, 5000);
+    }
+
+    function checkAnswer(answer) {
+        clearTimeout(signalTimeout);
+        const reactionTime = Date.now() - startTime;
+
+        if (answer === currentColor) {
+            correctAnswers++;
+            reactionTimes.push(reactionTime);
+        } else {
+            wrongClicks++;
+        }
+        // Сбрасываем сигнал и запускаем следующий
+        document.getElementById('signal').style.backgroundColor = 'transparent';
+        startSignal();
+    }
+
+    function showResults() {
+        let averageReactionTime = 0, standardDeviation = 0;
+        if (reactionTimes.length > 0) {
+            averageReactionTime = reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length;
+            const variance = reactionTimes
+                .map(x => Math.pow(x - averageReactionTime, 2))
+                .reduce((a, b) => a + b, 0) / reactionTimes.length;
+            standardDeviation = Math.sqrt(variance);
+        }
+
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = `
         <p>Среднее время реакции: ${averageReactionTime.toFixed(2)} мс</p>
         <p>Стандартное отклонение: ${standardDeviation.toFixed(2)} мс</p>
         <p>Точность ответов: ${correctAnswers}</p>
         <p>Количество пропусков: ${missedClicks}</p>
         <p>Количество ошибок: ${wrongClicks}</p>
       `;
-    resultsDiv.style.display = 'block';
-  }
+        resultsDiv.style.display = 'block';
 
-  function finishTest() {
-    clearTimeout(testTimeout);
-    clearTimeout(signalTimeout);
-    showResults();
-    resetTest();
-  }
+        // Подготовка минимальных данных для отправки на сервер
+        const testResults = {
+            login: "<%= login %>",
+            reactionTimes: reactionTimes, // Все времена реакций (можно рассчитать среднее и отклонение)
+            correctAnswers: correctAnswers, // Количество правильных ответов
+            missedClicks: missedClicks,    // Количество пропущенных сигналов
+            wrongClicks: wrongClicks,     // Количество неправильных ответов
+            testDuration: testDuration    // Длительность теста в секундах
+        };
 
-  function resetTest() {
-    document.getElementById('startButton').disabled = false;
-    reactionTimes = [];
-    correctAnswers = 0;
-    missedClicks = 0;
-    wrongClicks = 0;
-    document.getElementById('signal').style.backgroundColor = 'transparent';
+        // Отправка результатов на сервер
+        sendResultsToServer(testResults);
+    }
 
-    const colorButtons = document.querySelectorAll('.button');
-    colorButtons.forEach(button => button.classList.add('disabled'));
-  }
+    // Функция для отправки результатов на сервер
+    function sendResultsToServer(results) {
+        fetch('http://localhost:3000/api/test_color_signal', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(results),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success === true) {
+                    console.log(data.message);
+                } else {
+                    console.error('Ошибка при сохранении результатов:', data.message);
+                    alert('Ошибка при сохранении результатов.');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при отправке результатов.');
+            });
+    }
 
-  function startTest() {
-    resetTest();
-    document.getElementById('startButton').disabled = true;
-    const colorButtons = document.querySelectorAll('.button');
-    colorButtons.forEach(button => {
-      button.classList.remove('disabled');
-      // Чтобы избежать повторного навешивания, удаляем предыдущий обработчик
-      button.onclick = function() {
-        // Передаем первый класс как идентификатор цвета (red, blue, green)
-        const btnClasses = this.className.split(' ');
-        // Предполагаем, что нужный класс находится в btnClasses[1]
-        checkAnswer(btnClasses[1]);
-      }
-    });
+    function finishTest() {
+        clearTimeout(testTimeout);
+        clearTimeout(signalTimeout);
+        showResults();
+        resetTest();
+    }
 
-    startSignal();
-    testTimeout = setTimeout(finishTest, testDuration * 1000);
-  }
+    function resetTest() {
+        document.getElementById('startButton').disabled = false;
+        reactionTimes = [];
+        correctAnswers = 0;
+        missedClicks = 0;
+        wrongClicks = 0;
+        document.getElementById('signal').style.backgroundColor = 'transparent';
+
+        const colorButtons = document.querySelectorAll('.button');
+        colorButtons.forEach(button => button.classList.add('disabled'));
+    }
+
+    function startTest() {
+        resetTest();
+        document.getElementById('startButton').disabled = true;
+        const colorButtons = document.querySelectorAll('.button');
+        colorButtons.forEach(button => {
+            button.classList.remove('disabled');
+            // Чтобы избежать повторного навешивания, удаляем предыдущий обработчик
+            button.onclick = function () {
+                // Передаем первый класс как идентификатор цвета (red, blue, green)
+                const btnClasses = this.className.split(' ');
+                // Предполагаем, что нужный класс находится в btnClasses[1]
+                checkAnswer(btnClasses[1]);
+            }
+        });
+
+        startSignal();
+        testTimeout = setTimeout(finishTest, testDuration * 1000);
+    }
 </script>
 </body>
 </html>

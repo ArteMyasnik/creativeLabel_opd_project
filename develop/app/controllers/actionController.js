@@ -114,7 +114,7 @@ class ActionController {
 
     async testColorSignal(req, res) {
         try {
-            const { login, average_reaction_time, standard_deviation, correct_answers, missed_clicks, wrong_clicks } = req.body;
+            const { login, reactionTimes, correctAnswers, missedClicks, wrongClicks, testDuration } = req.body;
 
             const checkUser = await pool.query(
                 'SELECT COUNT(*) FROM users WHERE login = $1',
@@ -132,8 +132,8 @@ class ActionController {
 
                 // Сохраняем результаты теста в базу данных
                 const result = await pool.query(
-                    'INSERT INTO test_color_signal (user_id, average_reaction_time, standard_deviation, correct_answers, missed_clicks, wrong_clicks) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-                    [user.rows[0].id, average_reaction_time, standard_deviation, correct_answers, missed_clicks, wrong_clicks]
+                    'INSERT INTO test_color_signal (user_id, reaction_times, correct_answers, missed_clicks, wrong_clicks, test_duration) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+                    [user.rows[0].id, reactionTimes, correctAnswers, missedClicks, wrongClicks, testDuration]
                 );
 
                 res.status(200).json({
