@@ -37,6 +37,33 @@
             pointer-events: none;
         }
 
+        /* Стили для кнопки "Главная страница" */
+        .top-button-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .main-page-btn {
+            padding: 0.7rem 2rem;
+            font-size: 17px;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            border: none;
+            border-radius: 20px;
+            background-color: #479C92;
+            color: white;
+            transition: background-color 0.3s ease;
+            margin: 0.5rem;
+        }
+
+        .main-page-btn:hover {
+            background-color: #2d5e58;
+        }
+
         /* Новая секция для кнопок выбора длительности */
         #durationButtons {
             margin-bottom: 20px;
@@ -175,10 +202,9 @@
     </style>
 </head>
 <body>
-<div class="button-container">
-    <div class="left-button">
-        <button onclick="window.location.href='/main'">Главная страница</button>
-    </div>
+<!-- Кнопка "Главная страница" в левом верхнем углу -->
+<div class="top-button-container">
+    <button class="main-page-btn" onclick="window.location.href='/main'">Главная страница</button>
 </div>
 
 <!-- Новая секция для кнопок выбора длительности -->

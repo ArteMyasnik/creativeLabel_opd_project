@@ -13,7 +13,41 @@
             background-color: black;
             font-family: Montserrat;
             color: white;
+            margin: 0;
+            padding: 0;
         }
+
+        .button-container {
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 5px;
+            background-repeat: no-repeat;
+            font-size: 0;
+        }
+
+        .button-container button {
+            margin: 0.5rem 0.5rem;
+            padding: 0.7rem 2rem;
+            font-size: 17px;
+            font-family: Montserrat;
+            cursor: pointer;
+            border: none;
+            border-radius: 20px;
+            background-color: #479C92;
+            color: white;
+        }
+
+        .button-container button:hover {
+            background-color: #2d5e58;
+            transition: all 0.3s ease;
+        }
+
+        .left-button {
+            margin-right: auto;
+        }
+
         /* Новая секция для кнопок выбора длительности */
         #durationButtons {
             margin-bottom: 20px;

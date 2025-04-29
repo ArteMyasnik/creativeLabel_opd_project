@@ -7,6 +7,39 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
+        /* Стили для кнопки "Главная страница" */
+        .button-container {
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 5px;
+            background-repeat: no-repeat;
+            font-size: 0;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .button-container button {
+            margin: 0.5rem 0.5rem;
+            padding: 0.7rem 2rem;
+            font-size: 17px;
+            font-family: Montserrat;
+            cursor: pointer;
+            border: none;
+            border-radius: 20px;
+            background-color: #479C92;
+            color: white;
+        }
+        .button-container button:hover {
+            background-color: #2d5e58;
+            transition: all 0.3s ease;
+        }
+        .left-button {
+            margin-right: auto;
+        }
+
         body {
             font-family: Montserrat;
             display: flex;
@@ -17,6 +50,8 @@
             margin: 0;
             background-color: black;
             color: white;
+            position: relative;
+            padding-top: 60px; /* Добавляем отступ сверху для кнопки */
         }
 
         .signal {
@@ -63,6 +98,7 @@
         h1 {
             color: white;
             font-family: 'Montserrat', Arial, sans-serif;
+            margin-top: 20px;
         }
 
         #startButton {
