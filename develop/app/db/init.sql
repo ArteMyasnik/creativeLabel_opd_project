@@ -50,7 +50,7 @@ CREATE TABLE profession_pvk
     UNIQUE (profession_id, pvk_id, user_id)
 );
 
-CREATE TABLE expert_professtion_tests
+CREATE TABLE expert_profession_tests
 (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users (id) ON DELETE CASCADE,
