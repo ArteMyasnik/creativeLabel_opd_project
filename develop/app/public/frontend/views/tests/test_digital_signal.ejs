@@ -232,6 +232,44 @@
                 <p>Точность: ${accuracy.toFixed(1)}%</p>
             `;
         resultsElement.style.display = 'block';
+
+        // Собираем только минимально необходимые данные для отправки
+        const testResults = {
+            login: "<%= login %>",  // или другой способ получения логина
+            reactionTimes: reactionTimes,  // все времена реакций (можно вычислить среднее и отклонение)
+            correctAnswers: correctAnswers,  // правильные ответы
+            wrongAnswers: wrongAnswers,  // неправильные ответы
+            missedAttempts: missedAttempts,  // пропущенные попытки
+            testDuration: testDuration  // длительность теста в секундах
+        };
+
+        // Отправляем результаты на сервер
+        sendResultsToServer(testResults);
+    }
+
+    // Функция для отправки результатов на сервер
+    function sendResultsToServer(results) {
+        // Замените URL на ваш реальный endpoint сервера
+        fetch('http://localhost:3000/api/test_digital_signal', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(results),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success === true) {
+                    console.log(data.message);
+                } else {
+                    console.error('Ошибка при сохранении результатов:', data.message);
+                    alert('Ошибка при сохранении результатов.');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при отправке результатов.');
+            });
     }
 
     startBtn.addEventListener('click', startTest);

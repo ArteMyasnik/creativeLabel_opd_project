@@ -153,7 +153,7 @@ class ActionController {
 
     async testDigitalSignal(req, res) {
         try {
-            const { login, reactionTimes, missedSignals, testDuration, timestamp } = req.body;
+            const { login, reactionTimes, correctAnswers, wrongAnswers, missedAttempts, testDuration } = req.body;
 
             const checkUser = await pool.query(
                 'SELECT COUNT(*) FROM users WHERE login = $1',
@@ -171,8 +171,8 @@ class ActionController {
 
                 // Сохраняем результаты теста в базу данных
                 const result = await pool.query(
-                    'INSERT INTO test_digital_signal (user_id, average_reaction_time, standard_deviation, correct_answers, wrong_answers, missed_attempts, accuracy) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-                    [user.rows[0].id, average_reaction_time, standard_deviation, correct_answers, wrong_answers, missed_attempts, accuracy]
+                    'INSERT INTO test_digital_signal (user_id, reaction_times, correct_answers, wrong_answers, missed_attempts, test_duration) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+                    [user.rows[0].id, reactionTimes, correctAnswers, wrongAnswers, missedAttempts, testDuration]
                 );
 
                 res.status(200).json({

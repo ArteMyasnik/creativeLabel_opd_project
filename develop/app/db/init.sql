@@ -113,16 +113,14 @@ CREATE TABLE test_color_signal
 -- Создание таблицы test_complex_rdo
 CREATE TABLE test_digital_signal
 (
-    id                    SERIAL PRIMARY KEY,
-    user_id               INTEGER REFERENCES users (id) ON DELETE CASCADE,
-    average_reaction_time DOUBLE PRECISION NOT NULL CHECK (average_reaction_time >= 0),
-    standard_deviation    DOUBLE PRECISION NOT NULL CHECK (standard_deviation >= 0),
-    correct_answers       INTEGER          NOT NULL CHECK (correct_answers >= 0),
-    wrong_answers         INTEGER          NOT NULL CHECK (wrong_answers >= 0),
-    missed_attempts       INTEGER          NOT NULL CHECK (missed_attempts >= 0),
-    accuracy              DOUBLE PRECISION NOT NULL CHECK (accuracy >= 0 AND accuracy <= 100),
-    created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    test_id               INTEGER REFERENCES tests (id) ON DELETE CASCADE
+    id              SERIAL PRIMARY KEY,
+    user_id         INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    reaction_times  INTEGER[] NOT NULL,
+    correct_answers INTEGER   NOT NULL CHECK ( correct_answers >= 0 ),
+    wrong_answers   INTEGER   NOT NULL CHECK ( wrong_answers >= 0 ),
+    missed_attempts    INTEGER   NOT NULL CHECK ( missed_attempts >= 0 ),
+    test_duration   SMALLINT  NOT NULL CHECK ( test_duration > 0 ),
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Создание таблицы pvks (Профессионально-важные качества)
