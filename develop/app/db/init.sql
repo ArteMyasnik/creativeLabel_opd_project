@@ -50,20 +50,20 @@ CREATE TABLE profession_pvk
     UNIQUE (profession_id, pvk_id, user_id)
 );
 
-CREATE TABLE expert_profession_tests
-(
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users (id) ON DELETE CASCADE,
-    profession_id INTEGER REFERENCES professions (id) ON DELETE CASCADE,
-    tests INTEGER[], CONSTRAINT valid_test_ids CHECK (
-        (array_length(tests, 1) > 0 AND -- если массив не пустой
-         NOT EXISTS (
-             SELECT 1 
-             FROM unnest(tests) AS t
-             WHERE NOT EXISTS (SELECT 1 FROM tests WHERE id = t)
-         ))
-    )
-);
+-- CREATE TABLE expert_profession_tests
+-- (
+--     id SERIAL PRIMARY KEY,
+--     user_id INTEGER REFERENCES users (id) ON DELETE CASCADE,
+--     profession_id INTEGER REFERENCES professions (id) ON DELETE CASCADE,
+--     tests INTEGER[], CONSTRAINT valid_test_ids CHECK (
+--         (array_length(tests, 1) > 0 AND -- если массив не пустой
+--          NOT EXISTS (
+--              SELECT 1
+--              FROM unnest(tests) AS t
+--              WHERE NOT EXISTS (SELECT 1 FROM tests WHERE id = t)
+--          ))
+--     )
+-- );
 
 -- Создание таблицы test_visual_signal
 CREATE TABLE personality

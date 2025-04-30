@@ -219,6 +219,11 @@ app.get('/respondents', async (req, res) => {
     }
 });
 
+app.get('/stats', async (req, res) => {
+    const login = req.session.login || null;
+    res.render('stats', { login });
+});
+
 app.get('/experts', async (req, res) => {
     try {
         const users = await pool.query('SELECT * FROM users');
@@ -371,7 +376,7 @@ app.get('/results', async (req, res) => {
 // -----------------------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------------------
-// Pages HTML tests ------------------------------------------------------------------------
+// Views EJS tests ------------------------------------------------------------------------
 app.get('/test_visual_signal', async (req, res) => {
     const login = req.session.login || null;
     res.render('tests/test_visual_signal', { login });
@@ -395,6 +400,185 @@ app.get('/test_complex_rdo', async (req, res) => {
     const login = req.session.login || null;
     res.render('tests/test_complex_rdo', { login });
 });
+// -----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------------------
+// Views EJS stats ------------------------------------------------------------------------
+app.get('/stats_test_visual_signal/:login', async (req, res) => {
+    const { login } = req.params;
+    try {
+        // 1. Получаем данные пользователя
+        const user = await pool.query('SELECT id FROM users WHERE login = $1', [login]);
+
+        if (user.rows.length === 0) {
+            return res.status(404).send('Пользователь не найден');
+        }
+
+        const userId = user.rows[0].id;
+
+        // 2. Получаем все попытки пользователя для этого теста
+        const result = await pool.query(
+            `SELECT reaction_times, missed_signals
+             FROM test_visual_signal
+             WHERE user_id = $1
+             ORDER BY created_at ASC`,
+            [userId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.render('tests/stats/stats_test_visual_signal', {
+                login,
+                noData: true
+            });
+        }
+
+        // 3. Собираем все попытки в один массив
+        let allAttempts = [];
+        let totalMissed = 0;
+        let attemptCounter = 1;
+
+        result.rows.forEach(test => {
+            test.reaction_times.forEach(time => {
+                allAttempts.push({
+                    attemptNumber: attemptCounter++,
+                    time: time
+                });
+            });
+            totalMissed += test.missed_signals;
+        });
+
+        // 4. Рассчитываем статистику
+        const totalAttempts = allAttempts.length;
+        const accurateAttempts = totalAttempts - totalMissed;
+        const accuracy = (accurateAttempts / totalAttempts * 100).toFixed(1);
+        const avgReaction = (allAttempts.reduce((sum, a) => sum + a.time, 0) / totalAttempts).toFixed(1);
+
+        res.render('tests/stats/stats_test_visual_signal', {
+            login,
+            noData: false,
+            stats: {
+                totalAttempts,
+                avgReaction,
+                accuracy,
+                bestReaction: Math.min(...allAttempts.map(a => a.time)),
+                worstReaction: Math.max(...allAttempts.map(a => a.time))
+            },
+            chartData: {
+                attempts: allAttempts.map(a => a.attemptNumber),
+                reactionTimes: allAttempts.map(a => a.time)
+            }
+        });
+
+    } catch (err) {
+        console.error('Ошибка при получении статистики:', err);
+        res.status(500).send('Ошибка сервера');
+    }
+});
+
+// app.get('/stats_test_color_signal/:login', async (req, res) => {
+//     const { login } = req.params;
+//     try {
+//         // Получение данных пользователя из базы данных
+//         const user = await pool.query('SELECT * FROM users WHERE login = $1', [login]);
+//
+//         if (user.rows.length === 0) {
+//             return res.status(404).send('Пользователь не найден');
+//         }
+//
+//         const userId = user.rows[0].id;
+//
+//         res.render('tests/stats/stats_test_color_signal', { login });
+//         // Передача данных в шаблон
+//         res.render('profile', {
+//             login: user.rows[0].login,
+//             email: user.rows[0].email,
+//             sex: user.rows[0].sex,
+//             age: user.rows[0].age
+//         });
+//     } catch (err) {
+//         console.error('Ошибка при получении данных пользователя:', err);
+//         res.status(500).send('Ошибка сервера');
+//     }
+// });
+//
+// app.get('/stats_test_digital_signal/:login', async (req, res) => {
+//     const { login } = req.params;
+//     try {
+//         // Получение данных пользователя из базы данных
+//         const user = await pool.query('SELECT * FROM users WHERE login = $1', [login]);
+//
+//         if (user.rows.length === 0) {
+//             return res.status(404).send('Пользователь не найден');
+//         }
+//
+//         const userId = user.rows[0].id;
+//
+//         res.render('tests/stats/stats_test_digital_signal', { login });
+//         // Передача данных в шаблон
+//         res.render('profile', {
+//             login: user.rows[0].login,
+//             email: user.rows[0].email,
+//             sex: user.rows[0].sex,
+//             age: user.rows[0].age
+//         });
+//     } catch (err) {
+//         console.error('Ошибка при получении данных пользователя:', err);
+//         res.status(500).send('Ошибка сервера');
+//     }
+// });
+//
+// app.get('/stats_test_simple_rdo/:login', async (req, res) => {
+//     const { login } = req.params;
+//     try {
+//         // Получение данных пользователя из базы данных
+//         const user = await pool.query('SELECT * FROM users WHERE login = $1', [login]);
+//
+//         if (user.rows.length === 0) {
+//             return res.status(404).send('Пользователь не найден');
+//         }
+//
+//         const userId = user.rows[0].id;
+//
+//         res.render('tests/stats/stats_test_simple_rdo', { login });
+//         // Передача данных в шаблон
+//         res.render('profile', {
+//             login: user.rows[0].login,
+//             email: user.rows[0].email,
+//             sex: user.rows[0].sex,
+//             age: user.rows[0].age
+//         });
+//     } catch (err) {
+//         console.error('Ошибка при получении данных пользователя:', err);
+//         res.status(500).send('Ошибка сервера');
+//     }
+// });
+// app.get('/stats_test_complex_rdo/:login', async (req, res) => {
+//     const { login } = req.params;
+//     try {
+//         // Получение данных пользователя из базы данных
+//         const user = await pool.query('SELECT * FROM users WHERE login = $1', [login]);
+//
+//         if (user.rows.length === 0) {
+//             return res.status(404).send('Пользователь не найден');
+//         }
+//
+//         const userId = user.rows[0].id;
+//
+//         res.render('tests/stats/stats_test_complex_rdo', { login });
+//         // Передача данных в шаблон
+//         res.render('profile', {
+//             login: user.rows[0].login,
+//             email: user.rows[0].email,
+//             sex: user.rows[0].sex,
+//             age: user.rows[0].age
+//         });
+//     } catch (err) {
+//         console.error('Ошибка при получении данных пользователя:', err);
+//         res.status(500).send('Ошибка сервера');
+//     }
+// });
+
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------
 

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Статистика реакции - <%= login %></title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin: 25px 0;
+            gap: 15px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            min-width: 180px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-top: 4px solid #4CAF50;
+        }
+        .stat-value {
+            font-size: 26px;
+            font-weight: bold;
+            margin: 8px 0;
+            color: #2c3e50;
+        }
+        .chart-container {
+            height: 500px;
+            margin: 30px 0;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        .chart-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .chart-btn {
+            padding: 8px 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 18px;
+        }
+        .empty-chart-message {
+            text-align: center;
+            color: #666;
+            font-size: 18px;
+            padding: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Статистика теста реакции: <%= login %></h1>
+
+    <% if (noData) { %>
+        <div class="no-data">
+            <h3>Данные теста отсутствуют</h3>
+            <p>Пользователь еще не проходил этот тест или результаты не были сохранены.</p>
+            <p>Пройдите тест, чтобы увидеть статистику.</p>
+        </div>
+    <% } else { %>
+        <div class="stats-container">
+            <div class="stat-card">
+                <h3>Всего попыток</h3>
+                <div class="stat-value"><%= stats.totalAttempts %></div>
+            </div>
+            <div class="stat-card">
+                <h3>Среднее время</h3>
+                <div class="stat-value"><%= stats.avgReaction %> мс</div>
+            </div>
+            <div class="stat-card">
+                <h3>Точность</h3>
+                <div class="stat-value"><%= stats.accuracy %>%</div>
+            </div>
+            <div class="stat-card">
+                <h3>Лучший результат</h3>
+                <div class="stat-value"><%= stats.bestReaction %> мс</div>
+            </div>
+            <div class="stat-card">
+                <h3>Худший результат</h3>
+                <div class="stat-value"><%= stats.worstReaction %> мс</div>
+            </div>
+        </div>
+
+        <div class="chart-actions">
+            <button class="chart-btn" onclick="zoomChart(0.9)">- Уменьшить</button>
+            <button class="chart-btn" onclick="zoomChart(1.1)">+ Увеличить</button>
+            <button class="chart-btn" onclick="resetZoom()">Сбросить</button>
+        </div>
+
+        <div class="chart-container">
+            <% if (stats.totalAttempts > 0) { %>
+                <canvas id="reactionChart"></canvas>
+            <% } else { %>
+                <div class="empty-chart-message">
+                    <h3>Нет данных для построения графика</h3>
+                    <p>Хотя тест был начат, не было зарегистрировано ни одной успешной попытки.</p>
+                </div>
+            <% } %>
+        </div>
+
+        <% if (stats.totalAttempts > 0) { %>
+            <script>
+                // Инициализация графика
+                const ctx = document.getElementById('reactionChart').getContext('2d');
+                const chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: <%= JSON.stringify(chartData.attempts) %>,
+                        datasets: [{
+                            label: 'Время реакции (мс)',
+                            data: <%= JSON.stringify(chartData.reactionTimes) %>,
+                            borderColor: '#4CAF50',
+                            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 3,
+                            pointHoverRadius: 6,
+                            tension: 0.1,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            zoom: {
+                                zoom: {
+                                    wheel: {
+                                        enabled: true
+                                    },
+                                    pinch: {
+                                        enabled: true
+                                    },
+                                    mode: 'xy'
+                                },
+                                pan: {
+                                    enabled: true,
+                                    mode: 'xy'
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `Попытка ${context.label}: ${context.parsed.y} мс`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                title: {
+                                    display: true,
+                                    text: 'Время реакции (мс)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Номер попытки'
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Функции для управления масштабом
+                function zoomChart(scale) {
+                    chart.zoom(scale);
+                }
+
+                function resetZoom() {
+                    chart.resetZoom();
+                }
+            </script>
+        <% } %>
+    <% } %>
+</div>
+</body>
+</html>
