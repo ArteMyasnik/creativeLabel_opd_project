@@ -10,12 +10,12 @@
         :root {
             --primary-color: #479C92;
             --primary-hover: #2d5e58;
-            --secondary-color: #ff6b6b;
+            --accent-color: #FF6B6B;
             --background-color: #121212;
-            --text-color: #ffffff;
-            --card-bg: #1e1e1e;
+            --card-color: #1E1E1E;
+            --text-color: #FFFFFF;
             --border-radius: 12px;
-            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
         * {
@@ -64,14 +64,15 @@
         .btn-primary:hover {
             background-color: var(--primary-hover);
             transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
-        .btn-secondary {
-            background-color: var(--secondary-color);
+        .btn-accent {
+            background-color: var(--accent-color);
             color: white;
         }
 
-        .btn-secondary:hover {
+        .btn-accent:hover {
             opacity: 0.9;
             transform: translateY(-2px);
         }
@@ -79,10 +80,12 @@
         .btn-disabled {
             opacity: 0.6;
             cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
         }
 
         .test-container {
-            background-color: var(--card-bg);
+            background-color: var(--card-color);
             border-radius: var(--border-radius);
             padding: 30px;
             width: 100%;
@@ -90,6 +93,8 @@
             box-shadow: var(--box-shadow);
             text-align: center;
             margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
         }
 
         h1 {
@@ -104,26 +109,12 @@
             margin-bottom: 20px;
         }
 
-        #signal {
-            width: 150px;
-            height: 150px;
-            background-color: var(--secondary-color);
-            border-radius: 50%;
-            margin: 30px auto;
-            display: none;
-            box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
-            transition: transform 0.2s;
-        }
-
-        #signal.active {
-            transform: scale(1.1);
-        }
-
         .duration-selector {
             display: flex;
             justify-content: center;
             gap: 10px;
             margin: 20px 0;
+            flex-wrap: wrap;
         }
 
         .duration-btn {
@@ -134,50 +125,57 @@
             border-radius: var(--border-radius);
             cursor: pointer;
             transition: all 0.3s;
+            font-family: 'Montserrat', sans-serif;
         }
 
         .duration-btn.selected {
             background-color: var(--primary-color);
+            transform: translateY(-2px);
         }
 
-        .results {
-            background-color: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 25px;
-            width: 100%;
-            max-width: 600px;
-            box-shadow: var(--box-shadow);
+        .reaction-area {
+            width: 200px;
+            height: 200px;
+            background-color: var(--card-color);
+            border: 3px dashed #444;
+            border-radius: 50%;
+            margin: 30px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .reaction-area.active {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 30px rgba(255, 107, 107, 0.3);
+        }
+
+        .reaction-circle {
+            width: 100px;
+            height: 100px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
             display: none;
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.2s;
         }
 
-        .results h2 {
-            color: var(--primary-color);
-            margin-bottom: 15px;
+        .reaction-circle:hover {
+            transform: scale(1.05);
         }
 
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
+        .reaction-circle.active {
+            display: block;
+            animation: pulse 1s infinite;
         }
 
-        .stat-card {
-            background-color: #2a2a2a;
-            padding: 15px;
-            border-radius: var(--border-radius);
-        }
-
-        .stat-card h3 {
-            font-size: 14px;
-            color: #aaa;
-            margin-bottom: 5px;
-        }
-
-        .stat-card p {
-            font-size: 24px;
-            font-weight: 700;
-            margin: 0;
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 107, 107, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0); }
         }
 
         .progress-container {
@@ -196,15 +194,57 @@
             transition: width 0.3s;
         }
 
-        /* Виджет приглашения */
+        .results {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: var(--box-shadow);
+            display: none;
+        }
+
+        .results h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background-color: #2a2a2a;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+        }
+
         .invite-widget {
-            background-color: var(--card-bg);
+            background-color: var(--card-color);
             border-radius: var(--border-radius);
             padding: 20px;
             width: 100%;
             max-width: 600px;
             box-shadow: var(--box-shadow);
             margin-top: 30px;
+            text-align: center;
         }
 
         .invite-widget h3 {
@@ -219,12 +259,14 @@
             word-break: break-all;
             margin: 15px 0;
             font-family: monospace;
+            border: 1px solid #444;
         }
 
         .share-buttons {
             display: flex;
             gap: 10px;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .share-btn {
@@ -237,6 +279,7 @@
             display: flex;
             align-items: center;
             gap: 5px;
+            font-size: 14px;
         }
 
         .share-btn i {
@@ -258,15 +301,14 @@
             color: white;
         }
 
-        /* Анимации */
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+        /* Анимация появления */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .pulse {
-            animation: pulse 1.5s infinite;
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
         }
 
         /* Адаптивность */
@@ -282,6 +324,10 @@
             .share-buttons {
                 flex-direction: column;
             }
+            
+            .test-container, .results, .invite-widget {
+                padding: 20px;
+            }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -293,17 +339,19 @@
         </button>
     </div>
 
-    <div class="test-container">
+    <div class="test-container fade-in">
         <h1><i class="fas fa-stopwatch"></i> Тест на скорость реакции</h1>
         <p id="instructions">Нажмите кнопку "Начать тест", затем как можно быстрее нажимайте на красный круг, когда он появляется.</p>
         
         <div class="duration-selector" id="durationButtons">
             <button class="duration-btn" data-duration="30">30 секунд</button>
             <button class="duration-btn" data-duration="60">1 минута</button>
-            <button class="duration-btn" data-duration="120">2 минуты</button>
+            <button class="duration-btn selected" data-duration="120">2 минуты</button>
         </div>
         
-        <div id="signal"></div>
+        <div class="reaction-area" id="reactionArea">
+            <div class="reaction-circle" id="reactionCircle"></div>
+        </div>
         
         <div class="progress-container">
             <div class="progress-bar" id="progressBar"></div>
@@ -336,10 +384,10 @@
             </div>
         </div>
         
-        <button class="btn btn-secondary" id="restartButton">Повторить тест</button>
+        <button class="btn btn-accent" id="restartButton">Повторить тест</button>
     </div>
 
-    <div class="invite-widget">
+    <div class="invite-widget fade-in">
         <h3><i class="fas fa-share-alt"></i> Пригласите друзей</h3>
         <p>Поделитесь этим тестом с друзьями и сравните результаты!</p>
         
@@ -363,7 +411,7 @@
         const config = {
             minDelay: 1000,    // Минимальная задержка между сигналами (мс)
             maxDelay: 3000,    // Максимальная задержка между сигналами (мс)
-            signalDuration: 500 // Длительность показа сигнала (мс)
+            signalDuration: 1000 // Длительность показа сигнала (мс)
         };
 
         // Состояние теста
@@ -376,12 +424,14 @@
             missedSignals: 0,
             bestTime: null,
             timeoutIds: [],
-            progressInterval: null
+            progressInterval: null,
+            audioContext: null
         };
 
         // Элементы DOM
         const elements = {
-            signal: document.getElementById('signal'),
+            reactionArea: document.getElementById('reactionArea'),
+            reactionCircle: document.getElementById('reactionCircle'),
             startButton: document.getElementById('startButton'),
             restartButton: document.getElementById('restartButton'),
             results: document.getElementById('results'),
@@ -402,6 +452,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             initEventListeners();
             initReferralWidget();
+            initAudio();
         });
 
         function initEventListeners() {
@@ -420,8 +471,35 @@
                 });
             });
             
-            // Клик по сигналу
-            elements.signal.addEventListener('click', handleReaction);
+            // Клик по кругу реакции
+            elements.reactionCircle.addEventListener('click', handleReaction);
+        }
+
+        function initAudio() {
+            try {
+                // Инициализация AudioContext
+                state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (error) {
+                console.error('Ошибка инициализации аудио:', error);
+            }
+        }
+
+        function playBeep() {
+            if (!state.audioContext) return;
+            
+            // Создаем осциллятор для генерации звука
+            const oscillator = state.audioContext.createOscillator();
+            const gainNode = state.audioContext.createGain();
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 800; // Частота звука в герцах
+            gainNode.gain.value = 0.1; // Громкость
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(state.audioContext.destination);
+            
+            oscillator.start();
+            oscillator.stop(state.audioContext.currentTime + 0.1); // Длительность звука
         }
 
         function initReferralWidget() {
@@ -475,6 +553,7 @@
             
             // Настройка интерфейса
             elements.startButton.disabled = true;
+            elements.startButton.classList.add('btn-disabled');
             elements.startButton.textContent = "Тест выполняется...";
             elements.instructions.textContent = "Нажимайте на красный круг как можно быстрее!";
             elements.results.style.display = "none";
@@ -513,8 +592,8 @@
             };
             
             // Сброс интерфейса
-            elements.signal.style.display = "none";
-            elements.signal.classList.remove("active", "pulse");
+            elements.reactionCircle.style.display = "none";
+            elements.reactionArea.classList.remove("active");
         }
 
         function scheduleNextSignal() {
@@ -530,19 +609,29 @@
         function showSignal() {
             if (!state.isRunning) return;
             
-            elements.signal.style.display = "block";
-            elements.signal.classList.add("active", "pulse");
+            // Воспроизведение звукового сигнала
+            playBeep();
+            
+            // Показать визуальный сигнал
+            elements.reactionCircle.style.display = "block";
+            elements.reactionCircle.classList.add("active");
+            elements.reactionArea.classList.add("active");
             state.signalTime = Date.now();
             
             // Если сигнал не был замечен
             state.timeoutIds.push(setTimeout(() => {
-                if (elements.signal.style.display === "block") {
-                    elements.signal.style.display = "none";
-                    elements.signal.classList.remove("active", "pulse");
+                if (elements.reactionCircle.style.display === "block") {
+                    hideSignal();
                     state.missedSignals++;
                     scheduleNextSignal();
                 }
             }, config.signalDuration));
+        }
+
+        function hideSignal() {
+            elements.reactionCircle.style.display = "none";
+            elements.reactionCircle.classList.remove("active");
+            elements.reactionArea.classList.remove("active");
         }
 
         function handleReaction() {
@@ -557,8 +646,7 @@
             }
             
             // Скрытие сигнала
-            elements.signal.style.display = "none";
-            elements.signal.classList.remove("active", "pulse");
+            hideSignal();
             state.signalTime = null;
             
             // Запуск следующего сигнала
@@ -571,10 +659,10 @@
             
             // Обновление интерфейса
             elements.startButton.disabled = false;
+            elements.startButton.classList.remove('btn-disabled');
             elements.startButton.textContent = "Начать тест";
             elements.instructions.textContent = "Нажмите кнопку \"Начать тест\", затем как можно быстрее нажимайте на красный круг, когда он появляется.";
-            elements.signal.style.display = "none";
-            elements.signal.classList.remove("active", "pulse");
+            hideSignal();
             
             // Показать результаты
             showResults();
@@ -596,8 +684,9 @@
             elements.reactionCount.textContent = count;
             elements.missedCount.textContent = missed;
             
-            // Показать блок результатов
+            // Показать блок результатов с анимацией
             elements.results.style.display = "block";
+            elements.results.classList.add("fade-in");
         }
 
         function calculateAverage(times) {
@@ -645,7 +734,7 @@
                 timestamp: new Date().toISOString()
             };
             
-            fetch('http://localhost:3000/api/test_visual_signal', {
+            fetch('http://localhost:3000/api/test_reaction', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

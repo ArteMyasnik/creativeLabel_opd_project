@@ -381,6 +381,10 @@ app.get('/test_visual_signal', async (req, res) => {
     const login = req.session.login || null;
     res.render('tests/test_visual_signal', { login });
 });
+app.get('/test_sound', async (req, res) => {
+    const login = req.session.login || null;
+    res.render('tests/test_sound', { login });
+});
 
 app.get('/test_color_signal', async (req, res) => {
     const login = req.session.login || null;

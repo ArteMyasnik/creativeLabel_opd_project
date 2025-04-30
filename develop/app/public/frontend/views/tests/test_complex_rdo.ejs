@@ -9,6 +9,7 @@
             text-align: center;
             margin: 0;
             padding: 20px;
+            background-color: #f5f5f5;
         }
 
         /* Скрытие и плавные переключения */
@@ -116,6 +117,93 @@
             border: 1px solid #ccc;
             text-align: center;
         }
+
+        /* Стили для кнопки "Главная страница" */
+        .button-container {
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 5px;
+            background-repeat: no-repeat;
+            font-size: 0;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .button-container button {
+            margin: 0.5rem 0.5rem;
+            padding: 0.7rem 2rem;
+            font-size: 17px;
+            font-family: Arial, sans-serif;
+            cursor: pointer;
+            border: none;
+            border-radius: 20px;
+            background-color: #479C92;
+            color: white;
+        }
+        .button-container button:hover {
+            background-color: #2d5e58;
+            transition: all 0.3s ease;
+        }
+        .left-button {
+            margin-right: auto;
+        }
+
+        /* Стили для виджета приглашения */
+        #inviteWidget {
+            margin: 40px auto;
+            padding: 20px;
+            max-width: 600px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #479C92;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        #inviteWidget h3 {
+            margin-top: 0;
+            color: #479C92;
+        }
+        #inviteLink {
+            padding: 12px;
+            background: #f8f8f8;
+            border: 1px solid #479C92;
+            border-radius: 4px;
+            word-break: break-all;
+            margin: 15px 0;
+            color: #333;
+        }
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .share-button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            transition: all 0.3s;
+        }
+        #copyButton {
+            background: #479C92;
+            color: white;
+        }
+        #whatsappButton {
+            background: #25D366;
+            color: white;
+        }
+        #telegramButton {
+            background: #0088cc;
+            color: white;
+        }
+        .share-button:hover {
+            opacity: 0.8;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -137,7 +225,6 @@
 
 <!-- Весь интерфейс теста (изначально скрыт) -->
 <div id="testInterface" class="hidden">
-
     <h1>Тест реакции</h1>
 
     <div class="canvas-container">
@@ -170,6 +257,18 @@
     <div id="results"></div>
 </div>
 
+<!-- Виджет для приглашения друзей -->
+<div id="inviteWidget">
+    <h3>Пригласите друзей на этот тест</h3>
+    <p>Ваша персональная ссылка:</p>
+    <div id="inviteLink"></div>
+    <div class="share-buttons">
+        <button id="copyButton" class="share-button">Копировать</button>
+        <button id="whatsappButton" class="share-button">WhatsApp</button>
+        <button id="telegramButton" class="share-button">Telegram</button>
+    </div>
+</div>
+
 <script>
     let testDuration = 120000;  // по умолчанию 2 минуты
     let segmentDuration = testDuration / 3;
@@ -191,6 +290,96 @@
 
     let responses = {1: [], 2: [], 3: []};
     let circleResults = {1: {}, 2: {}, 3: {}};
+
+    // Функция для генерации реферальной ссылки
+    function generateReferralLink() {
+        // Получаем текущий URL теста
+        const testUrl = window.location.href.split('?')[0];
+        
+        // Пытаемся получить ID пользователя из различных источников
+        let userId = 'guest';
+        
+        // Проверка URL параметров
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('ref')) {
+            userId = urlParams.get('ref');
+        }
+        // Проверка cookies
+        else if (document.cookie.includes('user_id=')) {
+            userId = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('user_id='))
+                .split('=')[1];
+        }
+        // Проверка localStorage
+        else if (localStorage.getItem('user_id')) {
+            userId = localStorage.getItem('user_id');
+        }
+        // Проверка sessionStorage
+        else if (sessionStorage.getItem('user_id')) {
+            userId = sessionStorage.getItem('user_id');
+        }
+        
+        // Генерируем ссылку с параметрами
+        return `${testUrl}?ref=${encodeURIComponent(userId)}&utm_source=referral&utm_medium=social&utm_campaign=reaction_test`;
+    }
+
+    // Функции для работы с реферальными ссылками
+    function copyToClipboard() {
+        const inviteLink = document.getElementById('inviteLink').textContent;
+        navigator.clipboard.writeText(inviteLink)
+            .then(() => {
+                const button = document.getElementById('copyButton');
+                const originalText = button.textContent;
+                button.textContent = 'Скопировано!';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                }, 2000);
+            })
+            .catch(err => {
+                console.error('Ошибка копирования:', err);
+                // Альтернативный метод для старых браузеров
+                const textarea = document.createElement('textarea');
+                textarea.value = inviteLink;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    const button = document.getElementById('copyButton');
+                    const originalText = button.textContent;
+                    button.textContent = 'Скопировано!';
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                    }, 2000);
+                } catch (err) {
+                    alert('Не удалось скопировать ссылку. Пожалуйста, скопируйте вручную.');
+                }
+                document.body.removeChild(textarea);
+            });
+    }
+
+    function shareViaWhatsApp() {
+        const inviteLink = document.getElementById('inviteLink').textContent;
+        const text = `Привет! Попробуй этот тест на скорость реакции: ${inviteLink}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    function shareViaTelegram() {
+        const inviteLink = document.getElementById('inviteLink').textContent;
+        const text = `Привет! Попробуй этот тест на скорость реакции: ${inviteLink}`;
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    // Инициализация виджета приглашения
+    function initInviteWidget() {
+        const inviteLink = generateReferralLink();
+        document.getElementById('inviteLink').textContent = inviteLink;
+        
+        // Назначаем обработчики для кнопок
+        document.getElementById('copyButton').addEventListener('click', copyToClipboard);
+        document.getElementById('whatsappButton').addEventListener('click', shareViaWhatsApp);
+        document.getElementById('telegramButton').addEventListener('click', shareViaTelegram);
+    }
 
     function initCircle(num) {
         const cd = circleData[num];
@@ -392,6 +581,7 @@
 
     // Функция для отправки результатов на сервер
     function sendResultsToServer(results) {
+        // Отправка данных на сервер
         fetch('http://localhost:3000/api/test_complex_rdo', {
             method: 'POST',
             headers: {
@@ -404,11 +594,8 @@
                 if (data.success === true) {
                     console.log(data.message);
                 } else {
-                    if (data.message === 'Пользователь не зарегистрирован, результаты не сохраняются') {
-                        console.log('Пользователь не зарегистрирован, результаты не сохраняются')
-                    } else {
-                        console.error('Ошибка при сохранении результатов:', data.message);
-                    }
+                    console.error('Ошибка при сохранении результатов:', data.message);
+                    alert('Ошибка при сохранении результатов.');
                 }
             })
             .catch(error => {
@@ -417,18 +604,30 @@
             });
     }
 
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById("restart").addEventListener("click", restartTest);
+        document.getElementById("startTest").addEventListener("click", function () {
+            document.getElementById("timeSelection").classList.remove("hidden");
+            document.getElementById("startTest").classList.add("hidden");
+        });
 
-    document.getElementById("restart").addEventListener("click", restartTest);
-    document.getElementById("startTest").addEventListener("click", function () {
-        document.getElementById("timeSelection").classList.remove("hidden");
-        document.getElementById("startTest").classList.add("hidden");
+        // Слушатели событий для кнопок
+        document.getElementById("btn1").addEventListener("click", () => checkReaction(1));
+        document.getElementById("btn2").addEventListener("click", () => checkReaction(2));
+        document.getElementById("btn3").addEventListener("click", () => checkReaction(3));
+        
+        // Инициализируем виджет приглашения
+        initInviteWidget();
+        
+        // Проверяем, пришел ли пользователь по реферальной ссылке
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('ref')) {
+            const referrerId = urlParams.get('ref');
+            console.log('Пользователь пришел по реферальной ссылке от:', referrerId);
+            // Здесь можно отправить информацию о реферере на сервер
+        }
     });
-
-    // Слушатели событий для кнопок
-    document.getElementById("btn1").addEventListener("click", () => checkReaction(1));
-    document.getElementById("btn2").addEventListener("click", () => checkReaction(2));
-    document.getElementById("btn3").addEventListener("click", () => checkReaction(3));
 </script>
-
 </body>
 </html>
