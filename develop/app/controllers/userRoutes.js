@@ -37,6 +37,8 @@ router.post('/test_digital_signal', ActionController.testDigitalSignal);
 router.post('/test_simple_rdo', ActionController.testSimpleRdo);
 // Тест на реакцию(шарик)
 router.post('/test_complex_rdo', ActionController.testComplexRdo);
+// Тест на volume
+router.post('/test_sound', ActionController.testVisualSignal);
 
 // router.get('/user/:id', UserController.getOneUser);
 // router.get('/user', UserController.getUsers);
