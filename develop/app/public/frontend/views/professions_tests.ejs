@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Эксперт: выбор тестов для профессии</title>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <link rel="stylesheet" href="../../Styles/expertStyles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        select, button {
+            padding: 8px;
+            font-size: 16px;
+            margin-bottom: 1rem;
+        }
+
+        .tests-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .tests-list li {
+            margin-bottom: 0.5rem;
+        }
+
+        label {
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .success-message {
+            color: green;
+            margin-top: 1rem;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Выбор тестов для профессии</h1>
+
+    <label for="profession">Профессия:</label>
+    <select id="profession">
+        <option value="">-- Выберите профессию --</option>
+    </select>
+
+    <ul class="tests-list" id="testsList"></ul>
+
+    <button id="saveBtn">Сохранить</button>
+
+    <div class="success-message hidden" id="successMessage">Тесты успешно сохранены!</div>
+    <div class="error-message hidden" id="errorMessage">Ошибка при сохранении.</div>
+</div>
+
+<script>
+    const professionSelect = document.getElementById('profession');
+    const testsList = document.getElementById('testsList');
+    const saveBtn = document.getElementById('saveBtn');
+    const successMessage = document.getElementById('successMessage');
+    const errorMessage = document.getElementById('errorMessage');
+
+    let allTests = [];
+
+    async function fetchProfessions() {
+        const res = await fetch('/api/professions');
+        const data = await res.json();
+        data.forEach(prof => {
+            const option = document.createElement('option');
+            option.value = prof.id;
+            option.textContent = prof.name;
+            professionSelect.appendChild(option);
+        });
+    }
+
+    async function fetchTests() {
+        const res = await fetch('/api/tests');
+        allTests = await res.json();
+        renderTests([]);
+    }
+
+    function renderTests(selectedTestIds) {
+        testsList.innerHTML = '';
+        allTests.forEach(test => {
+            const li = document.createElement('li');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = 'test_' + test.id;
+            checkbox.value = test.id;
+            checkbox.checked = selectedTestIds.includes(test.id);
+
+            const label = document.createElement('label');
+            label.htmlFor = checkbox.id;
+            label.textContent = `${test.name} – ${test.description || 'нет описания'}`;
+
+            li.appendChild(checkbox);
+            li.appendChild(label);
+            testsList.appendChild(li);
+        });
+    }
+
+    async function fetchSelectedTests(professionId) {
+        const res = await fetch(`/api/expert/profession-tests/${professionId}`);
+        const data = await res.json();
+        renderTests(data.test_ids || []);
+    }
+
+    professionSelect.addEventListener('change', () => {
+        const profId = professionSelect.value;
+        if (profId) {
+            fetchSelectedTests(profId);
+        } else {
+            renderTests([]);
+        }
+    });
+
+    saveBtn.addEventListener('click', async () => {
+        const profId = professionSelect.value;
+        if (!profId) {
+            alert('Выберите профессию');
+            return;
+        }
+
+        const selectedIds = Array.from(testsList.querySelectorAll('input[type="checkbox"]:checked'))
+            .map(cb => parseInt(cb.value));
+
+        try {
+            const res = await fetch('/api/expert/profession-tests', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    profession_id: parseInt(profId),
+                    test_ids: selectedIds
+                })
+            });
+
+            if (!res.ok) throw new Error('Ошибка при сохранении');
+
+            successMessage.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
+        } catch (err) {
+            errorMessage.classList.remove('hidden');
+            successMessage.classList.add('hidden');
+        }
+    });
+
+    fetchProfessions();
+    fetchTests();
+</script>
+</body>
+</html>
