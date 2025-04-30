@@ -399,7 +399,6 @@
 
     // Функция для отправки результатов на сервер
     function sendResultsToServer(results) {
-        // Замените URL на ваш реальный эндпоинт сервера
         fetch('http://localhost:3000/api/test_simple_rdo', {
             method: 'POST',
             headers: {
@@ -409,10 +408,14 @@
         })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    console.log('Результаты успешно сохранены:', data.message);
+                if (data.success === true) {
+                    console.log(data.message);
                 } else {
-                    console.error('Ошибка при сохранении результатов:', data.message);
+                    if (data.message === 'Пользователь не зарегистрирован, результаты не сохраняются') {
+                        console.log('Пользователь не зарегистрирован, результаты не сохраняются')
+                    } else {
+                        console.error('Ошибка при сохранении результатов:', data.message);
+                    }
                 }
             })
             .catch(error => {

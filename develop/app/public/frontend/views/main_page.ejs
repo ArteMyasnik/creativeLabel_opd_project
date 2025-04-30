@@ -17,6 +17,7 @@
             <button id='expertButton' onclick="window.location.href='/experts'" style="display: none">Эксперты</button>
             <button id='ratingButton' onclick="window.location.href='/professions_rating'" style="display: none">Оценка</button>
             <button onclick="window.location.href='/tests'">Тесты</button>
+            <button id='statsButton' onclick="window.location.href='/stats'">Статистика</button>
             <button onclick="window.location.href='/goals'">Цели и задачи</button>
             <button onclick="window.location.href='/developers'">Разработчики</button>
             <button onclick="window.location.href='/aboutProject'">О проекте</button>
@@ -96,6 +97,7 @@
         const logoutButton = document.getElementById('logout-button');
         const expertButton = document.getElementById('expertButton');
         const ratingButton = document.getElementById('ratingButton');
+        const statsButton = document.getElementById('statsButton');
         const profileButton = document.getElementById('profileButton');
 
         // Проверка статуса авторизации
@@ -103,6 +105,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.login != null) {
+                    statsButton.style.display = 'inline-block';
                     profileButton.style.display = 'inline-block';
                     loginButton.style.display = 'none';
                     logoutButton.style.display = 'inline-block';
@@ -115,6 +118,7 @@
                         ratingButton.style.display = 'inline-block';
                     }
                 } else {
+                    statsButton.style.display = 'none';
                     loginButton.style.display = 'inline-block';
                     logoutButton.style.display = 'none';
                 }

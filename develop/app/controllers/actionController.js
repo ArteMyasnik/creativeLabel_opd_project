@@ -79,37 +79,34 @@ class ActionController {
             const { login, reactionTimes, missedSignals, testDuration } = req.body;
 
             if (login == null) {
-                res.status(200).json({
+                return res.status(200).json({
                     success: true,
-                    message: "Результаты теста не сохранены"
+                    message: 'Пользователь не зарегистрирован, результаты не сохраняются'
                 });
             }
 
-            const checkUser = await pool.query(
-                'SELECT COUNT(*) FROM users WHERE login = $1',
+            const user = await pool.query(
+                'SELECT id FROM users WHERE login = $1',
                 [login]
             );
 
-            if (checkUser.rows[0].count === 0) {
-                res.status(404).json({message: 'Пользователь с таким логином не найден'});
-            } else {
-                const user = await pool.query(
-                    'SELECT id FROM users WHERE login = $1',
-                    [login]
-                )
-
-                // Сохраняем результаты теста в базу данных
-                const result = await pool.query(
-                    'INSERT INTO test_visual_signal (user_id, reaction_times, missed_signals, test_duration) VALUES ($1, $2, $3, $4) RETURNING *',
-                    [user.rows[0].id, reactionTimes, missedSignals, testDuration]
-                );
-
-                res.status(201).json({
-                    success: true,
-                    message: 'Результаты теста успешно сохранены',
-                    data: result.rows[0]
+            if (!user.rows || user.rows.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Пользователь с таким логином не найден'
                 });
             }
+
+            const result = await pool.query(
+                'INSERT INTO test_visual_signal (user_id, reaction_times, missed_signals, test_duration) VALUES ($1, $2, $3, $4) RETURNING *',
+                [user.rows[0].id, reactionTimes, missedSignals, testDuration]
+            );
+
+            return res.status(201).json({
+                success: true,
+                message: 'Результаты теста успешно сохранены',
+                data: result.rows[0]
+            });
         } catch (err) {
             console.error(err.message);
             res.status(500).json({
@@ -124,37 +121,34 @@ class ActionController {
             const { login, reactionTimes, correctAnswers, missedClicks, wrongClicks, testDuration } = req.body;
 
             if (login == null) {
-                res.status(200).json({
+                return res.status(200).json({
                     success: true,
-                    message: "Результаты теста не сохранены"
+                    message: 'Пользователь не зарегистрирован, результаты не сохраняются'
                 });
             }
 
-            const checkUser = await pool.query(
-                'SELECT COUNT(*) FROM users WHERE login = $1',
+            const user = await pool.query(
+                'SELECT id FROM users WHERE login = $1',
                 [login]
             );
 
-            if (checkUser.rows[0].count === 0) {
-                res.status(404).json({message: 'Пользователь с таким логином не найден'});
-            } else {
-                const user = await pool.query(
-                    'SELECT id FROM users WHERE login = $1',
-                    [login]
-                )
-
-                // Сохраняем результаты теста в базу данных
-                const result = await pool.query(
-                    'INSERT INTO test_color_signal (user_id, reaction_times, correct_answers, missed_clicks, wrong_clicks, test_duration) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-                    [user.rows[0].id, reactionTimes, correctAnswers, missedClicks, wrongClicks, testDuration]
-                );
-
-                res.status(201).json({
-                    success: true,
-                    message: 'Результаты теста успешно сохранены',
-                    data: result.rows[0]
+            if (!user.rows || user.rows.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Пользователь с таким логином не найден'
                 });
             }
+
+            const result = await pool.query(
+                'INSERT INTO test_color_signal (user_id, reaction_times, correct_answers, missed_clicks, wrong_clicks, test_duration) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+                [user.rows[0].id, reactionTimes, correctAnswers, missedClicks, wrongClicks, testDuration]
+            );
+
+            return res.status(201).json({
+                success: true,
+                message: 'Результаты теста успешно сохранены',
+                data: result.rows[0]
+            });
         } catch (err) {
             console.error(err.message);
             res.status(500).json({
@@ -169,37 +163,34 @@ class ActionController {
             const { login, reactionTimes, correctAnswers, wrongAnswers, missedAttempts, testDuration } = req.body;
 
             if (login == null) {
-                res.status(200).json({
+                return res.status(200).json({
                     success: true,
-                    message: "Результаты теста не сохранены"
+                    message: 'Пользователь не зарегистрирован, результаты не сохраняются'
                 });
             }
 
-            const checkUser = await pool.query(
-                'SELECT COUNT(*) FROM users WHERE login = $1',
+            const user = await pool.query(
+                'SELECT id FROM users WHERE login = $1',
                 [login]
             );
 
-            if (checkUser.rows[0].count === 0) {
-                res.status(404).json({message: 'Пользователь с таким логином не найден'});
-            } else {
-                const user = await pool.query(
-                    'SELECT id FROM users WHERE login = $1',
-                    [login]
-                )
-
-                // Сохраняем результаты теста в базу данных
-                const result = await pool.query(
-                    'INSERT INTO test_digital_signal (user_id, reaction_times, correct_answers, wrong_answers, missed_attempts, test_duration) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-                    [user.rows[0].id, reactionTimes, correctAnswers, wrongAnswers, missedAttempts, testDuration]
-                );
-
-                res.status(201).json({
-                    success: true,
-                    message: 'Результаты теста успешно сохранены',
-                    data: result.rows[0]
+            if (!user.rows || user.rows.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Пользователь с таким логином не найден'
                 });
             }
+
+            const result = await pool.query(
+                'INSERT INTO test_digital_signal (user_id, reaction_times, correct_answers, wrong_answers, missed_attempts, test_duration) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+                [user.rows[0].id, reactionTimes, correctAnswers, wrongAnswers, missedAttempts, testDuration]
+            );
+
+            return res.status(201).json({
+                success: true,
+                message: 'Результаты теста успешно сохранены',
+                data: result.rows[0]
+            });
         } catch (err) {
             console.error(err.message);
             res.status(500).json({
@@ -214,43 +205,34 @@ class ActionController {
             const { login, attempts, testDuration } = req.body;
 
             if (login == null) {
-                res.status(200).json({
+                return res.status(200).json({
                     success: true,
-                    message: "Результаты теста не сохранены"
+                    message: 'Пользователь не зарегистрирован, результаты не сохраняются'
                 });
             }
 
-            const checkUser = await pool.query(
-                'SELECT COUNT(*) FROM users WHERE login = $1',
+            const user = await pool.query(
+                'SELECT id FROM users WHERE login = $1',
                 [login]
             );
 
-            if (checkUser.rows[0].count === 0) {
-                res.status(404).json({message: 'Пользователь с таким логином не найден'});
-            } else {
-                const user = await pool.query(
-                    'SELECT id FROM users WHERE login = $1',
-                    [login]
-                )
-
-                // Если необходимо вычисляем все показатели на сервере
-                // const signedErrors = attempts.map(a => a.signedError);
-                // const absErrors = attempts.map(a => a.absoluteError);
-                // const premature = signedErrors.filter(e => e > 0);
-                // const delayed = signedErrors.filter(e => e < 0);
-
-                // Сохраняем результаты теста в базу данных
-                const result = await pool.query(
-                    'INSERT INTO test_simple_rdo (user_id, attempts, test_duration) VALUES ($1, $2, $3) RETURNING *',
-                    [user.rows[0].id, JSON.stringify(attempts), testDuration]
-                );
-
-                res.status(201).json({
-                    success: true,
-                    message: 'Результаты теста успешно сохранены',
-                    data: result.rows[0]
+            if (!user.rows || user.rows.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Пользователь с таким логином не найден'
                 });
             }
+
+            const result = await pool.query(
+                'INSERT INTO test_simple_rdo (user_id, attempts, test_duration) VALUES ($1, $2, $3) RETURNING *',
+                [user.rows[0].id, JSON.stringify(attempts), testDuration]
+            );
+
+            return res.status(201).json({
+                success: true,
+                message: 'Результаты теста успешно сохранены',
+                data: result.rows[0]
+            });
         } catch (err) {
             console.error(err.message);
             res.status(500).json({
@@ -265,37 +247,34 @@ class ActionController {
             const { login, responses, circleSpeeds, testDuration } = req.body;
 
             if (login == null) {
-                res.status(200).json({
+                return res.status(200).json({
                     success: true,
-                    message: "Результаты теста не сохранены"
+                    message: 'Пользователь не зарегистрирован, результаты не сохраняются'
                 });
             }
 
-            const checkUser = await pool.query(
-                'SELECT COUNT(*) FROM users WHERE login = $1',
+            const user = await pool.query(
+                'SELECT id FROM users WHERE login = $1',
                 [login]
             );
 
-            if (checkUser.rows[0].count === 0) {
-                res.status(404).json({message: 'Пользователь с таким логином не найден'});
-            } else {
-                const user = await pool.query(
-                    'SELECT id FROM users WHERE login = $1',
-                    [login]
-                )
-
-                // Сохраняем результаты теста в базу данных
-                const result = await pool.query(
-                    'INSERT INTO test_complex_rdo (user_id, responses, circle_speeds, test_duration) VALUES ($1, $2, $3, $4) RETURNING *',
-                    [user.rows[0].id, JSON.stringify(responses), JSON.stringify(circleSpeeds), testDuration]
-                );
-
-                res.status(201).json({
-                    success: true,
-                    message: 'Результаты теста успешно сохранены',
-                    data: result.rows[0]
+            if (!user.rows || user.rows.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Пользователь с таким логином не найден'
                 });
             }
+
+            const result = await pool.query(
+                'INSERT INTO test_complex_rdo (user_id, responses, circle_speeds, test_duration) VALUES ($1, $2, $3, $4) RETURNING *',
+                [user.rows[0].id, JSON.stringify(responses), JSON.stringify(circleSpeeds), testDuration]
+            );
+
+            return res.status(201).json({
+                success: true,
+                message: 'Результаты теста успешно сохранены',
+                data: result.rows[0]
+            });
         } catch (err) {
             console.error(err.message);
             res.status(500).json({
