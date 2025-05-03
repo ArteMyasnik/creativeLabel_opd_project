@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аналоговое слежение</title>
+    <style>
+        /* Стили остаются без изменений */
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+        body {
+            text-align: center;
+            font-family: Montserrat;
+            background-color: black;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        .button-container {
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .button-container button {
+            margin: 0.5rem;
+            padding: 0.7rem 2rem;
+            font-size: 17px;
+            cursor: pointer;
+            border: none;
+            border-radius: 20px;
+            background-color: #479C92;
+            color: white;
+        }
+        .button-container button:hover {
+            background-color: #2d5e58;
+        }
+        #durationButtons {
+            margin: 20px 0;
+        }
+        .durationBtn {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #479C92;
+            color: white;
+        }
+        .durationBtn.selected {
+            background: gray;
+        }
+        .durationBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .tracking-area {
+            width: 90%;
+            height: 100px;
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            margin: 30px auto;
+            position: relative;
+            overflow: hidden;
+        }
+        .track-line {
+            width: 100%;
+            height: 2px;
+            background-color: #444;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .marker {
+            width: 20px;
+            height: 40px;
+            background-color: #FF6B6B;
+            border-radius: 10px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+            z-index: 2;
+            transition: background-color 0.3s;
+        }
+        .center-point {
+            width: 6px;
+            height: 60px;
+            background-color: #479C92;
+            border-radius: 3px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+        }
+        button {
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background: #479C92;
+            color: white;
+        }
+        button:disabled {
+            opacity: 0.5;
+        }
+        .progress-container {
+            width: 90%;
+            height: 8px;
+            background-color: #333;
+            border-radius: 4px;
+            margin: 20px auto;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #479C92;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        #results {
+            margin-top: 30px;
+            display: none;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background-color: #2a2a2a;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-card h3 {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+        .stat-card p {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="button-container">
+        <button onclick="window.location.href='/main'">Главная страница</button>
+    </div>
+    <h2>Аналоговое слежение</h2>
+    <p>Переместите маркер в центр при его движении</p>
+    <div id="durationButtons">
+        <button class="durationBtn" data-duration="30">30 с</button>
+        <button class="durationBtn" data-duration="60">60 с</button>
+        <button class="durationBtn" data-duration="120">120 с</button>
+    </div>
+    <div class="tracking-area">
+        <div class="track-line"></div>
+        <div class="center-point"></div>
+        <div class="marker" id="marker"></div>
+    </div>
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <button id="startBtn">Начать тест</button>
+    <div id="results">
+        <h3>Результаты теста</h3>
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Среднее время</h3>
+                <p id="avgTime">0 мс</p>
+            </div>
+            <div class="stat-card">
+                <h3>Лучшее время</h3>
+                <p id="bestTime">0 мс</p>
+            </div>
+            <div class="stat-card">
+                <h3>Попытки</h3>
+                <p id="attempts">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Точность</h3>
+                <p id="accuracy">0%</p>
+            </div>
+        </div>
+    </div>
+    <script>
+        const config = {
+            minMoveDelay: 2000,
+            maxMoveDelay: 4000,
+            centerThreshold: 15,
+            initialMoveStep: 2,       // Уменьшенная начальная скорость
+            speedIncreaseFactor: 1.05, // Медленное увеличение скорости
+            maxMoveStep: 4.5           // Максимальная скорость
+        };
+
+        let state = {
+            isRunning: false,
+            startTime: null,
+            moveTime: null,
+            direction: 0,
+            currentSpeed: config.initialMoveStep,
+            animationId: null,
+            timeoutId: null,
+            currentAttempt: {
+                reactionTimes: [],
+                bestTime: null,
+                movements: 0,
+                centerHits: 0
+            },
+            isDragging: false,
+            dragStartX: 0,
+            testDuration: 30000
+        };
+
+        const elements = {
+            marker: document.getElementById('marker'),
+            startBtn: document.getElementById('startBtn'),
+            progressBar: document.getElementById('progressBar'),
+            results: document.getElementById('results'),
+            avgTime: document.getElementById('avgTime'),
+            bestTime: document.getElementById('bestTime'),
+            attempts: document.getElementById('attempts'),
+            accuracy: document.getElementById('accuracy'),
+            trackingArea: document.querySelector('.tracking-area'),
+            durationButtons: document.querySelectorAll('.durationBtn')
+        };
+
+        // Инициализация позиции маркера
+        resetMarkerPosition();
+
+        // Обработчики событий
+        elements.startBtn.addEventListener('click', startTest);
+        elements.marker.addEventListener('mousedown', startDragging);
+        document.addEventListener('mousemove', dragMarker);
+        document.addEventListener('mouseup', stopDragging);
+
+        elements.durationButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                elements.durationButtons.forEach(b => {
+                    b.classList.remove('selected');
+                    b.disabled = false;
+                });
+                this.classList.add('selected');
+                state.testDuration = parseInt(this.dataset.duration) * 1000;
+            });
+        });
+
+        function resetMarkerPosition() {
+            const areaRect = elements.trackingArea.getBoundingClientRect();
+            elements.marker.style.left = (areaRect.width / 2 - 10) + 'px';
+        }
+
+        function getRandomDirection() {
+            return Math.random() > 0.5 ? 1 : -1;
+        }
+
+        function isInCenter() {
+            const areaRect = elements.trackingArea.getBoundingClientRect();
+            const markerRect = elements.marker.getBoundingClientRect();
+            const centerX = areaRect.width / 2;
+            const markerCenterX = markerRect.left - areaRect.left + markerRect.width / 2;
+            return Math.abs(markerCenterX - centerX) < config.centerThreshold;
+        }
+
+        function moveMarker() {
+            if (!state.isRunning || state.isDragging) return;
+            
+            const areaRect = elements.trackingArea.getBoundingClientRect();
+            let currentLeft = parseFloat(elements.marker.style.left);
+            currentLeft += state.direction * state.currentSpeed;
+            
+            if (currentLeft <= 0) {
+                currentLeft = 0;
+                state.direction = 1;
+            } else if (currentLeft >= areaRect.width - 20) {
+                currentLeft = areaRect.width - 20;
+                state.direction = -1;
+            }
+            
+            elements.marker.style.left = currentLeft + 'px';
+            state.animationId = requestAnimationFrame(moveMarker);
+        }
+
+        function startRandomMovement() {
+            if (!state.isRunning) return;
+            
+            state.direction = getRandomDirection();
+            state.moveTime = Date.now();
+            moveMarker();
+            
+            const delay = Math.random() * (config.maxMoveDelay - config.minMoveDelay) + config.minMoveDelay;
+            const timeLeft = state.testDuration - (Date.now() - state.startTime);
+            
+            if (timeLeft > delay) {
+                state.timeoutId = setTimeout(startRandomMovement, delay);
+            } else {
+                setTimeout(endTest, timeLeft);
+            }
+        }
+
+        function startDragging(e) {
+            if (!state.isRunning) return;
+            
+            state.isDragging = true;
+            const markerRect = elements.marker.getBoundingClientRect();
+            state.dragStartX = e.clientX - markerRect.left;
+            cancelAnimationFrame(state.animationId);
+            clearTimeout(state.timeoutId);
+        }
+
+        function dragMarker(e) {
+            if (!state.isDragging) return;
+            
+            const areaRect = elements.trackingArea.getBoundingClientRect();
+            let newLeft = e.clientX - areaRect.left - state.dragStartX;
+            newLeft = Math.max(0, Math.min(newLeft, areaRect.width - 20));
+            elements.marker.style.left = newLeft + 'px';
+        }
+
+        function stopDragging() {
+            if (!state.isDragging) return;
+            state.isDragging = false;
+            
+            if (isInCenter()) {
+                const reactionTime = Date.now() - state.moveTime;
+                state.currentAttempt.reactionTimes.push(reactionTime);
+                state.currentAttempt.centerHits++;
+                state.currentAttempt.movements++;
+                
+                // Плавное увеличение скорости
+                state.currentSpeed = Math.min(
+                    state.currentSpeed * config.speedIncreaseFactor,
+                    config.maxMoveStep
+                );
+                
+                if (!state.currentAttempt.bestTime || reactionTime < state.currentAttempt.bestTime) {
+                    state.currentAttempt.bestTime = reactionTime;
+                }
+                
+                elements.marker.style.backgroundColor = '#4CAF50';
+                setTimeout(() => {
+                    elements.marker.style.backgroundColor = '#FF6B6B';
+                }, 300);
+            }
+            
+            if (state.isRunning) startRandomMovement();
+        }
+
+        function updateProgressBar() {
+            if (!state.isRunning) return;
+            
+            const elapsed = Date.now() - state.startTime;
+            const progress = Math.min(elapsed / state.testDuration * 100, 100);
+            elements.progressBar.style.width = progress + '%';
+            
+            if (progress >= 100) {
+                endTest();
+            } else {
+                setTimeout(updateProgressBar, 100);
+            }
+        }
+
+        function startTest() {
+            if (state.isRunning) return;
+            
+            resetTestState();
+            state.isRunning = true;
+            state.startTime = Date.now();
+            
+            // Блокировка элементов управления
+            elements.startBtn.disabled = true;
+            elements.durationButtons.forEach(b => b.disabled = true);
+            
+            elements.results.style.display = 'none';
+            updateProgressBar();
+            setTimeout(startRandomMovement, 1000);
+        }
+
+        function endTest() {
+            state.isRunning = false;
+            cancelAnimationFrame(state.animationId);
+            clearTimeout(state.timeoutId);
+            
+            // Разблокировка элементов управления
+            elements.startBtn.disabled = false;
+            elements.durationButtons.forEach(b => b.disabled = false);
+            
+            showResults();
+        }
+
+        function showResults() {
+            const avg = state.currentAttempt.reactionTimes.length > 0 
+                ? Math.round(state.currentAttempt.reactionTimes.reduce((a, b) => a + b) / state.currentAttempt.reactionTimes.length)
+                : 0;
+                
+            const accuracy = state.currentAttempt.movements > 0
+                ? Math.round(state.currentAttempt.centerHits / state.currentAttempt.movements * 100)
+                : 0;
+
+            elements.avgTime.textContent = `${avg} мс`;
+            elements.bestTime.textContent = `${state.currentAttempt.bestTime || 0} мс`;
+            elements.attempts.textContent = state.currentAttempt.movements;
+            elements.accuracy.textContent = `${accuracy}%`;
+            elements.results.style.display = 'block';
+        }
+
+        function resetTestState() {
+            cancelAnimationFrame(state.animationId);
+            clearTimeout(state.timeoutId);
+            
+            state.isRunning = false;
+            state.startTime = null;
+            state.moveTime = null;
+            state.direction = 0;
+            state.currentSpeed = config.initialMoveStep;
+            state.animationId = null;
+            state.timeoutId = null;
+            state.currentAttempt = {
+                reactionTimes: [],
+                bestTime: null,
+                movements: 0,
+                centerHits: 0
+            };
+            state.isDragging = false;
+            state.dragStartX = 0;
+
+            elements.progressBar.style.width = '0%';
+            resetMarkerPosition();
+            elements.marker.style.backgroundColor = '#FF6B6B';
+            elements.results.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
