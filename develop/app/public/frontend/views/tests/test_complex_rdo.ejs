@@ -496,14 +496,14 @@
         document.getElementById("resultsContainer").classList.remove("hidden");
 
         const results = {
-            login: "<%= login %>",
-            responses: responses,
-            circleSpeeds: {
+            login: "<%= login %>", // Логин пользователя
+            responses: responses, // Ответы для каждого круга {1: [response], 2: [response], 3: [response]}
+            circleSpeeds: { // Скорости круга
                 1: circleData[1].speed,
                 2: circleData[2].speed,
                 3: circleData[3].speed
             },
-            testDuration: testDuration / 1000
+            testDuration: testDuration / 1000 // Длительность теста
         };
 
         sendResultsToServer(results);
@@ -564,7 +564,6 @@
                 console.log(data.message);
             } else {
                 console.error('Ошибка при сохранении результатов:', data.message);
-                alert('Ошибка при сохранении результатов.');
             }
         })
         .catch(error => {

@@ -638,11 +638,9 @@
             const results = {
                 login: "<%= login %>",
                 reactionTimes: state.reactionTimes,
-                averageTime: calculateAverage(state.reactionTimes),
-                bestTime: state.bestTime,
-                missedSignals: state.missedSignals,
-                testDuration: state.testDuration / 1000,
-                timestamp: new Date().toISOString()
+                // Убрал missedSignals по причине, того что мы будем оценивать только реакцию пользователя на сигнал
+                // а не способность успеть в рамках заданного времени успеть нажать на сигнал
+                testDuration: state.testDuration / 1000
             };
             
             fetch('http://localhost:3000/api/test_visual_signal', {

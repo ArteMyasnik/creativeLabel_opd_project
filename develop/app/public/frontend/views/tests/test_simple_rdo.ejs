@@ -535,12 +535,11 @@
 
         // Подготовка данных для отправки
         const testData = {
-            login: "<%= login %>",
+            login: "<%= login %>", // Логин пользователя
             attempts: results.map(r => ({
-                signedError: r.signedError,
-                absoluteError: r.absoluteError
+                signedError: r.signedError, // Все ошибки со знаком
             })),
-            testDuration: testDuration / 1000
+            testDuration: testDuration / 1000 // Длительность теста
         };
 
         // Отправка данных на сервер
