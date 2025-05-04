@@ -7,120 +7,100 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
-        :root {
-            --primary-color: #479C92;
-            --primary-hover: #2d5e58;
-            --secondary-color: #ff6b6b;
-            --background-color: #121212;
-            --text-color: #ffffff;
-            --card-bg: #1e1e1e;
-            --border-radius: 12px;
-            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
         body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: black;
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
             padding: 20px;
             position: relative;
+            overflow-y: auto;
         }
 
-        .header {
+        body::before {
+            content: "";
+            background-image: url("../../Images/фон.jpg");
+            background-size: cover;
+            background-position: center;
+            opacity: 0.2;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Стили для кнопки "Главная страница" */
+        .top-button-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
             width: 100%;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            margin-bottom: 30px;
+            justify-content: flex-start;
         }
 
-        .btn {
-            padding: 12px 24px;
-            font-size: 16px;
-            font-weight: 600;
-            border: none;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            transition: all 0.3s ease;
+        .main-page-btn {
+            padding: 0.7rem 2rem;
+            font-size: 17px;
             font-family: 'Montserrat', sans-serif;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
+            cursor: pointer;
+            border: none;
+            border-radius: 20px;
+            background-color: #479C92;
             color: white;
+            transition: background-color 0.3s ease;
+            margin: 0.5rem;
         }
 
-        .btn-primary:hover {
-            background-color: var(--primary-hover);
-            transform: translateY(-2px);
+        .main-page-btn:hover {
+            background-color: #2d5e58;
         }
 
-        .btn-secondary {
-            background-color: var(--secondary-color);
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-
-        .btn-disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .test-container {
-            background-color: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 30px;
-            width: 100%;
-            max-width: 600px;
-            box-shadow: var(--box-shadow);
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        h1 {
-            font-size: 28px;
+        /* Новая секция для кнопок выбора длительности */
+        #durationButtons {
             margin-bottom: 20px;
-            color: var(--primary-color);
         }
-
-        p {
+        .durationBtn {
+            padding: 10px 20px;
+            margin: 5px;
             font-size: 16px;
-            line-height: 1.6;
-            margin-bottom: 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #479C92;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        .durationBtn.selected {
+            background: gray;
         }
 
         #test-container {
             position: relative;
             width: 300px;
             height: 300px;
-            background-color: #8B4513;
+            background: brown;
             border-radius: 50%;
-            border: 3px solid #000;
-            margin: 30px auto;
+            border: 3px solid black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
         }
 
         #divider {
             position: absolute;
             width: 3px;
             height: 100%;
-            background-color: #000;
-            left: 50%;
-            transform: translateX(-50%);
+            background: black;
         }
 
         .side {
@@ -146,9 +126,9 @@
             position: absolute;
             width: 20px;
             height: 20px;
-            background-color: red;
+            background: red;
             border-radius: 50%;
-            transform: translate(-50%, -50%);
+            top: 10px;
         }
 
         #star {
@@ -161,528 +141,327 @@
         }
 
         .button-container {
+            padding-top: 10px;
             display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 5px;
+            background-repeat: no-repeat;
+            font-size: 0;
         }
 
-        .duration-selector {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 20px 0;
-        }
-
-        .duration-btn {
-            padding: 10px 20px;
-            background-color: #333;
-            color: white;
-            border: none;
-            border-radius: var(--border-radius);
+        .button-container button {
+            margin: 0.5rem 0.5rem;
+            padding: 0.7rem 2rem;
+            font-size: 17px;
+            font-family: 'Montserrat', sans-serif;
             cursor: pointer;
-            transition: all 0.3s;
+            border: none;
+            border-radius: 20px;
+            background-color: #479C92;
+            color: white;
         }
 
-        .duration-btn.selected {
-            background-color: var(--primary-color);
+        .button-container button:hover {
+            background-color: #2d5e58;
+            transition: all 0.3s ease;
         }
 
-        .results {
-            background-color: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 25px;
-            width: 100%;
+        #results {
+            width: 90%;
             max-width: 600px;
-            box-shadow: var(--box-shadow);
-            display: none;
-        }
-
-        .results h2 {
-            color: var(--primary-color);
-            margin-bottom: 15px;
+            margin-top: 20px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 15px 0;
+            margin-top: 10px;
+        }
+
+        table, th, td {
+            border: 1px solid #000;
         }
 
         th, td {
-            padding: 12px;
+            padding: 8px;
             text-align: center;
-            border: 1px solid #333;
         }
 
         th {
-            background-color: #2a2a2a;
+            background-color: #f2f2f2;
+            color: black;
         }
 
         .result-block {
             margin-top: 20px;
             text-align: left;
-        }
-
-        .result-block h3 {
-            color: var(--primary-color);
-            margin-bottom: 10px;
-        }
-
-        .result-block ul {
-            margin: 10px 0 15px 20px;
-        }
-
-        .progress-container {
-            width: 100%;
-            height: 8px;
-            background-color: #333;
-            border-radius: 4px;
-            margin: 20px 0;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background-color: var(--primary-color);
-            width: 0%;
-            transition: width 0.3s;
-        }
-
-        /* Виджет приглашения */
-        .invite-widget {
-            background-color: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 20px;
             width: 100%;
             max-width: 600px;
-            box-shadow: var(--box-shadow);
-            margin-top: 30px;
         }
 
-        .invite-widget h3 {
-            color: var(--primary-color);
-            margin-bottom: 15px;
+        /* Стили для виджета приглашения */
+        #inviteWidget {
+            margin: 40px auto;
+            padding: 20px;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            border: 1px solid #479C92;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
-
-        .invite-link {
-            background-color: #2a2a2a;
+        #inviteWidget h3 {
+            margin-top: 0;
+            color: #479C92;
+        }
+        #inviteLink {
             padding: 12px;
-            border-radius: var(--border-radius);
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #479C92;
+            border-radius: 4px;
             word-break: break-all;
             margin: 15px 0;
-            font-family: monospace;
+            color: white;
         }
-
         .share-buttons {
             display: flex;
             gap: 10px;
             justify-content: center;
+            flex-wrap: wrap;
         }
-
-        .share-btn {
+        .share-button {
             padding: 10px 15px;
             border: none;
-            border-radius: var(--border-radius);
+            border-radius: 5px;
             cursor: pointer;
             font-family: 'Montserrat', sans-serif;
             transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
         }
-
-        .share-btn i {
-            font-size: 18px;
-        }
-
-        .copy-btn {
-            background-color: var(--primary-color);
+        #copyButton {
+            background: #479C92;
             color: white;
         }
-
-        .whatsapp-btn {
-            background-color: #25D366;
+        #whatsappButton {
+            background: #25D366;
             color: white;
         }
-
-        .telegram-btn {
-            background-color: #0088cc;
+        #telegramButton {
+            background: #0088cc;
             color: white;
         }
-
-        /* Адаптивность */
-        @media (max-width: 600px) {
-            .button-container {
-                flex-direction: column;
-            }
-
-            .duration-selector {
-                flex-direction: column;
-            }
-
-            .share-buttons {
-                flex-direction: column;
-            }
+        .share-button:hover {
+            opacity: 0.8;
+            transform: translateY(-2px);
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-<div class="header">
-    <button class="btn btn-primary" onclick="window.location.href='/main'">
-        <i class="fas fa-home"></i> Главная страница
-    </button>
+<!-- Кнопка "Главная страница" в левом верхнем углу -->
+<div class="top-button-container">
+    <button class="main-page-btn" onclick="window.location.href='/main'">Главная страница</button>
 </div>
 
-<div class="test-container">
-    <h1><i class="fas fa-stopwatch"></i> Тест реакции на движущийся объект</h1>
-    <p>Нажмите кнопку "Начать тест", затем нажимайте кнопку "Остановить", когда мяч будет на уровне звезды.</p>
-
-    <div class="duration-selector" id="durationButtons">
-        <button class="duration-btn" data-duration="30">30 секунд</button>
-        <button class="duration-btn" data-duration="60">1 минута</button>
-        <button class="duration-btn" data-duration="120">2 минуты</button>
-    </div>
-
-    <div class="progress-container">
-        <div class="progress-bar" id="progressBar"></div>
-    </div>
-
-    <div id="test-container">
-        <div id="divider"></div>
-        <div id="left-side" class="side">+</div>
-        <div id="right-side" class="side">-</div>
-        <div id="ball"></div>
-        <div id="star">★</div>
-    </div>
-
-    <div class="button-container">
-        <button class="btn btn-primary" id="startButton" disabled>Начать тест</button>
-        <button class="btn btn-secondary" id="stopButton" disabled>Остановить</button>
-    </div>
+<!-- Новая секция для кнопок выбора длительности -->
+<div id="durationButtons">
+    <button class="durationBtn" data-duration="30">30 с</button>
+    <button class="durationBtn" data-duration="60">60 с</button>
+    <button class="durationBtn" data-duration="120">120 с</button>
 </div>
 
-<div class="results" id="results">
-    <h2><i class="fas fa-chart-bar"></i> Результаты теста</h2>
-    <div id="resultsContent"></div>
-    <button class="btn btn-secondary" id="restartButton">Повторить тест</button>
+<div id="test-container">
+    <div id="divider"></div>
+    <div id="left-side" class="side">+</div>
+    <div id="right-side" class="side">-</div>
+    <div id="ball"></div>
+    <div id="star">★</div>
 </div>
+<div class="button-container">
+    <button onclick="startTest()">Начать тест</button>
+    <button onclick="stopTest()">Нажмите на кнопку</button>
+</div>
+<div id="results"></div>
 
-<div class="invite-widget">
-    <h3><i class="fas fa-share-alt"></i> Пригласите друзей</h3>
-    <p>Поделитесь этим тестом с друзьями и сравните результаты!</p>
-
-    <div class="invite-link" id="inviteLink"></div>
-
+<!-- Виджет для приглашения друзей -->
+<div id="inviteWidget">
+    <h3>Пригласите друзей на этот тест</h3>
+    <p>Ваша персональная ссылка:</p>
+    <div id="inviteLink"></div>
     <div class="share-buttons">
-        <button class="share-btn copy-btn" id="copyButton">
-            <i class="far fa-copy"></i> Копировать
-        </button>
-        <button class="share-btn whatsapp-btn" id="whatsappButton">
-            <i class="fab fa-whatsapp"></i> WhatsApp
-        </button>
-        <button class="share-btn telegram-btn" id="telegramButton">
-            <i class="fab fa-telegram"></i> Telegram
-        </button>
+        <button id="copyButton" class="share-button">Копировать</button>
+        <button id="whatsappButton" class="share-button">WhatsApp</button>
+        <button id="telegramButton" class="share-button">Telegram</button>
     </div>
 </div>
 
 <script>
-    // Конфигурация теста
-    const config = {
-        ballSpeed: 2, // Скорость движения мяча (градусов за кадр)
-        starAngle: 90 // Угол, на котором находится звезда (целевой угол)
-    };
-
-    // Состояние теста
-    let state = {
-        testDuration: 0, // Длительность теста (мс) - изначально 0
-        isRunning: false,
-        startTime: null,
-        angle: 180,
-        stoppedAngle: null,
-        results: [],
-        bestResult: null,
-        intervalId: null,
-        timeoutId: null,
-        progressInterval: null,
-        radius: 130,
-        centerX: 150,
-        centerY: 150
-    };
-
-    // Элементы DOM
-    const elements = {
-        testContainer: document.getElementById('test-container'),
-        ball: document.getElementById('ball'),
-        startButton: document.getElementById('startButton'),
-        stopButton: document.getElementById('stopButton'),
-        restartButton: document.getElementById('restartButton'),
-        results: document.getElementById('results'),
-        resultsContent: document.getElementById('resultsContent'),
-        progressBar: document.getElementById('progressBar'),
-        durationButtons: document.querySelectorAll('.duration-btn'),
-        inviteLink: document.getElementById('inviteLink'),
-        copyButton: document.getElementById('copyButton'),
-        whatsappButton: document.getElementById('whatsappButton'),
-        telegramButton: document.getElementById('telegramButton')
-    };
-
-    // Инициализация при загрузке страницы
-    document.addEventListener('DOMContentLoaded', () => {
-        initEventListeners();
-        initInviteWidget();
-        updateBallPosition(); // Инициализация позиции шарика
+    // Обработка выбора длительности теста:
+    // По умолчанию длительность теста 120 с (120000 мс)
+    let testDuration = 120000;
+    const durationButtons = document.querySelectorAll('.durationBtn');
+    durationButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            durationButtons.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            testDuration = parseInt(btn.dataset.duration) * 1000;
+        });
     });
 
-    function initEventListeners() {
-        // Кнопка старта теста
-        elements.startButton.addEventListener('click', startTest);
+    // Массив для хранения результатов каждой попытки:
+    // Каждый элемент: { attempt, signedError, absoluteError }
+    let results = [];
+    let testRunning = false;
+    let angle = 180;
+    let interval;
+    const radius = 130;
+    const centerX = 150, centerY = 150;
+    let stoppedAngle = null;
+    let startTime;
+    let bestResult = null;
+    let testTimeout;
+    const starAngle = 90; // Целевой угол
 
-        // Кнопка остановки теста
-        elements.stopButton.addEventListener('click', stopTest);
-
-        // Кнопка перезапуска теста
-        elements.restartButton.addEventListener('click', resetTest);
-
-        // Кнопки выбора длительности
-        elements.durationButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                elements.durationButtons.forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-                state.testDuration = parseInt(btn.dataset.duration) * 1000;
-
-                // Активируем кнопку "Начать тест" после выбора времени
-                elements.startButton.disabled = false;
-            });
-        });
-    }
-
-    function initInviteWidget() {
-        // Генерация реферальной ссылки
-        const referralLink = generateReferralLink();
-        elements.inviteLink.textContent = referralLink;
-
-        // Кнопка копирования
-        elements.copyButton.addEventListener('click', () => {
-            navigator.clipboard.writeText(referralLink).then(() => {
-                elements.copyButton.innerHTML = '<i class="fas fa-check"></i> Скопировано!';
-                setTimeout(() => {
-                    elements.copyButton.innerHTML = '<i class="far fa-copy"></i> Копировать';
-                }, 2000);
-            });
-        });
-
-        // Кнопка WhatsApp
-        elements.whatsappButton.addEventListener('click', () => {
-            const text = `Попробуй этот тест на скорость реакции: ${referralLink}`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-        });
-
-        // Кнопка Telegram
-        elements.telegramButton.addEventListener('click', () => {
-            const text = `Попробуй этот тест на скорость реакции: ${referralLink}`;
-            window.open(`https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(text)}`, '_blank');
-        });
-    }
-
+    // Функция для генерации реферальной ссылки
     function generateReferralLink() {
-        const baseUrl = window.location.href.split('?')[0];
+        const testUrl = window.location.href.split('?')[0];
         let userId = 'guest';
 
-        // Проверка различных источников для ID пользователя
+        // Проверка URL параметров
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('ref')) {
             userId = urlParams.get('ref');
-        } else if (document.cookie.includes('user_id=')) {
-            userId = document.cookie.split('; ').find(row => row.startsWith('user_id=')).split('=')[1];
-        } else if (localStorage.getItem('user_id')) {
+        }
+        // Проверка cookies
+        else if (document.cookie.includes('user_id=')) {
+            userId = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('user_id='))
+                .split('=')[1];
+        }
+        // Проверка localStorage
+        else if (localStorage.getItem('user_id')) {
             userId = localStorage.getItem('user_id');
         }
+        // Проверка sessionStorage
+        else if (sessionStorage.getItem('user_id')) {
+            userId = sessionStorage.getItem('user_id');
+        }
 
-        return `${baseUrl}?ref=${encodeURIComponent(userId)}&utm_source=referral&utm_medium=social&utm_campaign=reaction_test`;
+        return `${testUrl}?ref=${encodeURIComponent(userId)}&utm_source=referral&utm_medium=social&utm_campaign=reaction_test`;
+    }
+
+    // Функции для работы с реферальными ссылками
+    function copyToClipboard() {
+        const inviteLink = document.getElementById('inviteLink').textContent;
+        navigator.clipboard.writeText(inviteLink)
+            .then(() => {
+                const button = document.getElementById('copyButton');
+                const originalText = button.textContent;
+                button.textContent = 'Скопировано!';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                }, 2000);
+            })
+            .catch(err => {
+                console.error('Ошибка копирования:', err);
+                const textarea = document.createElement('textarea');
+                textarea.value = inviteLink;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    const button = document.getElementById('copyButton');
+                    const originalText = button.textContent;
+                    button.textContent = 'Скопировано!';
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                    }, 2000);
+                } catch (err) {
+                    alert('Не удалось скопировать ссылку. Пожалуйста, скопируйте вручную.');
+                }
+                document.body.removeChild(textarea);
+            });
+    }
+
+    function shareViaWhatsApp() {
+        const inviteLink = document.getElementById('inviteLink').textContent;
+        const text = `Привет! Попробуй этот тест на скорость реакции: ${inviteLink}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    function shareViaTelegram() {
+        const inviteLink = document.getElementById('inviteLink').textContent;
+        const text = `Привет! Попробуй этот тест на скорость реакции: ${inviteLink}`;
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    // Инициализация виджета приглашения
+    function initInviteWidget() {
+        const inviteLink = generateReferralLink();
+        document.getElementById('inviteLink').textContent = inviteLink;
+
+        document.getElementById('copyButton').addEventListener('click', copyToClipboard);
+        document.getElementById('whatsappButton').addEventListener('click', shareViaWhatsApp);
+        document.getElementById('telegramButton').addEventListener('click', shareViaTelegram);
     }
 
     function startTest() {
-        // Проверка, что время выбрано
-        if (state.testDuration <= 0) {
-            alert('Пожалуйста, выберите длительность теста');
-            return;
-        }
+        if (testRunning) return;
+        testRunning = true;
+        angle = 180;
+        stoppedAngle = null;
+        startTime = Date.now();
+        bestResult = null;
+        results = [];
+        document.getElementById("results").innerHTML = "";
+        clearInterval(interval);
+        clearTimeout(testTimeout);
+        interval = setInterval(moveBall, 20);
 
-        // Сброс состояния
-        resetTestState();
-
-        // Настройка интерфейса
-        elements.startButton.disabled = true;
-        elements.stopButton.disabled = false;
-        elements.results.style.display = "none";
-
-        // Запуск теста
-        state.isRunning = true;
-        state.startTime = Date.now();
-
-        // Запуск прогресс-бара
-        updateProgressBar();
-        state.progressInterval = setInterval(updateProgressBar, 100);
-
-        // Запуск анимации мяча
-        state.angle = 180;
-        updateBallPosition();
-        state.intervalId = setInterval(moveBall, 20);
-
-        // Автоматическое завершение теста по истечении времени
-        state.timeoutId = setTimeout(endTest, state.testDuration);
-    }
-
-    function resetTestState() {
-        // Очистка предыдущих таймеров
-        if (state.intervalId) clearInterval(state.intervalId);
-        if (state.timeoutId) clearTimeout(state.timeoutId);
-        if (state.progressInterval) clearInterval(state.progressInterval);
-
-        // Сброс состояния
-        state = {
-            ...state,
-            isRunning: false,
-            startTime: null,
-            angle: 180,
-            stoppedAngle: null,
-            results: [],
-            bestResult: null,
-            intervalId: null,
-            timeoutId: null,
-            progressInterval: null
-        };
-
-        // Сброс интерфейса
-        elements.progressBar.style.width = "0%";
-        elements.progressBar.style.backgroundColor = "#479C92";
-        elements.startButton.disabled = state.testDuration <= 0;
-        elements.stopButton.disabled = true;
-        updateBallPosition();
+        // Используем выбранную длительность теста
+        testTimeout = setTimeout(() => {
+            clearInterval(interval);
+            testRunning = false;
+            showFinalResults();
+        }, testDuration);
     }
 
     function moveBall() {
-        if (state.stoppedAngle !== null) return;
-
-        state.angle += config.ballSpeed;
-        if (state.angle < 0) {
-            state.angle = 360;
+        if (stoppedAngle !== null) return;
+        let ball = document.getElementById("ball");
+        let radian = angle * (Math.PI / 180);
+        let x = centerX + radius * Math.cos(radian);
+        let y = centerY - radius * Math.sin(radian);
+        ball.style.left = x + "px";
+        ball.style.top = y + "px";
+        angle -= 2;
+        if (angle < 0) {
+            angle = 360;
         }
-
-        updateBallPosition();
-    }
-
-    function updateBallPosition() {
-        const radian = state.angle * (Math.PI / 180);
-        const x = state.centerX + state.radius * Math.cos(radian);
-        const y = state.centerY + state.radius * Math.sin(radian);
-
-        // Позиционируем шарик с учетом его размеров
-        elements.ball.style.left = `${x}px`;
-        elements.ball.style.top = `${y}px`;
     }
 
     function stopTest() {
-        if (!state.isRunning || state.stoppedAngle !== null) return;
-
-        state.stoppedAngle = state.angle;
-        if (state.intervalId) clearInterval(state.intervalId);
-
-        const signedError = state.stoppedAngle - config.starAngle;
-        const absoluteError = Math.abs(signedError);
-
-        state.results.push({
-            attempt: state.results.length + 1,
+        if (!testRunning || stoppedAngle !== null) return;
+        stoppedAngle = angle;
+        clearInterval(interval);
+        let signedError = stoppedAngle - starAngle;
+        let absoluteError = Math.abs(signedError);
+        results.push({
+            attempt: results.length + 1,
             signedError: signedError,
             absoluteError: absoluteError
         });
-
-        // Обновление лучшего результата
-        if (state.bestResult === null || absoluteError < state.bestResult) {
-            state.bestResult = absoluteError;
+        if (bestResult === null || absoluteError < bestResult) {
+            bestResult = absoluteError;
         }
-
-        // Если время еще не вышло, продолжаем тест через секунду
-        if (Date.now() - state.startTime < state.testDuration) {
+        if (Date.now() - startTime < testDuration) {
             setTimeout(() => {
-                state.stoppedAngle = null;
-                state.intervalId = setInterval(moveBall, 20);
+                stoppedAngle = null;
+                interval = setInterval(moveBall, 20);
             }, 1000);
         } else {
-            endTest();
+            testRunning = false;
+            showFinalResults();
         }
-    }
-
-    function endTest() {
-        state.isRunning = false;
-        if (state.intervalId) clearInterval(state.intervalId);
-        if (state.progressInterval) clearInterval(state.progressInterval);
-
-        // Останавливаем мяч
-        state.angle = state.stoppedAngle;
-        updateBallPosition();
-
-        // Обновление интерфейса
-        elements.startButton.disabled = false;
-        elements.stopButton.disabled = true;
-
-        // Показать результаты
-        showResults();
-
-        // Отправить результаты на сервер
-        sendResultsToServer();
-    }
-
-    function showResults() {
-        // Расчет статистики
-        const premature = state.results.filter(r => r.signedError > 0).map(r => r.signedError);
-        const delayed = state.results.filter(r => r.signedError < 0).map(r => r.signedError);
-        const absErrors = state.results.map(r => r.absoluteError);
-
-        const avgPremature = premature.length ? average(premature).toFixed(2) : "N/A";
-        const avgDelayed = delayed.length ? average(delayed).toFixed(2) : "N/A";
-        const avgAbsolute = state.results.length ? average(absErrors).toFixed(2) : "0";
-        const stdAbs = state.results.length ? stdDeviation(absErrors).toFixed(2) : "0";
-        const stdSigned = state.results.length ? stdDeviation(state.results.map(r => r.signedError)).toFixed(2) : "0";
-        const avgSigned = state.results.length ? average(state.results.map(r => r.signedError)) : 0;
-        const signResponse = avgSigned > 0 ? "+" : (avgSigned < 0 ? "–" : "0");
-
-        // Формирование HTML с результатами
-        let html = `<table>
-                    <tr>
-                        <th>Попытка</th>
-                        <th>Подписанная ошибка (°)</th>
-                        <th>Абсолютная ошибка (°)</th>
-                    </tr>`;
-
-        state.results.forEach(r => {
-            const sign = r.signedError > 0 ? "+" : (r.signedError < 0 ? "–" : "0");
-            html += `<tr>
-                        <td>${r.attempt}</td>
-                        <td>${sign} ${Math.abs(r.signedError).toFixed(2)}</td>
-                        <td>${r.absoluteError.toFixed(2)}</td>
-                    </tr>`;
-        });
-
-        html += `</table>
-                <div class="result-block">
-                    <h3>Оценка:</h3>
-                    <p><strong>1. Точность ответов:</strong></p>
-                    <ul>
-                        <li>Время преждевременного ответа (знак "+"): ${avgPremature}</li>
-                        <li>Время запаздывания ответа (знак "–"): ${avgDelayed}</li>
-                    </ul>
-                    <p><strong>2. Значение по модулю:</strong> ${avgAbsolute}°</p>
-                    <p><strong>3. Знак ответа:</strong> ${signResponse}</p>
-                    <p><strong>4. Стандартное отклонение (абсолютное):</strong> ${stdAbs}</p>
-                    <p><strong>5. Стандартное отклонение (с учётом знака):</strong> ${stdSigned}</p>
-                </div>`;
-
-        elements.resultsContent.innerHTML = html;
-        elements.results.style.display = "block";
     }
 
     function average(arr) {
@@ -692,55 +471,95 @@
 
     function stdDeviation(arr) {
         if (arr.length === 0) return 0;
-        const avg = average(arr);
-        const squareDiffs = arr.map(val => Math.pow(val - avg, 2));
-        const avgSquareDiff = average(squareDiffs);
+        let avg = average(arr);
+        let squareDiffs = arr.map(val => Math.pow(val - avg, 2));
+        let avgSquareDiff = average(squareDiffs);
         return Math.sqrt(avgSquareDiff);
     }
 
-    function updateProgressBar() {
-        if (!state.startTime) return;
+    function showFinalResults() {
+        let resultDiv = document.getElementById("results");
+        let html = "<h2>Результаты теста</h2>";
 
-        const elapsed = Date.now() - state.startTime;
-        const progress = Math.min((elapsed / state.testDuration) * 100, 100);
-        elements.progressBar.style.width = `${progress}%`;
-
-        // Изменение цвета при приближении к концу
-        if (progress > 80) {
-            elements.progressBar.style.backgroundColor = "#ff6b6b";
-        } else if (progress > 50) {
-            elements.progressBar.style.backgroundColor = "#feca57";
-        } else {
-            elements.progressBar.style.backgroundColor = "#479C92";
+        if (results.length === 0) {
+            html += "<p>Нет результатов.</p>";
+            resultDiv.innerHTML = html;
+            return;
         }
-    }
 
-    function resetTest() {
-        resetTestState();
-        elements.results.style.display = "none";
-    }
+        // Вычисляем все показатели
+        let premature = results.filter(r => r.signedError > 0).map(r => r.signedError);
+        let delayed = results.filter(r => r.signedError < 0).map(r => r.signedError);
+        let absErrors = results.map(r => r.absoluteError);
 
-    function sendResultsToServer() {
-        const resultsData = {
-            login: "<%= login %>",
-            attempts: state.results.map(r => ({
-                signedError: r.signedError,
-                absoluteError: r.absoluteError
+        let avgPremature = premature.length ? average(premature).toFixed(2) : "N/A";
+        let avgDelayed = delayed.length ? average(delayed).toFixed(2) : "N/A";
+        let avgAbsolute = average(absErrors).toFixed(2);
+        let stdAbs = stdDeviation(absErrors).toFixed(2);
+        let stdSigned = stdDeviation(results.map(r => r.signedError)).toFixed(2);
+        let avgSigned = average(results.map(r => r.signedError));
+        let signResponse = avgSigned > 0 ? "+" : (avgSigned < 0 ? "–" : "0");
+
+        // Отображаем результаты
+        html += `<table>
+                <tr>
+                  <th>Попытка</th>
+                  <th>Подписанная ошибка (°)</th>
+                  <th>Абсолютная ошибка (°)</th>
+                </tr>`;
+
+        results.forEach(r => {
+            let sign = r.signedError > 0 ? "+" : (r.signedError < 0 ? "–" : "0");
+            html += `<tr>
+                  <td>${r.attempt}</td>
+                  <td>${sign} ${Math.abs(r.signedError).toFixed(2)}</td>
+                  <td>${r.absoluteError.toFixed(2)}</td>
+                </tr>`;
+        });
+
+        html += `</table>
+            <div class="result-block">
+                <h3>Оценка:</h3>
+                <p><strong>1. Точность ответов:</strong></p>
+                <ul>
+                  <li>Время преждевременного ответа (знак "+"): ${avgPremature}</li>
+                  <li>Время запаздывания ответа (знак "–"): ${avgDelayed}</li>
+                </ul>
+                <p><strong>2. Значение по модулю:</strong> ${avgAbsolute}°</p>
+                <p><strong>3. Знак ответа:</strong> ${signResponse}</p>
+                <p><strong>4. Стандартное отклонение (абсолютное):</strong> ${stdAbs}</p>
+                <p><strong>5. Стандартное отклонение (с учётом знака):</strong> ${stdSigned}</p>
+            </div>`;
+
+        resultDiv.innerHTML = html;
+
+        // Подготовка данных для отправки
+        const testData = {
+            login: "<%= login %>", // Логин пользователя
+            attempts: results.map(r => ({
+                signedError: r.signedError, // Все ошибки со знаком
             })),
-            testDuration: state.testDuration / 1000,
-            timestamp: new Date().toISOString()
+            testDuration: testDuration / 1000 // Длительность теста
         };
 
+        // Отправка данных на сервер
+        sendResultsToServer(testData);
+    }
+
+    // Функция для отправки результатов на сервер
+    function sendResultsToServer(results) {
         fetch('http://localhost:3000/api/test_simple_rdo', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(resultsData),
+            body: JSON.stringify(results),
         })
             .then(response => response.json())
             .then(data => {
-                if (!data.success) {
+                if (data.success) {
+                    console.log('Результаты успешно сохранены:', data.message);
+                } else {
                     console.error('Ошибка при сохранении результатов:', data.message);
                 }
             })
@@ -748,6 +567,18 @@
                 console.error('Ошибка при отправке результатов:', error);
             });
     }
+
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        initInviteWidget();
+
+        // Проверяем, пришел ли пользователь по реферальной ссылке
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('ref')) {
+            const referrerId = urlParams.get('ref');
+            console.log('Пользователь пришел по реферальной ссылке от:', referrerId);
+        }
+    });
 </script>
 </body>
 </html>

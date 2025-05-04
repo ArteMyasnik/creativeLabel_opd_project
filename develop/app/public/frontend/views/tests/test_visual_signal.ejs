@@ -113,7 +113,6 @@
             display: none;
             box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
             transition: transform 0.2s;
-            cursor: pointer;
         }
 
         #signal.active {
@@ -332,9 +331,8 @@
             <p id="reactionCount">0</p>
         </div>
         <div class="stat-card">
-            <h3>Максимальная ошибка</h3>
-            <p id="maxError">0</p>
-            <small>миллисекунд</small>
+            <h3>Пропущено</h3>
+            <p id="missedCount">0</p>
         </div>
     </div>
 
@@ -364,7 +362,8 @@
     // Конфигурация теста
     const config = {
         minDelay: 1000,    // Минимальная задержка между сигналами (мс)
-        maxDelay: 3000     // Максимальная задержка между сигналами (мс)
+        maxDelay: 3000,    // Максимальная задержка между сигналами (мс)
+        signalDuration: 500 // Длительность показа сигнала (мс)
     };
 
     // Состояние теста
@@ -374,7 +373,7 @@
         startTime: null,
         signalTime: null,
         reactionTimes: [],
-        maxError: 0,
+        missedSignals: 0,
         bestTime: null,
         timeoutIds: [],
         progressInterval: null
@@ -389,7 +388,7 @@
         averageTime: document.getElementById('averageTime'),
         bestTime: document.getElementById('bestTime'),
         reactionCount: document.getElementById('reactionCount'),
-        maxError: document.getElementById('maxError'),
+        missedCount: document.getElementById('missedCount'),
         progressBar: document.getElementById('progressBar'),
         durationButtons: document.querySelectorAll('.duration-btn'),
         instructions: document.getElementById('instructions'),
@@ -507,7 +506,7 @@
             startTime: null,
             signalTime: null,
             reactionTimes: [],
-            maxError: 0,
+            missedSignals: 0,
             bestTime: null,
             timeoutIds: [],
             progressInterval: null
@@ -534,6 +533,16 @@
         elements.signal.style.display = "block";
         elements.signal.classList.add("active", "pulse");
         state.signalTime = Date.now();
+
+        // Если сигнал не был замечен
+        state.timeoutIds.push(setTimeout(() => {
+            if (elements.signal.style.display === "block") {
+                elements.signal.style.display = "none";
+                elements.signal.classList.remove("active", "pulse");
+                state.missedSignals++;
+                scheduleNextSignal();
+            }
+        }, config.signalDuration));
     }
 
     function handleReaction() {
@@ -545,11 +554,6 @@
         // Обновление лучшего результата
         if (state.bestTime === null || reactionTime < state.bestTime) {
             state.bestTime = reactionTime;
-        }
-
-        // Обновление максимальной ошибки
-        if (reactionTime > state.maxError) {
-            state.maxError = reactionTime;
         }
 
         // Скрытие сигнала
@@ -584,13 +588,13 @@
         const average = calculateAverage(state.reactionTimes);
         const best = state.bestTime || 0;
         const count = state.reactionTimes.length;
-        const maxError = state.maxError || 0;
+        const missed = state.missedSignals;
 
         // Обновление интерфейса
         elements.averageTime.textContent = average.toFixed(0);
         elements.bestTime.textContent = best.toFixed(0);
         elements.reactionCount.textContent = count;
-        elements.maxError.textContent = maxError.toFixed(0);
+        elements.missedCount.textContent = missed;
 
         // Показать блок результатов
         elements.results.style.display = "block";
@@ -634,11 +638,9 @@
         const results = {
             login: "<%= login %>",
             reactionTimes: state.reactionTimes,
-            averageTime: calculateAverage(state.reactionTimes),
-            bestTime: state.bestTime,
-            maxError: state.maxError,
-            testDuration: state.testDuration / 1000,
-            timestamp: new Date().toISOString()
+            // Убрал missedSignals по причине, того что мы будем оценивать только реакцию пользователя на сигнал
+            // а не способность успеть в рамках заданного времени успеть нажать на сигнал
+            testDuration: state.testDuration / 1000
         };
 
         fetch('http://localhost:3000/api/test_visual_signal', {

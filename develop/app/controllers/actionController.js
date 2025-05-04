@@ -76,6 +76,48 @@ class ActionController {
 
     async testVisualSignal(req, res) {
         try {
+            const { login, reactionTimes, testDuration } = req.body;
+
+            if (login == null) {
+                return res.status(200).json({
+                    success: true,
+                    message: 'Пользователь не зарегистрирован, результаты не сохраняются'
+                });
+            }
+
+            const user = await pool.query(
+                'SELECT id FROM users WHERE login = $1',
+                [login]
+            );
+
+            if (!user.rows || user.rows.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Пользователь с таким логином не найден'
+                });
+            }
+
+            const result = await pool.query(
+                'INSERT INTO test_visual_signal (user_id, reaction_times, test_duration) VALUES ($1, $2, $3, $4) RETURNING *',
+                [user.rows[0].id, reactionTimes, testDuration]
+            );
+
+            return res.status(201).json({
+                success: true,
+                message: 'Результаты теста успешно сохранены',
+                data: result.rows[0]
+            });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json({
+                success: false,
+                message: "Ошибка сервера"
+            });
+        }
+    }
+
+    async testSoundSignal(req, res) {
+        try {
             const { login, reactionTimes, missedSignals, testDuration } = req.body;
 
             if (login == null) {
@@ -98,7 +140,7 @@ class ActionController {
             }
 
             const result = await pool.query(
-                'INSERT INTO test_visual_signal (user_id, reaction_times, missed_signals, test_duration) VALUES ($1, $2, $3, $4) RETURNING *',
+                'INSERT INTO test_sound_signal (user_id, reaction_times, missed_signals, test_duration) VALUES ($1, $2, $3, $4) RETURNING *',
                 [user.rows[0].id, reactionTimes, missedSignals, testDuration]
             );
 
@@ -184,6 +226,48 @@ class ActionController {
             const result = await pool.query(
                 'INSERT INTO test_digital_signal (user_id, reaction_times, correct_answers, wrong_answers, missed_attempts, test_duration) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
                 [user.rows[0].id, reactionTimes, correctAnswers, wrongAnswers, missedAttempts, testDuration]
+            );
+
+            return res.status(201).json({
+                success: true,
+                message: 'Результаты теста успешно сохранены',
+                data: result.rows[0]
+            });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json({
+                success: false,
+                message: "Ошибка сервера"
+            });
+        }
+    }
+
+    async testAudioSum(req, res) {
+        try {
+            const { login, reactionTimes, correctAnswers, wrongAnswers, testDuration } = req.body;
+
+            if (login == null) {
+                return res.status(200).json({
+                    success: true,
+                    message: 'Пользователь не зарегистрирован, результаты не сохраняются'
+                });
+            }
+
+            const user = await pool.query(
+                'SELECT id FROM users WHERE login = $1',
+                [login]
+            );
+
+            if (!user.rows || user.rows.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Пользователь с таким логином не найден'
+                });
+            }
+
+            const result = await pool.query(
+                'INSERT INTO test_audio_sum (user_id, reaction_times, correct_answers, wrong_answers, test_duration) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+                [user.rows[0].id, reactionTimes, correctAnswers, wrongAnswers, testDuration]
             );
 
             return res.status(201).json({

@@ -12,12 +12,10 @@
             background-color: #f5f5f5;
         }
 
-        /* Скрытие и плавные переключения */
         .hidden {
             display: none !important;
         }
 
-        /* Кнопки */
         .reaction-button {
             width: 60px;
             height: 60px;
@@ -32,6 +30,11 @@
 
         .reaction-button:hover {
             transform: scale(1.1);
+        }
+
+        .reaction-button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(71, 156, 146, 0.5);
         }
 
         #btn1 {
@@ -66,6 +69,7 @@
             display: flex;
             justify-content: center;
             margin: 20px 0;
+            gap: 20px;
         }
 
         canvas {
@@ -118,7 +122,6 @@
             text-align: center;
         }
 
-        /* Стили для кнопки "Главная страница" */
         .button-container {
             padding-top: 10px;
             display: flex;
@@ -132,6 +135,7 @@
             top: 0;
             left: 0;
         }
+
         .button-container button {
             margin: 0.5rem 0.5rem;
             padding: 0.7rem 2rem;
@@ -143,15 +147,16 @@
             background-color: #479C92;
             color: white;
         }
+
         .button-container button:hover {
             background-color: #2d5e58;
             transition: all 0.3s ease;
         }
+
         .left-button {
             margin-right: auto;
         }
 
-        /* Стили для виджета приглашения */
         #inviteWidget {
             margin: 40px auto;
             padding: 20px;
@@ -161,10 +166,12 @@
             border: 1px solid #479C92;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
+
         #inviteWidget h3 {
             margin-top: 0;
             color: #479C92;
         }
+
         #inviteLink {
             padding: 12px;
             background: #f8f8f8;
@@ -174,12 +181,14 @@
             margin: 15px 0;
             color: #333;
         }
+
         .share-buttons {
             display: flex;
             gap: 10px;
             justify-content: center;
             flex-wrap: wrap;
         }
+
         .share-button {
             padding: 10px 15px;
             border: none;
@@ -188,18 +197,22 @@
             font-family: Arial, sans-serif;
             transition: all 0.3s;
         }
+
         #copyButton {
             background: #479C92;
             color: white;
         }
+
         #whatsappButton {
             background: #25D366;
             color: white;
         }
+
         #telegramButton {
             background: #0088cc;
             color: white;
         }
+
         .share-button:hover {
             opacity: 0.8;
             transform: translateY(-2px);
@@ -213,51 +226,46 @@
     </div>
 </div>
 
-<!-- Кнопка "Начать тест" (изначально видна) -->
 <button id="startTest">Начать тест</button>
 
-<!-- Кнопки выбора времени -->
 <div id="timeSelection" class="hidden">
     <button onclick="setTestDuration(30000)">30 секунд</button>
     <button onclick="setTestDuration(60000)">1 минута</button>
     <button onclick="setTestDuration(120000)">2 минуты</button>
 </div>
 
-<!-- Весь интерфейс теста (изначально скрыт) -->
 <div id="testInterface" class="hidden">
     <h1>Тест реакции</h1>
 
     <div class="canvas-container">
         <canvas id="canvas1" width="200" height="200"></canvas>
-        <canvas id="canvas2" width="200" height="200" class="hidden"></canvas>
-        <canvas id="canvas3" width="200" height="200" class="hidden"></canvas>
+        <canvas id="canvas2" width="200" height="200"></canvas>
+        <canvas id="canvas3" width="200" height="200"></canvas>
     </div>
 
     <div class="buttons-container">
         <div class="button-block">
             <span class="arrow">⬇</span>
-            <button class="reaction-button" id="btn1">1</button>
+            <button class="reaction-button" id="btn1" tabindex="-1">1</button>
         </div>
         <div class="button-block">
             <span class="arrow">⬇</span>
-            <button class="reaction-button" id="btn2">2</button>
+            <button class="reaction-button" id="btn2" tabindex="-1">2</button>
         </div>
         <div class="button-block">
             <span class="arrow">⬇</span>
-            <button class="reaction-button" id="btn3">3</button>
+            <button class="reaction-button" id="btn3" tabindex="-1">3</button>
         </div>
     </div>
 
     <div id="message"></div>
 </div>
 
-<!-- Контейнер с кнопкой "Перезапустить" и результатами (скрыт до окончания теста) -->
 <div id="resultsContainer" class="hidden">
     <button id="restart">Перезапустить тест</button>
     <div id="results"></div>
 </div>
 
-<!-- Виджет для приглашения друзей -->
 <div id="inviteWidget">
     <h3>Пригласите друзей на этот тест</h3>
     <p>Ваша персональная ссылка:</p>
@@ -270,15 +278,10 @@
 </div>
 
 <script>
-    let testDuration = 120000;  // по умолчанию 2 минуты
-    let segmentDuration = testDuration / 3;
-
-    // Параметры теста
+    let testDuration = 120000;
     const threshold_ms = 100;
-
     let startTime = null;
     let lastTimestamp = null;
-    let currentCircle = 1;
     let testActive = false;
     let animationFrameId;
 
@@ -291,40 +294,28 @@
     let responses = {1: [], 2: [], 3: []};
     let circleResults = {1: {}, 2: {}, 3: {}};
 
-    // Функция для генерации реферальной ссылки
     function generateReferralLink() {
-        // Получаем текущий URL теста
         const testUrl = window.location.href.split('?')[0];
-        
-        // Пытаемся получить ID пользователя из различных источников
         let userId = 'guest';
-        
-        // Проверка URL параметров
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('ref')) {
             userId = urlParams.get('ref');
         }
-        // Проверка cookies
         else if (document.cookie.includes('user_id=')) {
             userId = document.cookie
                 .split('; ')
                 .find(row => row.startsWith('user_id='))
                 .split('=')[1];
         }
-        // Проверка localStorage
         else if (localStorage.getItem('user_id')) {
             userId = localStorage.getItem('user_id');
         }
-        // Проверка sessionStorage
         else if (sessionStorage.getItem('user_id')) {
             userId = sessionStorage.getItem('user_id');
         }
-        
-        // Генерируем ссылку с параметрами
         return `${testUrl}?ref=${encodeURIComponent(userId)}&utm_source=referral&utm_medium=social&utm_campaign=reaction_test`;
     }
 
-    // Функции для работы с реферальными ссылками
     function copyToClipboard() {
         const inviteLink = document.getElementById('inviteLink').textContent;
         navigator.clipboard.writeText(inviteLink)
@@ -338,7 +329,6 @@
             })
             .catch(err => {
                 console.error('Ошибка копирования:', err);
-                // Альтернативный метод для старых браузеров
                 const textarea = document.createElement('textarea');
                 textarea.value = inviteLink;
                 document.body.appendChild(textarea);
@@ -370,12 +360,9 @@
         window.open(`https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(text)}`, '_blank');
     }
 
-    // Инициализация виджета приглашения
     function initInviteWidget() {
         const inviteLink = generateReferralLink();
         document.getElementById('inviteLink').textContent = inviteLink;
-        
-        // Назначаем обработчики для кнопок
         document.getElementById('copyButton').addEventListener('click', copyToClipboard);
         document.getElementById('whatsappButton').addEventListener('click', shareViaWhatsApp);
         document.getElementById('telegramButton').addEventListener('click', shareViaTelegram);
@@ -440,13 +427,6 @@
         drawCircle(num);
     }
 
-    function updateCanvasVisibility() {
-        for (let i = 1; i <= 3; i++) {
-            let canvasEl = document.getElementById("canvas" + i);
-            canvasEl.classList.toggle("hidden", i !== currentCircle);
-        }
-    }
-
     function animationLoop(timestamp) {
         if (!testActive) return;
         if (!startTime) {
@@ -458,31 +438,18 @@
             endTest();
             return;
         }
-        const segment = Math.floor(elapsed / segmentDuration) + 1;
-        if (segment !== currentCircle) {
-            currentCircle = segment;
-            updateCanvasVisibility();
-        }
         const dt = timestamp - lastTimestamp;
         lastTimestamp = timestamp;
-        updateCircle(currentCircle, dt);
+        
+        updateCircle(1, dt);
+        updateCircle(2, dt);
+        updateCircle(3, dt);
+        
         animationFrameId = requestAnimationFrame(animationLoop);
-    }
-
-    function showMessage(text) {
-        const msgDiv = document.getElementById("message");
-        msgDiv.textContent = text;
-        setTimeout(() => {
-            msgDiv.textContent = "";
-        }, 1500);
     }
 
     function checkReaction(num) {
         if (!testActive) return;
-        if (num !== currentCircle) {
-            showMessage("Сейчас активен круг №" + currentCircle);
-            return;
-        }
         const cd = circleData[num];
         let errorAngle = normalizeAngle(cd.starAngle - cd.angle);
         let errorSec = errorAngle / cd.speed;
@@ -499,6 +466,14 @@
         } else {
             showMessage("Промах: " + sign + errorMs.toFixed(0) + " ms (Круг " + num + ")");
         }
+    }
+
+    function showMessage(text) {
+        const msgDiv = document.getElementById("message");
+        msgDiv.textContent = text;
+        setTimeout(() => {
+            msgDiv.textContent = "";
+        }, 1500);
     }
 
     function average(arr) {
@@ -520,19 +495,17 @@
         document.getElementById("testInterface").classList.add("hidden");
         document.getElementById("resultsContainer").classList.remove("hidden");
 
-        // Подготавливаем минимальные данные для отправки
         const results = {
-            login: "<%= login %>",
-            responses: responses, // Все реакции пользователя по кругам
-            circleSpeeds: { // Скорости кругов (для вычисления угловых ошибок)
+            login: "<%= login %>", // Логин пользователя
+            responses: responses, // Ответы для каждого круга {1: [response], 2: [response], 3: [response]}
+            circleSpeeds: { // Скорости круга
                 1: circleData[1].speed,
                 2: circleData[2].speed,
                 3: circleData[3].speed
             },
-            testDuration: testDuration / 1000 // Длительность теста в секундах
+            testDuration: testDuration / 1000 // Длительность теста
         };
 
-        // Отправляем результаты на сервер
         sendResultsToServer(results);
     }
 
@@ -545,7 +518,7 @@
             let mean = average(res).toFixed(0);
             let absMean = average(res.map(Math.abs)).toFixed(0);
             let std = stdDev(res).toFixed(0);
-            html += "<tr><td>" + i + "</td><td>" + res.length + "</td><td>" + mean + "</td><td>" + absMean + "</td><td>" + std + "</td></tr>";
+            html += `<tr><td>${i}</td><td>${res.length}</td><td>${mean}</td><td>${absMean}</td><td>${std}</td></tr>`;
         }
         html += "</table>";
         resDiv.innerHTML = html;
@@ -560,7 +533,6 @@
 
     function setTestDuration(duration) {
         testDuration = duration;
-        segmentDuration = testDuration / 3;
         document.getElementById("timeSelection").classList.add("hidden");
         document.getElementById("testInterface").classList.remove("hidden");
         initCircle(1);
@@ -573,15 +545,12 @@
         testActive = true;
         startTime = null;
         lastTimestamp = null;
-        currentCircle = 1;
         document.getElementById("startTest").classList.add("hidden");
         document.getElementById("timeSelection").classList.add("hidden");
         animationFrameId = requestAnimationFrame(animationLoop);
     }
 
-    // Функция для отправки результатов на сервер
     function sendResultsToServer(results) {
-        // Отправка данных на сервер
         fetch('http://localhost:3000/api/test_complex_rdo', {
             method: 'POST',
             headers: {
@@ -589,22 +558,28 @@
             },
             body: JSON.stringify(results),
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success === true) {
-                    console.log(data.message);
-                } else {
-                    console.error('Ошибка при сохранении результатов:', data.message);
-                    alert('Ошибка при сохранении результатов.');
-                }
-            })
-            .catch(error => {
-                console.error('Ошибка:', error);
-                alert('Произошла ошибка при отправке результатов.');
-            });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success === true) {
+                console.log(data.message);
+            } else {
+                console.error('Ошибка при сохранении результатов:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при отправке результатов.');
+        });
     }
 
-    // Инициализация при загрузке страницы
+    function handleKeyPress(e) {
+        if (!testActive) return;
+        const key = e.key;
+        if (key === '1') checkReaction(1);
+        if (key === '2') checkReaction(2);
+        if (key === '3') checkReaction(3);
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById("restart").addEventListener("click", restartTest);
         document.getElementById("startTest").addEventListener("click", function () {
@@ -612,20 +587,27 @@
             document.getElementById("startTest").classList.add("hidden");
         });
 
-        // Слушатели событий для кнопок
-        document.getElementById("btn1").addEventListener("click", () => checkReaction(1));
-        document.getElementById("btn2").addEventListener("click", () => checkReaction(2));
-        document.getElementById("btn3").addEventListener("click", () => checkReaction(3));
-        
-        // Инициализируем виджет приглашения
+        document.addEventListener('keydown', handleKeyPress);
+
+        document.getElementById("btn1").addEventListener("mousedown", e => {
+            e.preventDefault();
+            checkReaction(1);
+        });
+        document.getElementById("btn2").addEventListener("mousedown", e => {
+            e.preventDefault();
+            checkReaction(2);
+        });
+        document.getElementById("btn3").addEventListener("mousedown", e => {
+            e.preventDefault();
+            checkReaction(3);
+        });
+
         initInviteWidget();
-        
-        // Проверяем, пришел ли пользователь по реферальной ссылке
+
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('ref')) {
             const referrerId = urlParams.get('ref');
             console.log('Пользователь пришел по реферальной ссылке от:', referrerId);
-            // Здесь можно отправить информацию о реферере на сервер
         }
     });
 </script>
