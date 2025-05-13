@@ -444,7 +444,6 @@
 
     // Функция для отправки результатов на сервер
     function sendResultsToServer(results) {
-        // Замените URL на ваш реальный endpoint сервера
         fetch('http://localhost:3000/api/test_digital_signal', {
             method: 'POST',
             headers: {
@@ -458,7 +457,6 @@
                     console.log(data.message);
                 } else {
                     console.error('Ошибка при сохранении результатов:', data.message);
-                    alert('Ошибка при сохранении результатов.');
                 }
             })
             .catch(error => {

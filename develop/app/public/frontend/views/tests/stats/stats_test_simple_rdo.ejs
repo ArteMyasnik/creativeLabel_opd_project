@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Статистика реакции - <%= login %></title>
+    <title>Статистика теста RDO - <%= login %></title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
     <style>
@@ -35,7 +35,7 @@
             min-width: 180px;
             text-align: center;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            border-top: 4px solid #4CAF50;
+            border-top: 4px solid #EA4335;
         }
         .stat-value {
             font-size: 26px;
@@ -61,7 +61,7 @@
         }
         .chart-btn {
             padding: 8px 15px;
-            background: #4CAF50;
+            background: #EA4335;
             color: white;
             border: none;
             border-radius: 4px;
@@ -98,11 +98,27 @@
             background: #f8f9fa;
             border-radius: 8px;
         }
+        .error-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            background-color: #fce8e6;
+            color: #d93025;
+            font-weight: bold;
+        }
+        .premature-badge {
+            background-color: #fef7e0;
+            color: #f9ab00;
+        }
+        .delayed-badge {
+            background-color: #e6f4ea;
+            color: #34a853;
+        }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>Статистика теста реакции: <%= login %></h1>
+    <h1>Статистика теста простого RDO: <%= login %></h1>
 
     <% if (noData) { %>
         <div class="no-data">
@@ -117,20 +133,24 @@
                 <div class="stat-value"><%= stats.totalTests %></div>
             </div>
             <div class="stat-card">
-                <h3>Всего попыток</h3>
-                <div class="stat-value"><%= stats.totalAttempts %></div>
+                <h3>Средняя ошибка</h3>
+                <div class="stat-value"><span class="error-badge"><%= stats.avgAbsoluteError %>°</span></div>
             </div>
             <div class="stat-card">
-                <h3>Среднее время</h3>
-                <div class="stat-value"><%= stats.avgReaction %> мс</div>
+                <h3>Преждевременные</h3>
+                <div class="stat-value"><span class="premature-badge"><%= stats.prematureCount %></span></div>
+            </div>
+            <div class="stat-card">
+                <h3>Запаздывания</h3>
+                <div class="stat-value"><span class="delayed-badge"><%= stats.delayedCount %></span></div>
             </div>
             <div class="stat-card">
                 <h3>Лучший результат</h3>
-                <div class="stat-value"><%= stats.bestReaction %> мс</div>
+                <div class="stat-value"><%= stats.bestResult %>°</div>
             </div>
             <div class="stat-card">
                 <h3>Худший результат</h3>
-                <div class="stat-value"><%= stats.worstReaction %> мс</div>
+                <div class="stat-value"><%= stats.worstResult %>°</div>
             </div>
         </div>
 
@@ -146,16 +166,21 @@
         <div id="selectedTestDetails" class="test-details hidden">
             <h3>Детали теста</h3>
             <p>Дата прохождения: <span id="testDate"></span></p>
+            <p>Длительность: <span id="testDuration"></span> сек</p>
             <p>Количество попыток: <span id="testAttempts"></span></p>
-            <p>Среднее время: <span id="testAvg"></span> мс</p>
-            <p>Лучший результат: <span id="testBest"></span> мс</p>
-            <p>Худший результат: <span id="testWorst"></span> мс</p>
+            <p>Средняя ошибка: <span id="testAvgError" class="error-badge"></span></p>
+            <p>Преждевременные реакции: <span id="testPremature" class="premature-badge"></span></p>
+            <p>Запаздывающие реакции: <span id="testDelayed" class="delayed-badge"></span></p>
+            <p>Лучший результат: <span id="testBest"></span>°</p>
+            <p>Худший результат: <span id="testWorst"></span>°</p>
+            <p>Стандартное отклонение: <span id="testStdDev"></span>°</p>
         </div>
 
         <div class="chart-actions">
             <button class="chart-btn" onclick="zoomChart(0.9)">- Уменьшить</button>
             <button class="chart-btn" onclick="zoomChart(1.1)">+ Увеличить</button>
             <button class="chart-btn" onclick="resetZoom()">Сбросить</button>
+            <button class="chart-btn" onclick="toggleDataset()">Переключить данные</button>
         </div>
 
         <div class="chart-container">
@@ -174,6 +199,7 @@
                 // Сохраняем данные тестов для использования в JS
                 const testsData = <%- JSON.stringify(testsData) %>;
                 let currentChart = null;
+                let showAbsoluteErrors = true;
 
                 // Функция для получения данных графика
                 function getChartData(testId) {
@@ -181,26 +207,33 @@
                         return {
                             labels: testsData.map(test => `Тест ${test.testNumber}`),
                             datasets: [{
-                                label: 'Среднее время реакции (мс)',
-                                data: testsData.map(test => parseFloat(test.avgReaction)),
-                                borderColor: '#4CAF50',
-                                backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                                label: showAbsoluteErrors ? 'Средняя абсолютная ошибка (°)' : 'Средняя подписанная ошибка (°)',
+                                data: showAbsoluteErrors
+                                    ? testsData.map(test => parseFloat(test.avgAbsoluteError))
+                                    : testsData.map(test => parseFloat(test.avgSignedError)),
+                                borderColor: showAbsoluteErrors ? '#EA4335' : '#4285F4',
+                                backgroundColor: showAbsoluteErrors
+                                    ? 'rgba(234, 67, 53, 0.1)'
+                                    : 'rgba(66, 133, 244, 0.1)',
                                 borderWidth: 2,
                                 pointRadius: 5,
                                 pointHoverRadius: 8,
                                 tension: 0.1,
-                                fill: true
+                                fill: true,
+                                yAxisID: 'yError'
                             }]
                         };
                     } else {
                         const test = testsData.find(t => t.testId == testId);
                         return {
-                            labels: test.reactions.map((_, i) => i + 1),
+                            labels: test.attempts.map((_, i) => i + 1),
                             datasets: [{
-                                label: 'Время реакции (мс)',
-                                data: test.reactions,
-                                borderColor: '#4CAF50',
-                                backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                                label: 'Ошибка (°)',
+                                data: test.attempts.map(a => showAbsoluteErrors ? Math.abs(a.signedError) : a.signedError),
+                                borderColor: showAbsoluteErrors ? '#EA4335' : '#4285F4',
+                                backgroundColor: showAbsoluteErrors
+                                    ? 'rgba(234, 67, 53, 0.1)'
+                                    : 'rgba(66, 133, 244, 0.1)',
                                 borderWidth: 2,
                                 pointRadius: 3,
                                 pointHoverRadius: 6,
@@ -211,14 +244,25 @@
                     }
                 }
 
+                // Функция переключения между абсолютными и подписанными ошибками
+                window.toggleDataset = function() {
+                    showAbsoluteErrors = !showAbsoluteErrors;
+                    updateChart();
+                };
+
                 // Функция обновления графика
                 window.updateChart = function() {
                     if (!currentChart) return;
 
                     const testId = document.getElementById('testSelect').value;
                     currentChart.data = getChartData(testId);
+
+                    currentChart.options.scales.yError.title.text =
+                        showAbsoluteErrors ? 'Абсолютная ошибка (°)' : 'Подписанная ошибка (°)';
+
                     currentChart.update();
 
+                    // Показываем детали для выбранного теста
                     const detailsDiv = document.getElementById('selectedTestDetails');
                     if (testId === 'all') {
                         detailsDiv.classList.add('hidden');
@@ -226,10 +270,14 @@
                         const test = testsData.find(t => t.testId == testId);
                         if (test) {
                             document.getElementById('testDate').textContent = new Date(test.createdAt).toLocaleString();
-                            document.getElementById('testAttempts').textContent = test.totalReactions;
-                            document.getElementById('testAvg').textContent = test.avgReaction;
-                            document.getElementById('testBest').textContent = test.bestReaction;
-                            document.getElementById('testWorst').textContent = test.worstReaction;
+                            document.getElementById('testDuration').textContent = test.testDuration;
+                            document.getElementById('testAttempts').textContent = test.totalAttempts;
+                            document.getElementById('testAvgError').textContent = test.avgAbsoluteError + '°';
+                            document.getElementById('testPremature').textContent = test.prematureCount;
+                            document.getElementById('testDelayed').textContent = test.delayedCount;
+                            document.getElementById('testBest').textContent = test.bestResult + '°';
+                            document.getElementById('testWorst').textContent = test.worstResult + '°';
+                            document.getElementById('testStdDev').textContent = test.stdDeviation + '°';
                             detailsDiv.classList.remove('hidden');
                         }
                     }
@@ -274,18 +322,25 @@
                                 tooltip: {
                                     callbacks: {
                                         label: function(context) {
-                                            return `Попытка ${context.label}: ${context.parsed.y} мс`;
+                                            return `${context.dataset.label}: ${context.parsed.y}°`;
                                         }
                                     }
                                 }
                             },
                             scales: {
-                                y: {
+                                yError: {
+                                    position: 'left',
                                     beginAtZero: false,
-                                    title: { display: true, text: 'Время реакции (мс)' }
+                                    title: {
+                                        display: true,
+                                        text: 'Абсолютная ошибка (°)'
+                                    }
                                 },
                                 x: {
-                                    title: { display: true, text: 'Номер попытки' }
+                                    title: {
+                                        display: true,
+                                        text: 'Номер теста'
+                                    }
                                 }
                             }
                         }

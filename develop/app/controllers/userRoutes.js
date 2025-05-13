@@ -29,16 +29,18 @@ router.post('/profession_rating', ActionController.saveProfessionsRating);
 // Тесты
 // Тест на реакцию
 router.post('/test_visual_signal', ActionController.testVisualSignal);
+// Тест на звук
+router.post('/test_sound_signal', ActionController.testSoundSignal);
 // Тест на цвета
 router.post('/test_color_signal', ActionController.testColorSignal);
-// Тест на звук
+// Тест на сумму визуально
 router.post('/test_digital_signal', ActionController.testDigitalSignal);
+// Тест на сумму на слух
+router.post('/test_audio_sum', ActionController.testAudioSum);
 // Тест на реакцию(шарик)
 router.post('/test_simple_rdo', ActionController.testSimpleRdo);
 // Тест на реакцию(шарик)
 router.post('/test_complex_rdo', ActionController.testComplexRdo);
-// Тест на volume
-router.post('/test_sound', ActionController.testVisualSignal);
 
 // router.get('/user/:id', UserController.getOneUser);
 // router.get('/user', UserController.getUsers);

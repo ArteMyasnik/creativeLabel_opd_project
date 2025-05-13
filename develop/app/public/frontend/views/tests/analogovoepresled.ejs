@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аналоговое преследование - Круги</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+        body {
+            text-align: center;
+            font-family: Montserrat;
+            background-color: black;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        .button-container {
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .button-container button {
+            margin: 0.5rem;
+            padding: 0.7rem 2rem;
+            font-size: 17px;
+            cursor: pointer;
+            border: none;
+            border-radius: 20px;
+            background-color: #479C92;
+            color: white;
+        }
+        .button-container button:hover {
+            background-color: #2d5e58;
+        }
+        #durationButtons {
+            margin: 20px 0;
+        }
+        .durationBtn {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #479C92;
+            color: white;
+            transition: all 0.3s;
+        }
+        .durationBtn.selected {
+            background: gray;
+        }
+        .durationBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #2a2a2a;
+        }
+        .tracking-area {
+            width: 90%;
+            height: 300px;
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            margin: 30px auto;
+            position: relative;
+            overflow: hidden;
+        }
+        .circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            position: absolute;
+            cursor: pointer;
+            z-index: 2;
+            transition: all 0.3s;
+        }
+        #targetCircle {
+            background-color: #FF6B6B;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+        }
+        #playerCircle {
+            background-color: #479C92;
+            box-shadow: 0 0 10px rgba(71, 156, 146, 0.5);
+        }
+        button {
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background: #479C92;
+            color: white;
+        }
+        button:disabled {
+            opacity: 0.5;
+        }
+        .progress-container {
+            width: 90%;
+            height: 8px;
+            background-color: #333;
+            border-radius: 4px;
+            margin: 20px auto;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #479C92;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        #results {
+            margin-top: 30px;
+            display: none;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background-color: #2a2a2a;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-card h3 {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+        .stat-card p {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="button-container">
+        <button onclick="window.location.href='/main'">Главная страница</button>
+    </div>
+    <h2>Аналоговое преследование</h2>
+    <p>Перетаскивайте зеленый круг, чтобы преследовать красный</p>
+    <div id="durationButtons">
+        <button class="durationBtn" data-duration="30">30 с</button>
+        <button class="durationBtn" data-duration="60">60 с</button>
+        <button class="durationBtn" data-duration="120">120 с</button>
+    </div>
+    <div class="tracking-area">
+        <div class="circle" id="targetCircle"></div>
+        <div class="circle" id="playerCircle"></div>
+    </div>
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <button id="startBtn">Начать тест</button>
+    <div id="results">
+        <h3>Результаты теста</h3>
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Среднее время реакции</h3>
+                <p id="avgTime">0 мс</p>
+            </div>
+            <div class="stat-card">
+                <h3>Лучшее время</h3>
+                <p id="bestTime">0 мс</p>
+            </div>
+            <div class="stat-card">
+                <h3>Пересечения</h3>
+                <p id="overlaps">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Время удержания</h3>
+                <p id="holdTime">0 мс</p>
+            </div>
+        </div>
+        <button id="restartBtn">Новая попытка</button>
+    </div>
+    <script>
+        // Конфигурация теста
+        const config = {
+            minMoveDelay: 1500,
+            maxMoveDelay: 3000,
+            overlapThreshold: 40,
+            initialMoveStep: 2,
+            speedIncreaseFactor: 1.05,
+            maxMoveStep: 6
+        };
+
+        // Состояние теста
+        let state = {
+            isRunning: false,
+            startTime: null,
+            moveTime: null,
+            directionX: 0,
+            directionY: 0,
+            currentSpeed: config.initialMoveStep,
+            animationId: null,
+            timeoutId: null,
+            progressInterval: null,
+            currentAttempt: {
+                reactionTimes: [],
+                bestTime: null,
+                movements: 0,
+                overlaps: 0,
+                totalOverlapTime: 0,
+                lastOverlapTime: null,
+                isOverlapping: false
+            },
+            isDragging: false,
+            dragStartX: 0,
+            dragStartY: 0,
+            testDuration: 30000
+        };
+
+        // Элементы DOM
+        const elements = {
+            targetCircle: document.getElementById('targetCircle'),
+            playerCircle: document.getElementById('playerCircle'),
+            startBtn: document.getElementById('startBtn'),
+            restartBtn: document.getElementById('restartBtn'),
+            progressBar: document.getElementById('progressBar'),
+            results: document.getElementById('results'),
+            avgTime: document.getElementById('avgTime'),
+            bestTime: document.getElementById('bestTime'),
+            overlaps: document.getElementById('overlaps'),
+            holdTime: document.getElementById('holdTime'),
+            trackingArea: document.querySelector('.tracking-area'),
+            durationButtons: document.querySelectorAll('.durationBtn')
+        };
+
+        // Блокировка/разблокировка кнопок выбора времени
+        function toggleDurationButtons(disabled) {
+            elements.durationButtons.forEach(btn => {
+                btn.disabled = disabled;
+                if (disabled) {
+                    btn.classList.remove('selected');
+                }
+            });
+        }
+
+        // Инициализация позиций
+        function initPositions() {
+            const areaRect = elements.trackingArea.getBoundingClientRect();
+            
+            // Позиция целевого круга
+            const targetX = Math.random() * (areaRect.width - 40);
+            const targetY = Math.random() * (areaRect.height - 40);
+            elements.targetCircle.style.left = targetX + 'px';
+            elements.targetCircle.style.top = targetY + 'px';
+            
+            // Позиция круга игрока (по центру)
+            const playerX = (areaRect.width - 40) / 2;
+            const playerY = (areaRect.height - 40) / 2;
+            elements.playerCircle.style.left = playerX + 'px';
+            elements.playerCircle.style.top = playerY + 'px';
+        }
+
+        // Проверка пересечения кругов
+        function checkOverlap() {
+            const targetRect = elements.targetCircle.getBoundingClientRect();
+            const playerRect = elements.playerCircle.getBoundingClientRect();
+            
+            const dx = (targetRect.left + targetRect.width/2) - (playerRect.left + playerRect.width/2);
+            const dy = (targetRect.top + targetRect.height/2) - (playerRect.top + playerRect.height/2);
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            return distance < config.overlapThreshold;
+        }
+
+        // Обработка пересечения кругов
+        function handleOverlap(currentTime) {
+            if (!state.currentAttempt.isOverlapping) {
+                // Начало нового пересечения
+                state.currentAttempt.isOverlapping = true;
+                state.currentAttempt.lastOverlapTime = currentTime;
+                state.currentAttempt.overlaps++;
+                
+                // Фиксация времени реакции для первого пересечения
+                if (state.currentAttempt.overlaps === 1) {
+                    const reactionTime = currentTime - state.moveTime;
+                    state.currentAttempt.reactionTimes.push(reactionTime);
+                    state.currentAttempt.bestTime = reactionTime;
+                }
+                
+                elements.targetCircle.style.backgroundColor = '#4CAF50';
+                elements.targetCircle.style.transform = 'scale(1.1)';
+            } else {
+                // Продолжение пересечения - добавляем время удержания
+                const overlapDuration = currentTime - state.currentAttempt.lastOverlapTime;
+                state.currentAttempt.totalOverlapTime += overlapDuration;
+                state.currentAttempt.lastOverlapTime = currentTime;
+            }
+        }
+
+        // Обработка отсутствия пересечения
+        function handleNoOverlap() {
+            if (state.currentAttempt.isOverlapping) {
+                // Завершение текущего пересечения
+                state.currentAttempt.isOverlapping = false;
+                elements.targetCircle.style.backgroundColor = '#FF6B6B';
+                elements.targetCircle.style.transform = 'scale(1)';
+            }
+        }
+
+        // Движение целевого круга
+        function moveTarget() {
+            if (!state.isRunning) return;
+            
+            const currentTime = Date.now();
+            const areaRect = elements.trackingArea.getBoundingClientRect();
+            let currentLeft = parseFloat(elements.targetCircle.style.left);
+            let currentTop = parseFloat(elements.targetCircle.style.top);
+            
+            // Обновление позиции
+            currentLeft += state.directionX * state.currentSpeed;
+            currentTop += state.directionY * state.currentSpeed;
+            
+            // Проверка границ
+            if (currentLeft <= 0) {
+                currentLeft = 0;
+                state.directionX = Math.abs(state.directionX);
+            } else if (currentLeft >= areaRect.width - 40) {
+                currentLeft = areaRect.width - 40;
+                state.directionX = -Math.abs(state.directionX);
+            }
+            
+            if (currentTop <= 0) {
+                currentTop = 0;
+                state.directionY = Math.abs(state.directionY);
+            } else if (currentTop >= areaRect.height - 40) {
+                currentTop = areaRect.height - 40;
+                state.directionY = -Math.abs(state.directionY);
+            }
+            
+            elements.targetCircle.style.left = currentLeft + 'px';
+            elements.targetCircle.style.top = currentTop + 'px';
+            
+            // Проверка и обработка пересечения
+            if (checkOverlap()) {
+                handleOverlap(currentTime);
+                
+                // Увеличение скорости при пересечении
+                state.currentSpeed = Math.min(
+                    state.currentSpeed * config.speedIncreaseFactor,
+                    config.maxMoveStep
+                );
+            } else {
+                handleNoOverlap();
+            }
+            
+            state.animationId = requestAnimationFrame(moveTarget);
+        }
+
+        // Случайное изменение направления
+        function changeDirection() {
+            if (!state.isRunning) return;
+            
+            // Новое случайное направление
+            const angle = Math.random() * Math.PI * 2;
+            state.directionX = Math.cos(angle);
+            state.directionY = Math.sin(angle);
+            
+            state.moveTime = Date.now();
+            state.currentAttempt.movements++;
+            
+            // Запланировать следующее изменение направления
+            const delay = Math.random() * (config.maxMoveDelay - config.minMoveDelay) + config.minMoveDelay;
+            const timeLeft = state.testDuration - (Date.now() - state.startTime);
+            
+            if (timeLeft > delay) {
+                state.timeoutId = setTimeout(changeDirection, delay);
+            } else {
+                setTimeout(endTest, timeLeft);
+            }
+        }
+
+        // Перетаскивание круга игрока
+        function startDragging(e) {
+            if (!state.isRunning) return;
+            state.isDragging = true;
+            
+            const circleRect = elements.playerCircle.getBoundingClientRect();
+            state.dragStartX = e.clientX - circleRect.left;
+            state.dragStartY = e.clientY - circleRect.top;
+            
+            cancelAnimationFrame(state.animationId);
+            clearTimeout(state.timeoutId);
+        }
+
+        function dragCircle(e) {
+            if (!state.isDragging) return;
+            
+            const areaRect = elements.trackingArea.getBoundingClientRect();
+            let newLeft = e.clientX - areaRect.left - state.dragStartX;
+            let newTop = e.clientY - areaRect.top - state.dragStartY;
+            
+            // Ограничение движения внутри области
+            newLeft = Math.max(0, Math.min(newLeft, areaRect.width - 40));
+            newTop = Math.max(0, Math.min(newTop, areaRect.height - 40));
+            
+            elements.playerCircle.style.left = newLeft + 'px';
+            elements.playerCircle.style.top = newTop + 'px';
+            
+            // Проверка пересечения при перетаскивании
+            const currentTime = Date.now();
+            if (checkOverlap()) {
+                handleOverlap(currentTime);
+            } else {
+                handleNoOverlap();
+            }
+        }
+
+        function stopDragging() {
+            if (!state.isDragging) return;
+            state.isDragging = false;
+            
+            if (state.isRunning) {
+                moveTarget();
+                changeDirection();
+            }
+        }
+
+        // Обновление прогресс-бара
+        function updateProgressBar() {
+            if (!state.isRunning) return;
+            
+            const elapsed = Date.now() - state.startTime;
+            const progress = Math.min(elapsed / state.testDuration * 100, 100);
+            elements.progressBar.style.width = progress + '%';
+            
+            if (progress >= 100) {
+                endTest();
+            } else {
+                setTimeout(updateProgressBar, 100);
+            }
+        }
+
+        // Начало теста
+        function startTest() {
+            resetTestState();
+            state.isRunning = true;
+            state.startTime = Date.now();
+            state.currentSpeed = config.initialMoveStep;
+            
+            elements.startBtn.disabled = true;
+            elements.results.style.display = 'none';
+            toggleDurationButtons(true); // Блокируем кнопки выбора времени
+            
+            initPositions();
+            updateProgressBar();
+            
+            changeDirection();
+            moveTarget();
+        }
+
+        // Завершение теста
+        function endTest() {
+            if (!state.isRunning) return;
+            
+            // Фиксация последнего пересечения, если оно было
+            if (state.currentAttempt.isOverlapping) {
+                const overlapDuration = Date.now() - state.currentAttempt.lastOverlapTime;
+                state.currentAttempt.totalOverlapTime += overlapDuration;
+                state.currentAttempt.isOverlapping = false;
+            }
+            
+            state.isRunning = false;
+            cancelAnimationFrame(state.animationId);
+            clearTimeout(state.timeoutId);
+            clearInterval(state.progressInterval);
+            
+            elements.startBtn.disabled = false;
+            toggleDurationButtons(false); // Разблокируем кнопки выбора времени
+            showResults();
+        }
+
+        // Показать результаты
+        function showResults() {
+            const avgTime = state.currentAttempt.reactionTimes.length > 0 
+                ? Math.round(state.currentAttempt.reactionTimes.reduce((a, b) => a + b, 0) / state.currentAttempt.reactionTimes.length)
+                : 0;
+                
+            const bestTime = state.currentAttempt.bestTime || 0;
+            
+            elements.avgTime.textContent = avgTime + ' мс';
+            elements.bestTime.textContent = bestTime + ' мс';
+            elements.overlaps.textContent = state.currentAttempt.overlaps;
+            elements.holdTime.textContent = state.currentAttempt.totalOverlapTime + ' мс';
+            elements.results.style.display = 'block';
+        }
+
+        // Сброс состояния теста
+        function resetTestState() {
+            cancelAnimationFrame(state.animationId);
+            clearTimeout(state.timeoutId);
+            clearInterval(state.progressInterval);
+            
+            state = {
+                isRunning: false,
+                startTime: null,
+                moveTime: null,
+                directionX: 0,
+                directionY: 0,
+                currentSpeed: config.initialMoveStep,
+                animationId: null,
+                timeoutId: null,
+                progressInterval: null,
+                currentAttempt: {
+                    reactionTimes: [],
+                    bestTime: null,
+                    movements: 0,
+                    overlaps: 0,
+                    totalOverlapTime: 0,
+                    lastOverlapTime: null,
+                    isOverlapping: false
+                },
+                isDragging: false,
+                dragStartX: 0,
+                dragStartY: 0,
+                testDuration: state.testDuration || 30000
+            };
+            
+            elements.progressBar.style.width = '0%';
+            elements.targetCircle.style.backgroundColor = '#FF6B6B';
+            elements.targetCircle.style.transform = 'scale(1)';
+            elements.results.style.display = 'none';
+        }
+
+        // Инициализация событий
+        elements.startBtn.addEventListener('click', startTest);
+        elements.restartBtn.addEventListener('click', startTest);
+        elements.playerCircle.addEventListener('mousedown', startDragging);
+        document.addEventListener('mousemove', dragCircle);
+        document.addEventListener('mouseup', stopDragging);
+
+        elements.durationButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (state.isRunning) return; // Запрещаем изменение во время теста
+                elements.durationButtons.forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                state.testDuration = parseInt(this.dataset.duration) * 1000;
+            });
+        });
+
+        // Первоначальная инициализация
+        initPositions();
+        elements.durationButtons[0].classList.add('selected');
+    </script>
+</body>
+</html>

@@ -727,14 +727,13 @@
             const results = {
                 login: "<%= login %>",
                 reactionTimes: state.reactionTimes,
-                averageTime: calculateAverage(state.reactionTimes),
-                bestTime: state.bestTime,
                 missedSignals: state.missedSignals,
-                testDuration: state.testDuration / 1000,
-                timestamp: new Date().toISOString()
+                // Здесь мы оставим пропущенные сигналы так как на звук нужна реакция
+                // При пропущенном сигнале мы будем отправлять
+                testDuration: state.testDuration / 1000
             };
             
-            fetch('http://localhost:3000/api/test_reaction', {
+            fetch('http://localhost:3000/api/test_sound_signal', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

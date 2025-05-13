@@ -13,7 +13,7 @@ CREATE TABLE users
     sex           VARCHAR(10) CHECK (sex IN ('male', 'female'))
 );
 
--- Создание таблицы tests
+-- Создание таблицы pvks (Профессионально-важные качества)
 CREATE TABLE pvks
 (
     id          SERIAL PRIMARY KEY,
@@ -79,7 +79,7 @@ VALUES ('admin'),
        ('expert'),
        ('user');
 
--- Создание таблицы test_color_signal
+-- Создание таблицы tests
 CREATE TABLE tests
 (
     id          SERIAL PRIMARY KEY,
@@ -94,8 +94,18 @@ VALUES ('Простая сенсомоторная реакция'),
        ('Сложная реакция на движущийся объект'),
        ('Аналоговое слежение');
 
--- Создание таблицы test_digital_signal
+-- Создание таблицы test_visual_signal
 CREATE TABLE test_visual_signal
+(
+    id             SERIAL PRIMARY KEY,
+    user_id        INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    reaction_times INTEGER[] NOT NULL,
+    test_duration  SMALLINT  NOT NULL CHECK ( test_duration > 0 ),
+    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Создание таблицы test_sound_signal
+CREATE TABLE test_sound_signal
 (
     id             SERIAL PRIMARY KEY,
     user_id        INTEGER REFERENCES users (id) ON DELETE CASCADE,
@@ -105,7 +115,7 @@ CREATE TABLE test_visual_signal
     created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Создание таблицы test_simple_rdo
+-- Создание таблицы test_color_signal
 CREATE TABLE test_color_signal
 (
     id              SERIAL PRIMARY KEY,
@@ -118,7 +128,7 @@ CREATE TABLE test_color_signal
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Создание таблицы test_complex_rdo
+-- Создание таблицы test_digital_signal
 CREATE TABLE test_digital_signal
 (
     id              SERIAL PRIMARY KEY,
@@ -131,7 +141,19 @@ CREATE TABLE test_digital_signal
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Создание таблицы pvks (Профессионально-важные качества)
+-- Создание таблицы test_audio_sum
+CREATE TABLE test_audio_sum
+(
+    id              SERIAL PRIMARY KEY,
+    user_id         INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    reaction_times  INTEGER[] NOT NULL,
+    correct_answers INTEGER   NOT NULL CHECK ( correct_answers >= 0 ),
+    wrong_answers   INTEGER   NOT NULL CHECK ( wrong_answers >= 0 ),
+    test_duration   SMALLINT  NOT NULL CHECK ( test_duration > 0 ),
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Создание таблицы test_simple_rdo
 CREATE TABLE test_simple_rdo
 (
     id            SERIAL PRIMARY KEY,
@@ -141,7 +163,7 @@ CREATE TABLE test_simple_rdo
     created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Создание таблицы test_pvk (Связь тестов и PVK)
+-- Создание таблицы test_complex_rdo
 CREATE TABLE test_complex_rdo
 (
     id            SERIAL PRIMARY KEY,
@@ -152,7 +174,7 @@ CREATE TABLE test_complex_rdo
     created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Создание таблицы test_user (Связь пользователей и тестов)
+-- Создание таблицы test_pvk (Связь тестов и PVK)
 CREATE TABLE test_pvk
 (
     id      SERIAL PRIMARY KEY,
@@ -161,8 +183,7 @@ CREATE TABLE test_pvk
     UNIQUE (test_id, pvk_id)
 );
 
--- Вставка начальных данных (опционально)
--- Пример добавления ролей, если они нужны
+-- Создание таблицы test_user (Связь пользователей и тестов)
 CREATE TABLE test_user
 (
     id              SERIAL PRIMARY KEY,
@@ -179,6 +200,7 @@ CREATE INDEX idx_pvks_pvk ON pvks (pvk);
 CREATE INDEX idx_professions_name ON professions (name);
 
 -- Вставка начальных данных (опционально)
+-- Пример добавления ролей, если они нужны
 INSERT INTO users (login, email, password_hash, isAdmin, isModerator)
 VALUES ('ArteMyasnik', 'artemyasnik@mail.ru', '', true, true),
        ('everpr0g', 'everpr0g@mail.ru', '', true, true),
