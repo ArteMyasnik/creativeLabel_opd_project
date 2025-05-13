@@ -98,7 +98,7 @@ class ActionController {
             }
 
             const result = await pool.query(
-                'INSERT INTO test_visual_signal (user_id, reaction_times, test_duration) VALUES ($1, $2, $3, $4) RETURNING *',
+                'INSERT INTO test_visual_signal (user_id, reaction_times, test_duration) VALUES ($1, $2, $3) RETURNING *',
                 [user.rows[0].id, reactionTimes, testDuration]
             );
 
@@ -266,7 +266,7 @@ class ActionController {
             }
 
             const result = await pool.query(
-                'INSERT INTO test_audio_sum (user_id, reaction_times, correct_answers, wrong_answers, test_duration) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+                'INSERT INTO test_audio_sum (user_id, reaction_times, correct_answers, wrong_answers, test_duration) VALUES ($1, $2, $3, $4, $5) RETURNING *',
                 [user.rows[0].id, reactionTimes, correctAnswers, wrongAnswers, testDuration]
             );
 

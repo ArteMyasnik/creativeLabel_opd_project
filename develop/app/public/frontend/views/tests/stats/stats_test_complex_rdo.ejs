@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Статистика теста Complex RDO - <%= login %></title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin: 25px 0;
+            gap: 15px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            min-width: 180px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-top: 4px solid #EA4335;
+        }
+        .stat-value {
+            font-size: 26px;
+            font-weight: bold;
+            margin: 8px 0;
+            color: #2c3e50;
+        }
+        .chart-container {
+            height: 500px;
+            margin: 30px 0;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        .chart-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .chart-btn {
+            padding: 8px 15px;
+            background: #EA4335;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 18px;
+        }
+        .empty-chart-message {
+            text-align: center;
+            color: #666;
+            font-size: 18px;
+            padding: 20px;
+        }
+        .test-selector {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .test-select {
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            min-width: 200px;
+        }
+        .hidden {
+            display: none;
+        }
+        .test-details {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .circle-stats {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .circle-stat {
+            flex: 1;
+            min-width: 250px;
+            padding: 15px;
+            background: #f1f3f4;
+            border-radius: 8px;
+        }
+        .circle-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #5f6368;
+        }
+        .circle-1 { border-left: 4px solid #EA4335; }
+        .circle-2 { border-left: 4px solid #4285F4; }
+        .circle-3 { border-left: 4px solid #34A853; }
+        .error-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            background-color: #fce8e6;
+            color: #d93025;
+            font-weight: bold;
+        }
+        .premature-badge {
+            background-color: #fef7e0;
+            color: #f9ab00;
+        }
+        .delayed-badge {
+            background-color: #e6f4ea;
+            color: #34a853;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Статистика теста Complex RDO: <%= login %></h1>
+
+    <% if (noData) { %>
+        <div class="no-data">
+            <h3>Данные теста отсутствуют</h3>
+            <p>Пользователь еще не проходил этот тест или результаты не были сохранены.</p>
+            <p>Пройдите тест, чтобы увидеть статистику.</p>
+        </div>
+    <% } else { %>
+        <div class="stats-container">
+            <div class="stat-card">
+                <h3>Всего тестов</h3>
+                <div class="stat-value"><%= stats.totalTests %></div>
+            </div>
+            <div class="stat-card">
+                <h3>Средняя ошибка</h3>
+                <div class="stat-value"><span class="error-badge"><%= stats.avgAbsoluteError %>°</span></div>
+            </div>
+            <div class="stat-card">
+                <h3>Преждевременные</h3>
+                <div class="stat-value"><span class="premature-badge"><%= stats.prematureCount %></span></div>
+            </div>
+            <div class="stat-card">
+                <h3>Запаздывания</h3>
+                <div class="stat-value"><span class="delayed-badge"><%= stats.delayedCount %></span></div>
+            </div>
+            <div class="stat-card">
+                <h3>Лучший результат</h3>
+                <div class="stat-value"><%= stats.bestResult %>°</div>
+            </div>
+            <div class="stat-card">
+                <h3>Худший результат</h3>
+                <div class="stat-value"><%= stats.worstResult %>°</div>
+            </div>
+        </div>
+
+        <div class="test-selector">
+            <select id="testSelect" class="test-select" onchange="updateChart()">
+                <option value="all">Все тесты (средние значения)</option>
+                <% testsData.forEach(test => { %>
+                    <option value="<%= test.testId %>">Тест #<%= test.testNumber %> (<%= new Date(test.createdAt).toLocaleString() %>)</option>
+                <% }); %>
+            </select>
+        </div>
+
+        <div id="selectedTestDetails" class="test-details hidden">
+            <h3>Детали теста</h3>
+            <p>Дата прохождения: <span id="testDate"></span></p>
+            <p>Длительность: <span id="testDuration"></span> сек</p>
+            <p>Количество попыток: <span id="testAttempts"></span></p>
+            <p>Средняя ошибка: <span id="testAvgError" class="error-badge"></span></p>
+            <p>Преждевременные реакции: <span id="testPremature" class="premature-badge"></span></p>
+            <p>Запаздывающие реакции: <span id="testDelayed" class="delayed-badge"></span></p>
+            <p>Лучший результат: <span id="testBest"></span>°</p>
+            <p>Худший результат: <span id="testWorst"></span>°</p>
+            <p>Стандартное отклонение: <span id="testStdDev"></span>°</p>
+
+            <div class="circle-stats">
+                <div class="circle-stat circle-1">
+                    <div class="circle-title">Круг 1 (Красный)</div>
+                    <p>Скорость: <span id="circle1Speed"></span> рад/с</p>
+                    <p>Попыток: <span id="circle1Count"></span></p>
+                    <p>Средняя ошибка: <span id="circle1AvgError" class="error-badge"></span></p>
+                    <p>Стандартное отклонение: <span id="circle1StdDev"></span>°</p>
+                </div>
+                <div class="circle-stat circle-2">
+                    <div class="circle-title">Круг 2 (Синий)</div>
+                    <p>Скорость: <span id="circle2Speed"></span> рад/с</p>
+                    <p>Попыток: <span id="circle2Count"></span></p>
+                    <p>Средняя ошибка: <span id="circle2AvgError" class="error-badge"></span></p>
+                    <p>Стандартное отклонение: <span id="circle2StdDev"></span>°</p>
+                </div>
+                <div class="circle-stat circle-3">
+                    <div class="circle-title">Круг 3 (Зеленый)</div>
+                    <p>Скорость: <span id="circle3Speed"></span> рад/с</p>
+                    <p>Попыток: <span id="circle3Count"></span></p>
+                    <p>Средняя ошибка: <span id="circle3AvgError" class="error-badge"></span></p>
+                    <p>Стандартное отклонение: <span id="circle3StdDev"></span>°</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-actions">
+            <button class="chart-btn" onclick="zoomChart(0.9)">- Уменьшить</button>
+            <button class="chart-btn" onclick="zoomChart(1.1)">+ Увеличить</button>
+            <button class="chart-btn" onclick="resetZoom()">Сбросить</button>
+            <button class="chart-btn" onclick="toggleDataset()">Переключить данные</button>
+            <button class="chart-btn" onclick="toggleCircleView()">Показать круги</button>
+        </div>
+
+        <div class="chart-container">
+            <% if (stats.totalAttempts > 0) { %>
+                <canvas id="reactionChart"></canvas>
+            <% } else { %>
+                <div class="empty-chart-message">
+                    <h3>Нет данных для построения графика</h3>
+                    <p>Хотя тест был начат, не было зарегистрировано ни одной успешной попытки.</p>
+                </div>
+            <% } %>
+        </div>
+
+        <% if (stats.totalAttempts > 0) { %>
+            <script>
+                // Сохраняем данные тестов для использования в JS
+                const testsData = <%- JSON.stringify(testsData) %>;
+                let currentChart = null;
+                let showAbsoluteErrors = true;
+                let showCirclesSeparately = false;
+
+                // Функция для получения данных графика
+                function getChartData(testId) {
+                    if (testId === 'all') {
+                        if (showCirclesSeparately) {
+                            return {
+                                labels: testsData.map(test => `Тест ${test.testNumber}`),
+                                datasets: [
+                                    {
+                                        label: 'Круг 1 (Красный)',
+                                        data: testsData.map(test => parseFloat(test.circleStats[1].avgAbsoluteError)),
+                                        borderColor: '#EA4335',
+                                        backgroundColor: 'rgba(234, 67, 53, 0.1)',
+                                        borderWidth: 2,
+                                        pointRadius: 5,
+                                        pointHoverRadius: 8,
+                                        tension: 0.1,
+                                        fill: false
+                                    },
+                                    {
+                                        label: 'Круг 2 (Синий)',
+                                        data: testsData.map(test => parseFloat(test.circleStats[2].avgAbsoluteError)),
+                                        borderColor: '#4285F4',
+                                        backgroundColor: 'rgba(66, 133, 244, 0.1)',
+                                        borderWidth: 2,
+                                        pointRadius: 5,
+                                        pointHoverRadius: 8,
+                                        tension: 0.1,
+                                        fill: false
+                                    },
+                                    {
+                                        label: 'Круг 3 (Зеленый)',
+                                        data: testsData.map(test => parseFloat(test.circleStats[3].avgAbsoluteError)),
+                                        borderColor: '#34A853',
+                                        backgroundColor: 'rgba(52, 168, 83, 0.1)',
+                                        borderWidth: 2,
+                                        pointRadius: 5,
+                                        pointHoverRadius: 8,
+                                        tension: 0.1,
+                                        fill: false
+                                    }
+                                ]
+                            };
+                        } else {
+                            return {
+                                labels: testsData.map(test => `Тест ${test.testNumber}`),
+                                datasets: [{
+                                    label: showAbsoluteErrors ? 'Средняя абсолютная ошибка (°)' : 'Средняя подписанная ошибка (°)',
+                                    data: showAbsoluteErrors
+                                        ? testsData.map(test => parseFloat(test.avgAbsoluteError))
+                                        : testsData.map(test => parseFloat(test.avgSignedError)),
+                                    borderColor: showAbsoluteErrors ? '#EA4335' : '#4285F4',
+                                    backgroundColor: showAbsoluteErrors
+                                        ? 'rgba(234, 67, 53, 0.1)'
+                                        : 'rgba(66, 133, 244, 0.1)',
+                                    borderWidth: 2,
+                                    pointRadius: 5,
+                                    pointHoverRadius: 8,
+                                    tension: 0.1,
+                                    fill: true
+                                }]
+                            };
+                        }
+                    } else {
+                        const test = testsData.find(t => t.testId == testId);
+                        if (showCirclesSeparately) {
+                            return {
+                                labels: Array.from({length: Math.max(
+                                        test.circleStats[1].responses.length,
+                                        test.circleStats[2].responses.length,
+                                        test.circleStats[3].responses.length
+                                    )}, (_, i) => i + 1),
+                                datasets: [
+                                    {
+                                        label: 'Круг 1 (Красный)',
+                                        data: test.circleStats[1].responses.map(r => showAbsoluteErrors ? Math.abs(r) : r),
+                                        borderColor: '#EA4335',
+                                        backgroundColor: 'rgba(234, 67, 53, 0.1)',
+                                        borderWidth: 2,
+                                        pointRadius: 3,
+                                        pointHoverRadius: 6,
+                                        tension: 0.1,
+                                        fill: false
+                                    },
+                                    {
+                                        label: 'Круг 2 (Синий)',
+                                        data: test.circleStats[2].responses.map(r => showAbsoluteErrors ? Math.abs(r) : r),
+                                        borderColor: '#4285F4',
+                                        backgroundColor: 'rgba(66, 133, 244, 0.1)',
+                                        borderWidth: 2,
+                                        pointRadius: 3,
+                                        pointHoverRadius: 6,
+                                        tension: 0.1,
+                                        fill: false
+                                    },
+                                    {
+                                        label: 'Круг 3 (Зеленый)',
+                                        data: test.circleStats[3].responses.map(r => showAbsoluteErrors ? Math.abs(r) : r),
+                                        borderColor: '#34A853',
+                                        backgroundColor: 'rgba(52, 168, 83, 0.1)',
+                                        borderWidth: 2,
+                                        pointRadius: 3,
+                                        pointHoverRadius: 6,
+                                        tension: 0.1,
+                                        fill: false
+                                    }
+                                ]
+                            };
+                        } else {
+                            // Объединяем все реакции из всех кругов
+                            const allResponses = [
+                                ...test.circleStats[1].responses,
+                                ...test.circleStats[2].responses,
+                                ...test.circleStats[3].responses
+                            ];
+                            return {
+                                labels: allResponses.map((_, i) => i + 1),
+                                datasets: [{
+                                    label: showAbsoluteErrors ? 'Абсолютная ошибка (°)' : 'Подписанная ошибка (°)',
+                                    data: allResponses.map(r => showAbsoluteErrors ? Math.abs(r) : r),
+                                    borderColor: showAbsoluteErrors ? '#EA4335' : '#4285F4',
+                                    backgroundColor: showAbsoluteErrors
+                                        ? 'rgba(234, 67, 53, 0.1)'
+                                        : 'rgba(66, 133, 244, 0.1)',
+                                    borderWidth: 2,
+                                    pointRadius: 3,
+                                    pointHoverRadius: 6,
+                                    tension: 0.1,
+                                    fill: true
+                                }]
+                            };
+                        }
+                    }
+                }
+
+                // Функция переключения между абсолютными и подписанными ошибками
+                window.toggleDataset = function() {
+                    showAbsoluteErrors = !showAbsoluteErrors;
+                    updateChart();
+                };
+
+                // Функция переключения между отображением кругов
+                window.toggleCircleView = function() {
+                    showCirclesSeparately = !showCirclesSeparately;
+                    updateChart();
+                    document.querySelector('button[onclick="toggleCircleView()"]').textContent =
+                        showCirclesSeparately ? 'Скрыть круги' : 'Показать круги';
+                };
+
+                // Функция обновления графика
+                window.updateChart = function() {
+                    if (!currentChart) return;
+
+                    const testId = document.getElementById('testSelect').value;
+                    currentChart.data = getChartData(testId);
+
+                    if (!showCirclesSeparately) {
+                        currentChart.options.scales.y.title.text =
+                            showAbsoluteErrors ? 'Абсолютная ошибка (°)' : 'Подписанная ошибка (°)';
+                    }
+
+                    currentChart.update();
+
+                    // Показываем детали для выбранного теста
+                    const detailsDiv = document.getElementById('selectedTestDetails');
+                    if (testId === 'all') {
+                        detailsDiv.classList.add('hidden');
+                    } else {
+                        const test = testsData.find(t => t.testId == testId);
+                        if (test) {
+                            // Основная информация
+                            document.getElementById('testDate').textContent = new Date(test.createdAt).toLocaleString();
+                            document.getElementById('testDuration').textContent = test.testDuration;
+                            document.getElementById('testAttempts').textContent = test.totalAttempts;
+                            document.getElementById('testAvgError').textContent = test.avgAbsoluteError + '°';
+                            document.getElementById('testPremature').textContent = test.prematureCount;
+                            document.getElementById('testDelayed').textContent = test.delayedCount;
+                            document.getElementById('testBest').textContent = test.bestResult + '°';
+                            document.getElementById('testWorst').textContent = test.worstResult + '°';
+                            document.getElementById('testStdDev').textContent = test.stdDeviation + '°';
+
+                            // Информация по кругам
+                            document.getElementById('circle1Speed').textContent = test.circleStats[1].speed;
+                            document.getElementById('circle1Count').textContent = test.circleStats[1].responses.length;
+                            document.getElementById('circle1AvgError').textContent = test.circleStats[1].avgAbsoluteError + '°';
+                            document.getElementById('circle1StdDev').textContent = test.circleStats[1].stdDev + '°';
+
+                            document.getElementById('circle2Speed').textContent = test.circleStats[2].speed;
+                            document.getElementById('circle2Count').textContent = test.circleStats[2].responses.length;
+                            document.getElementById('circle2AvgError').textContent = test.circleStats[2].avgAbsoluteError + '°';
+                            document.getElementById('circle2StdDev').textContent = test.circleStats[2].stdDev + '°';
+
+                            document.getElementById('circle3Speed').textContent = test.circleStats[3].speed;
+                            document.getElementById('circle3Count').textContent = test.circleStats[3].responses.length;
+                            document.getElementById('circle3AvgError').textContent = test.circleStats[3].avgAbsoluteError + '°';
+                            document.getElementById('circle3StdDev').textContent = test.circleStats[3].stdDev + '°';
+
+                            detailsDiv.classList.remove('hidden');
+                        }
+                    }
+                };
+
+                // Функции управления масштабом
+                window.zoomChart = function(scale) {
+                    if (currentChart) {
+                        currentChart.zoom(scale);
+                    }
+                };
+
+                window.resetZoom = function() {
+                    if (currentChart) {
+                        currentChart.resetZoom();
+                    }
+                };
+
+                // Инициализация графика
+                document.addEventListener('DOMContentLoaded', function() {
+                    const ctx = document.getElementById('reactionChart');
+                    if (!ctx) return;
+
+                    currentChart = new Chart(ctx.getContext('2d'), {
+                        type: 'line',
+                        data: getChartData('all'),
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                zoom: {
+                                    zoom: {
+                                        wheel: { enabled: true },
+                                        pinch: { enabled: true },
+                                        mode: 'xy'
+                                    },
+                                    pan: {
+                                        enabled: true,
+                                        mode: 'xy'
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return `${context.dataset.label}: ${context.parsed.y}°`;
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: false,
+                                    title: {
+                                        display: true,
+                                        text: 'Абсолютная ошибка (°)'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: showCirclesSeparately ? 'Номер теста' : 'Номер попытки'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                });
+            </script>
+        <% } %>
+    <% } %>
+</div>
+</body>
+</html>

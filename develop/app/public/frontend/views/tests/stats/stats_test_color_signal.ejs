@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Статистика реакции - <%= login %></title>
+    <title>Статистика цветового сигнала - <%= login %></title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
     <style>
@@ -35,7 +35,7 @@
             min-width: 180px;
             text-align: center;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            border-top: 4px solid #4CAF50;
+            border-top: 4px solid #4285F4;
         }
         .stat-value {
             font-size: 26px;
@@ -61,7 +61,7 @@
         }
         .chart-btn {
             padding: 8px 15px;
-            background: #4CAF50;
+            background: #4285F4;
             color: white;
             border: none;
             border-radius: 4px;
@@ -98,11 +98,19 @@
             background: #f8f9fa;
             border-radius: 8px;
         }
+        .accuracy-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            background-color: #e6f4ea;
+            color: #34a853;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>Статистика теста реакции: <%= login %></h1>
+    <h1>Статистика теста цветового сигнала: <%= login %></h1>
 
     <% if (noData) { %>
         <div class="no-data">
@@ -117,20 +125,24 @@
                 <div class="stat-value"><%= stats.totalTests %></div>
             </div>
             <div class="stat-card">
-                <h3>Всего попыток</h3>
-                <div class="stat-value"><%= stats.totalAttempts %></div>
+                <h3>Точность</h3>
+                <div class="stat-value"><span class="accuracy-badge"><%= stats.totalAccuracy %>%</span></div>
             </div>
             <div class="stat-card">
                 <h3>Среднее время</h3>
                 <div class="stat-value"><%= stats.avgReaction %> мс</div>
             </div>
             <div class="stat-card">
-                <h3>Лучший результат</h3>
-                <div class="stat-value"><%= stats.bestReaction %> мс</div>
+                <h3>Правильные</h3>
+                <div class="stat-value"><%= stats.totalCorrect %></div>
             </div>
             <div class="stat-card">
-                <h3>Худший результат</h3>
-                <div class="stat-value"><%= stats.worstReaction %> мс</div>
+                <h3>Ошибки</h3>
+                <div class="stat-value"><%= stats.totalWrong %></div>
+            </div>
+            <div class="stat-card">
+                <h3>Пропуски</h3>
+                <div class="stat-value"><%= stats.totalMissed %></div>
             </div>
         </div>
 
@@ -146,7 +158,12 @@
         <div id="selectedTestDetails" class="test-details hidden">
             <h3>Детали теста</h3>
             <p>Дата прохождения: <span id="testDate"></span></p>
+            <p>Длительность: <span id="testDuration"></span> сек</p>
             <p>Количество попыток: <span id="testAttempts"></span></p>
+            <p>Точность: <span id="testAccuracy" class="accuracy-badge"></span></p>
+            <p>Правильные ответы: <span id="testCorrect"></span></p>
+            <p>Ошибочные клики: <span id="testWrong"></span></p>
+            <p>Пропущенные клики: <span id="testMissed"></span></p>
             <p>Среднее время: <span id="testAvg"></span> мс</p>
             <p>Лучший результат: <span id="testBest"></span> мс</p>
             <p>Худший результат: <span id="testWorst"></span> мс</p>
@@ -156,6 +173,7 @@
             <button class="chart-btn" onclick="zoomChart(0.9)">- Уменьшить</button>
             <button class="chart-btn" onclick="zoomChart(1.1)">+ Увеличить</button>
             <button class="chart-btn" onclick="resetZoom()">Сбросить</button>
+            <button class="chart-btn" onclick="toggleDataset()">Переключить данные</button>
         </div>
 
         <div class="chart-container">
@@ -174,6 +192,7 @@
                 // Сохраняем данные тестов для использования в JS
                 const testsData = <%- JSON.stringify(testsData) %>;
                 let currentChart = null;
+                let showAccuracy = false;
 
                 // Функция для получения данных графика
                 function getChartData(testId) {
@@ -181,15 +200,20 @@
                         return {
                             labels: testsData.map(test => `Тест ${test.testNumber}`),
                             datasets: [{
-                                label: 'Среднее время реакции (мс)',
-                                data: testsData.map(test => parseFloat(test.avgReaction)),
-                                borderColor: '#4CAF50',
-                                backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                                label: showAccuracy ? 'Точность (%)' : 'Среднее время реакции (мс)',
+                                data: showAccuracy
+                                    ? testsData.map(test => test.accuracy)
+                                    : testsData.map(test => parseFloat(test.avgReaction)),
+                                borderColor: showAccuracy ? '#34A853' : '#4285F4',
+                                backgroundColor: showAccuracy
+                                    ? 'rgba(52, 168, 83, 0.1)'
+                                    : 'rgba(66, 133, 244, 0.1)',
                                 borderWidth: 2,
                                 pointRadius: 5,
                                 pointHoverRadius: 8,
                                 tension: 0.1,
-                                fill: true
+                                fill: true,
+                                yAxisID: showAccuracy ? 'yAccuracy' : 'yReaction'
                             }]
                         };
                     } else {
@@ -199,8 +223,8 @@
                             datasets: [{
                                 label: 'Время реакции (мс)',
                                 data: test.reactions,
-                                borderColor: '#4CAF50',
-                                backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                                borderColor: '#4285F4',
+                                backgroundColor: 'rgba(66, 133, 244, 0.1)',
                                 borderWidth: 2,
                                 pointRadius: 3,
                                 pointHoverRadius: 6,
@@ -211,14 +235,46 @@
                     }
                 }
 
+                // Функция переключения между временем реакции и точностью
+                window.toggleDataset = function() {
+                    showAccuracy = !showAccuracy;
+                    updateChart();
+                };
+
                 // Функция обновления графика
                 window.updateChart = function() {
                     if (!currentChart) return;
 
                     const testId = document.getElementById('testSelect').value;
                     currentChart.data = getChartData(testId);
+
+                    // Обновляем опции для осей Y в зависимости от типа данных
+                    currentChart.options.scales = {
+                        yReaction: {
+                            display: !showAccuracy,
+                            position: 'left',
+                            beginAtZero: false,
+                            title: { display: true, text: 'Время реакции (мс)' }
+                        },
+                        yAccuracy: {
+                            display: showAccuracy,
+                            position: 'left',
+                            beginAtZero: false,
+                            min: 0,
+                            max: 100,
+                            title: { display: true, text: 'Точность (%)' }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: testId === 'all' ? 'Номер теста' : 'Номер попытки'
+                            }
+                        }
+                    };
+
                     currentChart.update();
 
+                    // Показываем детали для выбранного теста
                     const detailsDiv = document.getElementById('selectedTestDetails');
                     if (testId === 'all') {
                         detailsDiv.classList.add('hidden');
@@ -226,7 +282,12 @@
                         const test = testsData.find(t => t.testId == testId);
                         if (test) {
                             document.getElementById('testDate').textContent = new Date(test.createdAt).toLocaleString();
+                            document.getElementById('testDuration').textContent = test.testDuration;
                             document.getElementById('testAttempts').textContent = test.totalReactions;
+                            document.getElementById('testAccuracy').textContent = test.accuracy + '%';
+                            document.getElementById('testCorrect').textContent = test.correctAnswers;
+                            document.getElementById('testWrong').textContent = test.wrongClicks;
+                            document.getElementById('testMissed').textContent = test.missedClicks;
                             document.getElementById('testAvg').textContent = test.avgReaction;
                             document.getElementById('testBest').textContent = test.bestReaction;
                             document.getElementById('testWorst').textContent = test.worstReaction;
@@ -274,18 +335,29 @@
                                 tooltip: {
                                     callbacks: {
                                         label: function(context) {
-                                            return `Попытка ${context.label}: ${context.parsed.y} мс`;
+                                            return `${context.dataset.label}: ${context.parsed.y}` +
+                                                (context.dataset.label.includes('Точность') ? '%' : ' мс');
                                         }
                                     }
                                 }
                             },
                             scales: {
-                                y: {
+                                yReaction: {
+                                    display: true,
+                                    position: 'left',
                                     beginAtZero: false,
                                     title: { display: true, text: 'Время реакции (мс)' }
                                 },
+                                yAccuracy: {
+                                    display: false,
+                                    position: 'left',
+                                    beginAtZero: false,
+                                    min: 0,
+                                    max: 100,
+                                    title: { display: true, text: 'Точность (%)' }
+                                },
                                 x: {
-                                    title: { display: true, text: 'Номер попытки' }
+                                    title: { display: true, text: 'Номер теста' }
                                 }
                             }
                         }

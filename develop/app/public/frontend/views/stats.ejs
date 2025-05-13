@@ -158,6 +158,17 @@
         </div>
         <div class="test">
             <div>
+                <strong>Реакция на звук</strong>
+            </div>
+            <% if (login) { %>
+            <button class="start-button" onclick="window.location.href='/stats_test_sound_signal/<%= login %>'">Мои результаты
+                <% } else { %>
+                    <button class="start-button" style="display: none">Мои результаты</button>
+                <% } %>
+            </button>
+        </div>
+        <div class="test">
+            <div>
                 <strong>Реакция на изменение цвета (3)</strong>
             </div>
             <% if (login) { %>
@@ -169,13 +180,24 @@
         </div>
         <div class="test">
             <div>
-                <strong>Четная или нечетная сумма (звуковой)</strong>
+                <strong>Четная или нечетная сумма (визуально)</strong>
             </div>
             <% if (login) { %>
             <button class="start-button" onclick="window.location.href='/stats_test_digital_signal/<%= login %>'">Мои результаты</button>
             <% } else { %>
             <button class="start-button" style="display: none">Мои результаты</button>
             <% } %>
+        </div>
+        <div class="test">
+            <div>
+                <strong>Четная или нечетная сумма (звуковой)</strong>
+            </div>
+            <% if (login) { %>
+            <button class="start-button" onclick="window.location.href='/stats_test_audio_sum/<%= login %>'">Мои результаты
+                <% } else { %>
+                    <button class="start-button" style="display: none">Мои результаты</button>
+                <% } %>
+            </button>
         </div>
         <div class="test">
             <div>
