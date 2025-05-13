@@ -16,6 +16,7 @@
             <button onclick="window.location.href='/results'">Результаты</button>
             <button id='expertButton' onclick="window.location.href='/experts'" style="display: none">Эксперты</button>
             <button id='ratingButton' onclick="window.location.href='/professions_rating'" style="display: none">Оценка</button>
+            <button id='recommendButton' onclick="window.location.href='/professions_tests'" style="display: none">Рекомендации</button>
             <button onclick="window.location.href='/tests'">Тесты</button>
             <button id='statsButton' onclick="window.location.href='/stats'">Статистика</button>
             <button onclick="window.location.href='/goals'">Цели и задачи</button>
@@ -96,6 +97,7 @@
         const loginButton = document.getElementById('login-button');
         const logoutButton = document.getElementById('logout-button');
         const expertButton = document.getElementById('expertButton');
+        const recommendButton = document.getElementById('recommendButton');
         const ratingButton = document.getElementById('ratingButton');
         const statsButton = document.getElementById('statsButton');
         const profileButton = document.getElementById('profileButton');
@@ -111,10 +113,12 @@
                     logoutButton.style.display = 'inline-block';
                     if (data.isExpert) {
                         expertButton.style.display = 'none';
+                        recommendButton.style.display = 'inline-block';
                         ratingButton.style.display = 'inline-block';
                     }
                     if (data.isAdmin) {
                         expertButton.style.display = 'inline-block';
+                        recommendButton.style.display = 'inline-block';
                         ratingButton.style.display = 'inline-block';
                     }
                 } else {

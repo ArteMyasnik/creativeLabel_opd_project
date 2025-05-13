@@ -236,6 +236,18 @@ app.get('/experts', async (req, res) => {
     }
 });
 
+app.get('/professions_tests', async (req, res) => {
+    try {
+        const professions = await pool.query('SELECT * FROM professions');
+        const tests = await pool.query('SELECT name FROM tests');
+        const testsName = tests.rows.name;
+        res.render('professions_tests', { professions: professions.rows, testsName });
+    } catch (err) {
+        console.error('Ошибка при выполнении запроса:', err);
+        res.status(500).send('Ошибка сервера');
+    }
+});
+
 app.put('/experts', (req, res) => {
     const { login } = req.body;
     res.status(200).json({ message: 'Логин обновлен успешно!' });
