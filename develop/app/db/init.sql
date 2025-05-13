@@ -156,7 +156,6 @@ CREATE TABLE test_audio_sum
     reaction_times  INTEGER[] NOT NULL,
     correct_answers INTEGER   NOT NULL CHECK ( correct_answers >= 0 ),
     wrong_answers   INTEGER   NOT NULL CHECK ( wrong_answers >= 0 ),
-    missed_attempts INTEGER   NOT NULL CHECK ( missed_attempts >= 0 ),
     test_duration   SMALLINT  NOT NULL CHECK ( test_duration > 0 ),
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
