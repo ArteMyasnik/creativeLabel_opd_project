@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тест на скорость реакции</title>
+    <title>Тест на скорость реакции (звук)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
@@ -147,35 +147,21 @@
             transition: all 0.3s;
         }
 
-        .reaction-area.active {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 30px rgba(255, 107, 107, 0.3);
-        }
-
         .reaction-circle {
             width: 100px;
             height: 100px;
-            background-color: var(--accent-color);
+            background-color: #444;
             border-radius: 50%;
-            display: none;
+            display: block;
             position: absolute;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.2s;
         }
 
-        .reaction-circle:hover {
-            transform: scale(1.05);
-        }
-
-        .reaction-circle.active {
-            display: block;
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(255, 107, 107, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0); }
+        .reaction-circle.pressed {
+            background-color: #4CAF50;
+            transform: scale(0.95);
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
         }
 
         .progress-container {
@@ -301,7 +287,6 @@
             color: white;
         }
 
-        /* Анимация появления */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -311,20 +296,19 @@
             animation: fadeIn 0.5s ease-out;
         }
 
-        /* Адаптивность */
         @media (max-width: 600px) {
             .stats {
                 grid-template-columns: 1fr;
             }
-            
+
             .duration-selector {
                 flex-direction: column;
             }
-            
+
             .share-buttons {
                 flex-direction: column;
             }
-            
+
             .test-container, .results, .invite-widget {
                 padding: 20px;
             }
@@ -333,90 +317,235 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <div class="header">
-        <button class="btn btn-primary" onclick="window.location.href='/main'">
-            <i class="fas fa-home"></i> Главная страница
+<div class="header">
+    <button class="btn btn-primary" onclick="window.location.href='/main'">
+        <i class="fas fa-home"></i> Главная страница
+    </button>
+</div>
+
+<div class="test-container fade-in">
+    <h1><i class="fas fa-stopwatch"></i> Тест на скорость реакции (звук)</h1>
+    <p id="instructions">Нажмите кнопку "Начать тест", затем как можно быстрее нажимайте на круг при звуковом сигнале. Круг станет зеленым при вашем нажатии.</p>
+
+    <div class="duration-selector" id="durationButtons">
+        <button class="duration-btn" data-duration="30">30 секунд</button>
+        <button class="duration-btn" data-duration="60">1 минута</button>
+        <button class="duration-btn selected" data-duration="120">2 минуты</button>
+    </div>
+
+    <div class="reaction-area" id="reactionArea">
+        <div class="reaction-circle" id="reactionCircle"></div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <button class="btn btn-primary" id="startButton">Начать тест</button>
+</div>
+
+<div class="results" id="results">
+    <h2><i class="fas fa-chart-bar"></i> Результаты теста</h2>
+
+    <div class="stats">
+        <div class="stat-card">
+            <h3>Среднее время</h3>
+            <p id="averageTime">0</p>
+            <small>миллисекунд</small>
+        </div>
+        <div class="stat-card">
+            <h3>Лучший результат</h3>
+            <p id="bestTime">0</p>
+            <small>миллисекунд</small>
+        </div>
+        <div class="stat-card">
+            <h3>Количество реакций</h3>
+            <p id="reactionCount">0</p>
+        </div>
+        <div class="stat-card">
+            <h3>Пропущено</h3>
+            <p id="missedCount">0</p>
+        </div>
+    </div>
+
+    <button class="btn btn-accent" id="restartButton">Повторить тест</button>
+</div>
+
+<div class="invite-widget fade-in">
+    <h3><i class="fas fa-share-alt"></i> Пригласите друзей</h3>
+    <p>Поделитесь этим тестом с друзьями и сравните результаты!</p>
+
+    <div class="invite-link" id="inviteLink"></div>
+
+    <div class="share-buttons">
+        <button class="share-btn copy-btn" id="copyButton">
+            <i class="far fa-copy"></i> Копировать
+        </button>
+        <button class="share-btn whatsapp-btn" id="whatsappButton">
+            <i class="fab fa-whatsapp"></i> WhatsApp
+        </button>
+        <button class="share-btn telegram-btn" id="telegramButton">
+            <i class="fab fa-telegram"></i> Telegram
         </button>
     </div>
+</div>
 
-    <div class="test-container fade-in">
-        <h1><i class="fas fa-stopwatch"></i> Тест на скорость реакции</h1>
-        <p id="instructions">Нажмите кнопку "Начать тест", затем как можно быстрее нажимайте на красный круг, когда он появляется.</p>
-        
-        <div class="duration-selector" id="durationButtons">
-            <button class="duration-btn" data-duration="30">30 секунд</button>
-            <button class="duration-btn" data-duration="60">1 минута</button>
-            <button class="duration-btn selected" data-duration="120">2 минуты</button>
-        </div>
-        
-        <div class="reaction-area" id="reactionArea">
-            <div class="reaction-circle" id="reactionCircle"></div>
-        </div>
-        
-        <div class="progress-container">
-            <div class="progress-bar" id="progressBar"></div>
-        </div>
-        
-        <button class="btn btn-primary" id="startButton">Начать тест</button>
-    </div>
+<script>
+    // Конфигурация теста
+    const config = {
+        minDelay: 1000,    // Минимальная задержка между сигналами (мс)
+        maxDelay: 3000,    // Максимальная задержка между сигналами (мс)
+        signalDuration: 1000 // Время для реакции (мс)
+    };
 
-    <div class="results" id="results">
-        <h2><i class="fas fa-chart-bar"></i> Результаты теста</h2>
-        
-        <div class="stats">
-            <div class="stat-card">
-                <h3>Среднее время</h3>
-                <p id="averageTime">0</p>
-                <small>миллисекунд</small>
-            </div>
-            <div class="stat-card">
-                <h3>Лучший результат</h3>
-                <p id="bestTime">0</p>
-                <small>миллисекунд</small>
-            </div>
-            <div class="stat-card">
-                <h3>Количество реакций</h3>
-                <p id="reactionCount">0</p>
-            </div>
-            <div class="stat-card">
-                <h3>Пропущено</h3>
-                <p id="missedCount">0</p>
-            </div>
-        </div>
-        
-        <button class="btn btn-accent" id="restartButton">Повторить тест</button>
-    </div>
+    // Состояние теста
+    let state = {
+        testDuration: 120000, // Длительность теста по умолчанию (мс)
+        isRunning: false,
+        startTime: null,
+        signalTime: null,
+        reactionTimes: [],
+        missedSignals: 0,
+        bestTime: null,
+        timeoutIds: [],
+        progressInterval: null,
+        audioContext: null,
+        signalActive: false
+    };
 
-    <div class="invite-widget fade-in">
-        <h3><i class="fas fa-share-alt"></i> Пригласите друзей</h3>
-        <p>Поделитесь этим тестом с друзьями и сравните результаты!</p>
-        
-        <div class="invite-link" id="inviteLink"></div>
-        
-        <div class="share-buttons">
-            <button class="share-btn copy-btn" id="copyButton">
-                <i class="far fa-copy"></i> Копировать
-            </button>
-            <button class="share-btn whatsapp-btn" id="whatsappButton">
-                <i class="fab fa-whatsapp"></i> WhatsApp
-            </button>
-            <button class="share-btn telegram-btn" id="telegramButton">
-                <i class="fab fa-telegram"></i> Telegram
-            </button>
-        </div>
-    </div>
+    // Элементы DOM
+    const elements = {
+        reactionArea: document.getElementById('reactionArea'),
+        reactionCircle: document.getElementById('reactionCircle'),
+        startButton: document.getElementById('startButton'),
+        restartButton: document.getElementById('restartButton'),
+        results: document.getElementById('results'),
+        averageTime: document.getElementById('averageTime'),
+        bestTime: document.getElementById('bestTime'),
+        reactionCount: document.getElementById('reactionCount'),
+        missedCount: document.getElementById('missedCount'),
+        progressBar: document.getElementById('progressBar'),
+        durationButtons: document.querySelectorAll('.duration-btn'),
+        instructions: document.getElementById('instructions'),
+        inviteLink: document.getElementById('inviteLink'),
+        copyButton: document.getElementById('copyButton'),
+        whatsappButton: document.getElementById('whatsappButton'),
+        telegramButton: document.getElementById('telegramButton')
+    };
 
-    <script>
-        // Конфигурация теста
-        const config = {
-            minDelay: 1000,    // Минимальная задержка между сигналами (мс)
-            maxDelay: 3000,    // Максимальная задержка между сигналами (мс)
-            signalDuration: 1000 // Длительность показа сигнала (мс)
-        };
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', () => {
+        initEventListeners();
+        initReferralWidget();
+        initAudio();
+    });
 
-        // Состояние теста
-        let state = {
-            testDuration: 120000, // Длительность теста по умолчанию (мс)
+    function initEventListeners() {
+        elements.startButton.addEventListener('click', startTest);
+        elements.restartButton.addEventListener('click', resetTest);
+
+        elements.durationButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                elements.durationButtons.forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                state.testDuration = parseInt(btn.dataset.duration) * 1000;
+            });
+        });
+
+        elements.reactionCircle.addEventListener('click', handleReaction);
+    }
+
+    function initAudio() {
+        try {
+            state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (error) {
+            console.error('Ошибка инициализации аудио:', error);
+        }
+    }
+
+    function playBeep() {
+        if (!state.audioContext) return;
+
+        const oscillator = state.audioContext.createOscillator();
+        const gainNode = state.audioContext.createGain();
+
+        oscillator.type = 'sine';
+        oscillator.frequency.value = 800;
+        gainNode.gain.value = 0.1;
+
+        oscillator.connect(gainNode);
+        gainNode.connect(state.audioContext.destination);
+
+        oscillator.start();
+        oscillator.stop(state.audioContext.currentTime + 0.1);
+    }
+
+    function initReferralWidget() {
+        const referralLink = generateReferralLink();
+        elements.inviteLink.textContent = referralLink;
+
+        elements.copyButton.addEventListener('click', () => {
+            navigator.clipboard.writeText(referralLink).then(() => {
+                elements.copyButton.innerHTML = '<i class="fas fa-check"></i> Скопировано!';
+                setTimeout(() => {
+                    elements.copyButton.innerHTML = '<i class="far fa-copy"></i> Копировать';
+                }, 2000);
+            });
+        });
+
+        elements.whatsappButton.addEventListener('click', () => {
+            const text = `Попробуй этот тест на скорость реакции на звук: ${referralLink}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        });
+
+        elements.telegramButton.addEventListener('click', () => {
+            const text = `Попробуй этот тест на скорость реакции на звук: ${referralLink}`;
+            window.open(`https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(text)}`, '_blank');
+        });
+    }
+
+    function generateReferralLink() {
+        const baseUrl = window.location.href.split('?')[0];
+        let userId = 'guest';
+
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('ref')) {
+            userId = urlParams.get('ref');
+        } else if (document.cookie.includes('user_id=')) {
+            userId = document.cookie.split('; ').find(row => row.startsWith('user_id=')).split('=')[1];
+        } else if (localStorage.getItem('user_id')) {
+            userId = localStorage.getItem('user_id');
+        }
+
+        return `${baseUrl}?ref=${encodeURIComponent(userId)}&utm_source=referral&utm_medium=social&utm_campaign=sound_reaction_test`;
+    }
+
+    function startTest() {
+        resetTestState();
+
+        elements.startButton.disabled = true;
+        elements.startButton.classList.add('btn-disabled');
+        elements.startButton.textContent = "Тест выполняется...";
+        elements.instructions.textContent = "Нажимайте на круг при звуковом сигнале!";
+        elements.results.style.display = "none";
+
+        state.isRunning = true;
+        state.startTime = Date.now();
+
+        updateProgressBar();
+        state.progressInterval = setInterval(updateProgressBar, 100);
+
+        scheduleNextSignal();
+
+        state.timeoutIds.push(setTimeout(endTest, state.testDuration));
+    }
+
+    function resetTestState() {
+        state.timeoutIds.forEach(id => clearTimeout(id));
+        if (state.progressInterval) clearInterval(state.progressInterval);
+
+        state = {
+            ...state,
             isRunning: false,
             startTime: null,
             signalTime: null,
@@ -425,321 +554,134 @@
             bestTime: null,
             timeoutIds: [],
             progressInterval: null,
-            audioContext: null
+            signalActive: false
         };
 
-        // Элементы DOM
-        const elements = {
-            reactionArea: document.getElementById('reactionArea'),
-            reactionCircle: document.getElementById('reactionCircle'),
-            startButton: document.getElementById('startButton'),
-            restartButton: document.getElementById('restartButton'),
-            results: document.getElementById('results'),
-            averageTime: document.getElementById('averageTime'),
-            bestTime: document.getElementById('bestTime'),
-            reactionCount: document.getElementById('reactionCount'),
-            missedCount: document.getElementById('missedCount'),
-            progressBar: document.getElementById('progressBar'),
-            durationButtons: document.querySelectorAll('.duration-btn'),
-            instructions: document.getElementById('instructions'),
-            inviteLink: document.getElementById('inviteLink'),
-            copyButton: document.getElementById('copyButton'),
-            whatsappButton: document.getElementById('whatsappButton'),
-            telegramButton: document.getElementById('telegramButton')
-        };
+        elements.reactionCircle.classList.remove('pressed');
+    }
 
-        // Инициализация при загрузке страницы
-        document.addEventListener('DOMContentLoaded', () => {
-            initEventListeners();
-            initReferralWidget();
-            initAudio();
-        });
+    function scheduleNextSignal() {
+        if (!state.isRunning) return;
 
-        function initEventListeners() {
-            // Кнопка старта теста
-            elements.startButton.addEventListener('click', startTest);
-            
-            // Кнопка перезапуска теста
-            elements.restartButton.addEventListener('click', resetTest);
-            
-            // Кнопки выбора длительности
-            elements.durationButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    elements.durationButtons.forEach(b => b.classList.remove('selected'));
-                    btn.classList.add('selected');
-                    state.testDuration = parseInt(btn.dataset.duration) * 1000;
-                });
-            });
-            
-            // Клик по кругу реакции
-            elements.reactionCircle.addEventListener('click', handleReaction);
-        }
+        const delay = getRandomDelay();
 
-        function initAudio() {
-            try {
-                // Инициализация AudioContext
-                state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            } catch (error) {
-                console.error('Ошибка инициализации аудио:', error);
+        state.timeoutIds.push(setTimeout(() => {
+            showSignal();
+        }, delay));
+    }
+
+    function showSignal() {
+        if (!state.isRunning) return;
+
+        playBeep();
+        state.signalTime = Date.now();
+        state.signalActive = true;
+
+        state.timeoutIds.push(setTimeout(() => {
+            if (state.signalActive) {
+                state.missedSignals++;
+                state.signalActive = false;
+                scheduleNextSignal();
             }
+        }, config.signalDuration));
+    }
+
+    function handleReaction() {
+        if (!state.isRunning || !state.signalActive) return;
+
+        // Визуальная обратная связь
+        elements.reactionCircle.classList.add('pressed');
+        setTimeout(() => {
+            elements.reactionCircle.classList.remove('pressed');
+        }, 200);
+
+        const reactionTime = Date.now() - state.signalTime;
+        state.reactionTimes.push(reactionTime);
+
+        if (state.bestTime === null || reactionTime < state.bestTime) {
+            state.bestTime = reactionTime;
         }
 
-        function playBeep() {
-            if (!state.audioContext) return;
-            
-            // Создаем осциллятор для генерации звука
-            const oscillator = state.audioContext.createOscillator();
-            const gainNode = state.audioContext.createGain();
-            
-            oscillator.type = 'sine';
-            oscillator.frequency.value = 800; // Частота звука в герцах
-            gainNode.gain.value = 0.1; // Громкость
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(state.audioContext.destination);
-            
-            oscillator.start();
-            oscillator.stop(state.audioContext.currentTime + 0.1); // Длительность звука
-        }
+        state.signalActive = false;
+        scheduleNextSignal();
+    }
 
-        function initReferralWidget() {
-            // Генерация реферальной ссылки
-            const referralLink = generateReferralLink();
-            elements.inviteLink.textContent = referralLink;
-            
-            // Кнопка копирования
-            elements.copyButton.addEventListener('click', () => {
-                navigator.clipboard.writeText(referralLink).then(() => {
-                    elements.copyButton.innerHTML = '<i class="fas fa-check"></i> Скопировано!';
-                    setTimeout(() => {
-                        elements.copyButton.innerHTML = '<i class="far fa-copy"></i> Копировать';
-                    }, 2000);
-                });
-            });
-            
-            // Кнопка WhatsApp
-            elements.whatsappButton.addEventListener('click', () => {
-                const text = `Попробуй этот тест на скорость реакции: ${referralLink}`;
-                window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-            });
-            
-            // Кнопка Telegram
-            elements.telegramButton.addEventListener('click', () => {
-                const text = `Попробуй этот тест на скорость реакции: ${referralLink}`;
-                window.open(`https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(text)}`, '_blank');
-            });
-        }
+    function endTest() {
+        state.isRunning = false;
+        clearInterval(state.progressInterval);
 
-        function generateReferralLink() {
-            const baseUrl = window.location.href.split('?')[0];
-            let userId = 'guest';
-            
-            // Проверка различных источников для ID пользователя
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('ref')) {
-                userId = urlParams.get('ref');
-            } else if (document.cookie.includes('user_id=')) {
-                userId = document.cookie.split('; ').find(row => row.startsWith('user_id=')).split('=')[1];
-            } else if (localStorage.getItem('user_id')) {
-                userId = localStorage.getItem('user_id');
-            }
-            
-            return `${baseUrl}?ref=${encodeURIComponent(userId)}&utm_source=referral&utm_medium=social&utm_campaign=reaction_test`;
-        }
+        elements.startButton.disabled = false;
+        elements.startButton.classList.remove('btn-disabled');
+        elements.startButton.textContent = "Начать тест";
+        elements.instructions.textContent = "Нажмите кнопку \"Начать тест\", затем как можно быстрее нажимайте на круг при звуковом сигнале.";
 
-        function startTest() {
-            // Сброс состояния
-            resetTestState();
-            
-            // Настройка интерфейса
-            elements.startButton.disabled = true;
-            elements.startButton.classList.add('btn-disabled');
-            elements.startButton.textContent = "Тест выполняется...";
-            elements.instructions.textContent = "Нажимайте на красный круг как можно быстрее!";
-            elements.results.style.display = "none";
-            
-            // Запуск теста
-            state.isRunning = true;
-            state.startTime = Date.now();
-            
-            // Запуск прогресс-бара
-            updateProgressBar();
-            state.progressInterval = setInterval(updateProgressBar, 100);
-            
-            // Запуск первого сигнала
-            scheduleNextSignal();
-            
-            // Автоматическое завершение теста по истечении времени
-            state.timeoutIds.push(setTimeout(endTest, state.testDuration));
-        }
+        showResults();
+        sendResultsToServer();
+    }
 
-        function resetTestState() {
-            // Очистка предыдущих таймеров
-            state.timeoutIds.forEach(id => clearTimeout(id));
-            if (state.progressInterval) clearInterval(state.progressInterval);
-            
-            // Сброс состояния
-            state = {
-                ...state,
-                isRunning: false,
-                startTime: null,
-                signalTime: null,
-                reactionTimes: [],
-                missedSignals: 0,
-                bestTime: null,
-                timeoutIds: [],
-                progressInterval: null
-            };
-            
-            // Сброс интерфейса
-            elements.reactionCircle.style.display = "none";
-            elements.reactionArea.classList.remove("active");
-        }
+    function showResults() {
+        const average = calculateAverage(state.reactionTimes);
+        const best = state.bestTime || 0;
+        const count = state.reactionTimes.length;
+        const missed = state.missedSignals;
 
-        function scheduleNextSignal() {
-            if (!state.isRunning) return;
-            
-            const delay = getRandomDelay();
-            
-            state.timeoutIds.push(setTimeout(() => {
-                showSignal();
-            }, delay));
-        }
+        elements.averageTime.textContent = average.toFixed(0);
+        elements.bestTime.textContent = best.toFixed(0);
+        elements.reactionCount.textContent = count;
+        elements.missedCount.textContent = missed;
 
-        function showSignal() {
-            if (!state.isRunning) return;
-            
-            // Воспроизведение звукового сигнала
-            playBeep();
-            
-            // Показать визуальный сигнал
-            elements.reactionCircle.style.display = "block";
-            elements.reactionCircle.classList.add("active");
-            elements.reactionArea.classList.add("active");
-            state.signalTime = Date.now();
-            
-            // Если сигнал не был замечен
-            state.timeoutIds.push(setTimeout(() => {
-                if (elements.reactionCircle.style.display === "block") {
-                    hideSignal();
-                    state.missedSignals++;
-                    scheduleNextSignal();
-                }
-            }, config.signalDuration));
-        }
+        elements.results.style.display = "block";
+        elements.results.classList.add("fade-in");
+    }
 
-        function hideSignal() {
-            elements.reactionCircle.style.display = "none";
-            elements.reactionCircle.classList.remove("active");
-            elements.reactionArea.classList.remove("active");
-        }
+    function calculateAverage(times) {
+        if (times.length === 0) return 0;
+        const sum = times.reduce((acc, val) => acc + val, 0);
+        return sum / times.length;
+    }
 
-        function handleReaction() {
-            if (!state.isRunning || !state.signalTime) return;
-            
-            const reactionTime = Date.now() - state.signalTime;
-            state.reactionTimes.push(reactionTime);
-            
-            // Обновление лучшего результата
-            if (state.bestTime === null || reactionTime < state.bestTime) {
-                state.bestTime = reactionTime;
-            }
-            
-            // Скрытие сигнала
-            hideSignal();
-            state.signalTime = null;
-            
-            // Запуск следующего сигнала
-            scheduleNextSignal();
-        }
+    function updateProgressBar() {
+        if (!state.startTime) return;
 
-        function endTest() {
-            state.isRunning = false;
-            clearInterval(state.progressInterval);
-            
-            // Обновление интерфейса
-            elements.startButton.disabled = false;
-            elements.startButton.classList.remove('btn-disabled');
-            elements.startButton.textContent = "Начать тест";
-            elements.instructions.textContent = "Нажмите кнопку \"Начать тест\", затем как можно быстрее нажимайте на красный круг, когда он появляется.";
-            hideSignal();
-            
-            // Показать результаты
-            showResults();
-            
-            // Отправить результаты на сервер
-            sendResultsToServer();
-        }
+        const elapsed = Date.now() - state.startTime;
+        const progress = Math.min((elapsed / state.testDuration) * 100, 100);
+        elements.progressBar.style.width = `${progress}%`;
 
-        function showResults() {
-            // Расчет статистики
-            const average = calculateAverage(state.reactionTimes);
-            const best = state.bestTime || 0;
-            const count = state.reactionTimes.length;
-            const missed = state.missedSignals;
-            
-            // Обновление интерфейса
-            elements.averageTime.textContent = average.toFixed(0);
-            elements.bestTime.textContent = best.toFixed(0);
-            elements.reactionCount.textContent = count;
-            elements.missedCount.textContent = missed;
-            
-            // Показать блок результатов с анимацией
-            elements.results.style.display = "block";
-            elements.results.classList.add("fade-in");
-        }
-
-        function calculateAverage(times) {
-            if (times.length === 0) return 0;
-            const sum = times.reduce((acc, val) => acc + val, 0);
-            return sum / times.length;
-        }
-
-        function updateProgressBar() {
-            if (!state.startTime) return;
-            
-            const elapsed = Date.now() - state.startTime;
-            const progress = Math.min((elapsed / state.testDuration) * 100, 100);
-            elements.progressBar.style.width = `${progress}%`;
-            
-            // Изменение цвета при приближении к концу
-            if (progress > 80) {
-                elements.progressBar.style.backgroundColor = "#ff6b6b";
-            } else if (progress > 50) {
-                elements.progressBar.style.backgroundColor = "#feca57";
-            } else {
-                elements.progressBar.style.backgroundColor = "#479C92";
-            }
-        }
-
-        function getRandomDelay() {
-            return Math.random() * (config.maxDelay - config.minDelay) + config.minDelay;
-        }
-
-        function resetTest() {
-            resetTestState();
-            elements.results.style.display = "none";
-            elements.progressBar.style.width = "0%";
+        if (progress > 80) {
+            elements.progressBar.style.backgroundColor = "#ff6b6b";
+        } else if (progress > 50) {
+            elements.progressBar.style.backgroundColor = "#feca57";
+        } else {
             elements.progressBar.style.backgroundColor = "#479C92";
         }
+    }
 
-        function sendResultsToServer() {
-            const results = {
-                login: "<%= login %>",
-                reactionTimes: state.reactionTimes,
-                missedSignals: state.missedSignals,
-                // Здесь мы оставим пропущенные сигналы так как на звук нужна реакция
-                // При пропущенном сигнале мы будем отправлять
-                testDuration: state.testDuration / 1000
-            };
-            
-            fetch('http://localhost:3000/api/test_sound_signal', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(results),
-            })
+    function getRandomDelay() {
+        return Math.random() * (config.maxDelay - config.minDelay) + config.minDelay;
+    }
+
+    function resetTest() {
+        resetTestState();
+        elements.results.style.display = "none";
+        elements.progressBar.style.width = "0%";
+        elements.progressBar.style.backgroundColor = "#479C92";
+    }
+
+    function sendResultsToServer() {
+        const results = {
+            login: "<%= login %>",
+            reactionTimes: state.reactionTimes,
+            missedSignals: state.missedSignals,
+            testDuration: state.testDuration / 1000
+        };
+
+        fetch('http://localhost:3000/api/test_sound_signal', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(results),
+        })
             .then(response => response.json())
             .then(data => {
                 if (!data.success) {
@@ -749,7 +691,7 @@
             .catch(error => {
                 console.error('Ошибка при отправке результатов:', error);
             });
-        }
-    </script>
+    }
+</script>
 </body>
 </html>
