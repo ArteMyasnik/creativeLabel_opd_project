@@ -160,6 +160,25 @@
             margin-bottom: 5px;
         }
 
+        .stat-card {
+            background-color: #2a2a2a;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+        }
+
         .canvas-container {
             display: flex;
             justify-content: center;
@@ -394,7 +413,6 @@
 </div>
 
 <div class="results" id="resultsContainer">
-    <h2><i class="fas fa-chart-bar"></i> Результаты теста</h2>
     <div id="results"></div>
     <button class="btn btn-secondary" id="restartButton">Повторить тест</button>
 </div>
@@ -634,34 +652,52 @@
     function endTest() {
         testActive = false;
         cancelAnimationFrame(animationFrameId);
+
+        // Собираем результаты для отправки
+        const results = {
+            login: "<%= login %>",
+            responses: responses,
+            circleSpeeds: {
+                1: circleData[1].speed,
+                2: circleData[2].speed,
+                3: circleData[3].speed
+            },
+            testDuration: testDuration / 1000
+        };
+
+        sendResultsToServer(results);
         showResults();
         document.getElementById("startButton").style.display = 'block';
         document.getElementById("restartButton").style.display = 'block';
     }
 
     function showResults() {
-        let resDiv = document.getElementById("results");
-        let html = "<div class='stats'>";
+        const resultsContainer = document.getElementById("results");
+        let html = '<h2><i class="fas fa-chart-bar"></i> Результаты теста</h2>';
+        html += '<div class="stats">';
 
+        // Добавляем статистику для каждого круга
         for (let i = 1; i <= 3; i++) {
-            let res = responses[i];
-            let mean = average(res).toFixed(0);
-            let absMean = average(res.map(Math.abs)).toFixed(0);
-            let std = stdDev(res).toFixed(0);
+            const res = responses[i];
+            const mean = average(res).toFixed(0);
+            const absMean = average(res.map(Math.abs)).toFixed(0);
 
             html += `
-                <div class="stat">
-                    <strong>Круг ${i}</strong>
-                    <div>Ответов: ${res.length}</div>
-                    <div>Ср. ошибка: ${mean} мс</div>
-                    <div>Абс. ошибка: ${absMean} мс</div>
-                    <div>Отклонение: ${std} мс</div>
-                </div>
-            `;
+            <div class="stat-card">
+                <h3>Круг ${i}</h3>
+                <p>${mean}</p>
+                <small>Среднее время (мс)</small>
+            </div>
+            <div class="stat-card">
+                <h3>Круг ${i}</h3>
+                <p>${absMean}</p>
+                <small>Абс. ошибка (мс)</small>
+            </div>
+        `;
         }
 
-        html += "</div>";
-        resDiv.innerHTML = html;
+        html += '</div>';
+        resultsContainer.innerHTML = html;
         document.getElementById("resultsContainer").style.display = 'block';
     }
 
@@ -702,15 +738,14 @@
         })
             .then(response => response.json())
             .then(data => {
-                if (data.success === true) {
-                    console.log(data.message);
+                if (data.success) {
+                    console.log('Результаты сохранены');
                 } else {
-                    console.error('Ошибка при сохранении результатов:', data.message);
+                    console.error('Ошибка сохранения:', data.message);
                 }
             })
             .catch(error => {
                 console.error('Ошибка:', error);
-                alert('Произошла ошибка при отправке результатов.');
             });
     }
 
