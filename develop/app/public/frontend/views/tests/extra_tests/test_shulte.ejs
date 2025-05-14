@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест Горбова-Шульте</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+        :root {
+            --primary-color: #479C92;
+            --primary-hover: #2d5e58;
+            --secondary-color: #ff6b6b;
+            --background-color: #121212;
+            --text-color: #ffffff;
+            --card-bg: #1e1e1e;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .test-container {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .table-container {
+            margin: 30px auto;
+            display: none;
+        }
+
+        .schulte-table {
+            border-collapse: collapse;
+            margin: 0 auto;
+        }
+
+        .schulte-table td {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #444;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .schulte-table td:hover {
+            background-color: #333;
+        }
+
+        .black-number {
+            color: black;
+            background-color: white;
+        }
+
+        .red-number {
+            color: white;
+            background-color: #ff6b6b;
+        }
+
+        .correct {
+            background-color: rgba(71, 156, 146, 0.7) !important;
+            color: white !important;
+        }
+
+        .wrong {
+            background-color: rgba(255, 107, 107, 0.7) !important;
+            color: white !important;
+        }
+
+        .timer {
+            font-size: 24px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .results {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: var(--box-shadow);
+            display: none;
+        }
+
+        .results h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat {
+            background-color: #222;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat strong {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .test-container,
+            .results {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            p {
+                font-size: 15px;
+            }
+
+            .stats {
+                grid-template-columns: repeat(1, 1fr);
+            }
+
+            .schulte-table td {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+        }
+
+        #restartButton {
+            display: block;
+            margin: 20px auto 0;
+        }
+
+        #startButton {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--primary-color);
+            color: white;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+<div class="header">
+    <button class="btn btn-primary" onclick="window.location.href='/main'">
+        <i class="fas fa-home"></i> Главная страница
+    </button>
+</div>
+
+<div class="test-container">
+    <h1><i class="fas fa-table"></i> Тест Горбова-Шульте</h1>
+    <p id="instructions">Нажмите кнопку "Начать тест", затем поочередно находите и нажимайте черные числа в возрастающем порядке и красные числа в убывающем порядке (1 черное → 24 красное → 2 черное → 23 красное и т.д.).</p>
+
+    <div class="timer" id="timer">0 сек</div>
+
+    <div class="table-container" id="tableContainer">
+        <table class="schulte-table" id="schulteTable"></table>
+    </div>
+
+    <button class="btn btn-primary" id="startButton">Начать тест</button>
+</div>
+
+<div class="results" id="results">
+    <h2><i class="fas fa-chart-bar"></i> Результаты теста</h2>
+
+    <div class="stats">
+        <div class="stat">
+            <strong>Общее время</strong>
+            <span id="totalTime">0</span> сек
+        </div>
+        <div class="stat">
+            <strong>Среднее время</strong>
+            <span id="averageTime">0</span> сек
+        </div>
+        <div class="stat">
+            <strong>Ошибок</strong>
+            <span id="errorCount">0</span>
+        </div>
+    </div>
+
+    <button class="btn btn-secondary" id="restartButton">Повторить тест</button>
+</div>
+
+<script>
+    // Конфигурация теста
+    const config = {
+        tableSize: 7,
+        blackNumbers: 25,
+        redNumbers: 24
+    };
+
+    // Состояние теста
+    let state = {
+        isRunning: false,
+        startTime: null,
+        reactionTimes: [],
+        errors: 0,
+        currentSequence: [],
+        currentIndex: 0,
+        lastClickTime: null,
+        timerInterval: null,
+        seconds: 0
+    };
+
+    // Элементы DOM
+    const elements = {
+        tableContainer: document.getElementById('tableContainer'),
+        schulteTable: document.getElementById('schulteTable'),
+        startButton: document.getElementById('startButton'),
+        restartButton: document.getElementById('restartButton'),
+        results: document.getElementById('results'),
+        averageTime: document.getElementById('averageTime'),
+        totalTime: document.getElementById('totalTime'),
+        errorCount: document.getElementById('errorCount'),
+        instructions: document.getElementById('instructions'),
+        timer: document.getElementById('timer')
+    };
+
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', () => {
+        initEventListeners();
+    });
+
+    function initEventListeners() {
+        // Кнопка старта теста
+        elements.startButton.addEventListener('click', startTest);
+
+        // Кнопка перезапуска теста
+        elements.restartButton.addEventListener('click', resetTest);
+    }
+
+    //================= Функции управления тестом ======================//
+
+    function startTest() {
+        resetDisplay();
+
+        state.isRunning = true;
+        state.startTime = Date.now();
+        state.lastClickTime = Date.now();
+        state.seconds = 0;
+
+        elements.startButton.style.display = 'none';
+        elements.restartButton.style.display = 'none';
+        elements.results.style.display = 'none';
+
+        createTable();
+        generateSequence();
+
+        // Запуск таймера
+        state.timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    function endTest() {
+        if (!state.isRunning) return;
+
+        state.isRunning = false;
+        clearInterval(state.timerInterval);
+
+        showResults();
+        elements.restartButton.style.display = 'block';
+    }
+
+    function resetTest() {
+        resetState();
+        resetDisplay();
+    }
+
+    function resetState() {
+        state.isRunning = false;
+        state.startTime = null;
+        state.reactionTimes = [];
+        state.errors = 0;
+        state.currentSequence = [];
+        state.currentIndex = 0;
+        state.lastClickTime = null;
+        clearInterval(state.timerInterval);
+        state.seconds = 0;
+    }
+
+    function resetDisplay() {
+        elements.tableContainer.style.display = 'none';
+        elements.results.style.display = 'none';
+        elements.startButton.style.display = 'block';
+        elements.restartButton.style.display = 'none';
+        elements.timer.textContent = '0 сек';
+    }
+
+    function updateTimer() {
+        if (!state.isRunning) return;
+
+        state.seconds++;
+        elements.timer.textContent = `${state.seconds} сек`;
+    }
+
+    //============== Функции управления таблицей =====================//
+
+    function createTable() {
+        elements.schulteTable.innerHTML = '';
+
+        // Создаем массивы чисел
+        const blackNumbers = Array.from({length: config.blackNumbers}, (_, i) => i + 1);
+        const redNumbers = Array.from({length: config.redNumbers}, (_, i) => i + 1);
+
+        // Перемешиваем числа
+        shuffleArray(blackNumbers);
+        shuffleArray(redNumbers);
+
+        // Создаем массив всех ячеек (25 черных + 24 красных + 0 пустых)
+        const allCells = [];
+
+        // Добавляем черные числа (белый фон, черный текст)
+        for (let i = 0; i < blackNumbers.length; i++) {
+            allCells.push({
+                number: blackNumbers[i],
+                type: 'black-number'
+            });
+        }
+
+        // Добавляем красные числа (красный фон, белый текст)
+        for (let i = 0; i < redNumbers.length; i++) {
+            allCells.push({
+                number: redNumbers[i],
+                type: 'red-number'
+            });
+        }
+
+        // Перемешиваем все ячейки
+        shuffleArray(allCells);
+
+        // Создаем таблицу
+        for (let i = 0; i < config.tableSize; i++) {
+            const row = document.createElement('tr');
+            for (let j = 0; j < config.tableSize; j++) {
+                const index = i * config.tableSize + j;
+                const cell = document.createElement('td');
+
+                if (index < allCells.length) {
+                    cell.textContent = allCells[index].number;
+                    cell.classList.add(allCells[index].type);
+                }
+
+                cell.addEventListener('click', handleCellClick);
+                row.appendChild(cell);
+            }
+            elements.schulteTable.appendChild(row);
+        }
+
+        elements.tableContainer.style.display = 'block';
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function generateSequence() {
+        state.currentSequence = [];
+
+        // Черные числа в возрастающем порядке (1-25)
+        const blackSequence = Array.from({length: config.blackNumbers}, (_, i) => ({
+            number: i + 1,
+            type: 'black-number'
+        }));
+
+        // Красные числа в убывающем порядке (24-1)
+        const redSequence = Array.from({length: config.redNumbers}, (_, i) => ({
+            number: config.redNumbers - i,
+            type: 'red-number'
+        }));
+
+        // Чередуем черные и красные числа
+        for (let i = 0; i < Math.max(blackSequence.length, redSequence.length); i++) {
+            if (i < blackSequence.length) {
+                state.currentSequence.push(blackSequence[i]);
+            }
+            if (i < redSequence.length) {
+                state.currentSequence.push(redSequence[i]);
+            }
+        }
+
+        state.currentIndex = 0;
+    }
+
+    function handleCellClick(event) {
+        if (!state.isRunning) return;
+
+        const cell = event.target;
+        const currentTarget = state.currentSequence[state.currentIndex];
+
+        // Проверяем, является ли клик правильным
+        if (parseInt(cell.textContent) === currentTarget.number &&
+            cell.classList.contains(currentTarget.type)) {
+
+            // Записываем время реакции
+            const now = Date.now();
+            if (state.lastClickTime) {
+                const reactionTime = (now - state.lastClickTime) / 1000;
+                state.reactionTimes.push(reactionTime);
+            }
+            state.lastClickTime = now;
+
+            // Подсвечиваем ячейку как правильную
+            cell.classList.add('correct');
+            setTimeout(() => {
+                cell.classList.remove('correct');
+            }, 300);
+
+            // Переходим к следующей цели
+            state.currentIndex++;
+
+            // Если последовательность закончилась - завершаем тест
+            if (state.currentIndex >= state.currentSequence.length) {
+                endTest();
+            }
+        } else {
+            // Неправильный клик
+            state.errors++;
+
+            // Подсвечиваем ячейку как неправильную
+            cell.classList.add('wrong');
+            setTimeout(() => {
+                cell.classList.remove('wrong');
+            }, 300);
+        }
+    }
+
+    //============== Функции управления статистикой =====================//
+
+    function showResults() {
+        calculateAndDisplayStatistics();
+        elements.results.style.display = 'block';
+    }
+
+    function calculateAndDisplayStatistics() {
+        const totalTime = state.seconds;
+        const averageTime = calculateAverageTime();
+        const errorCount = state.errors;
+
+        elements.totalTime.textContent = totalTime;
+        elements.averageTime.textContent = averageTime.toFixed(1);
+        elements.errorCount.textContent = errorCount;
+    }
+
+    function calculateAverageTime() {
+        if (state.reactionTimes.length === 0) {
+            return 0;
+        }
+
+        const total = state.reactionTimes.reduce((sum, time) => sum + time, 0);
+        return total / state.reactionTimes.length;
+    }
+</script>
+</body>
+</html>

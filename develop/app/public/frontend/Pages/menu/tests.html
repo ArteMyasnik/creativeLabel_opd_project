@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Список тестов</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link
+            href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+            rel="stylesheet"
+    />
     <style>
         body {
             background-color: black;
             color: white;
             margin: 0;
             padding: 0;
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Montserrat", sans-serif;
             min-height: 100vh;
             position: relative;
             overflow-y: auto;
@@ -32,8 +35,6 @@
             pointer-events: none;
         }
 
-
-
         .content {
             position: relative;
             padding: 20px;
@@ -44,8 +45,12 @@
         }
 
         @keyframes ani {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
         }
 
         .content h1 {
@@ -67,7 +72,7 @@
             background-color: black;
             border: 3px solid #585858;
             border-radius: 20px;
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Montserrat", sans-serif;
             font-size: 25px;
             padding: 20px;
             display: flex;
@@ -85,14 +90,14 @@
         }
 
         .start-button {
-            background-color: #479C92;
+            background-color: #479c92;
             color: white;
             padding: 10px 20px;
             font-size: 16px;
             border: none;
             border-radius: 20px;
             cursor: pointer;
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Montserrat", sans-serif;
         }
 
         .start-button:hover {
@@ -118,9 +123,10 @@
             cursor: pointer;
             border: none;
             border-radius: 20px;
-            background-color: #479C92;
+            background-color: #479c92;
             color: white;
         }
+
         .button-container button:hover {
             background-color: #2d5e58;
             transition: all 0.3s ease;
@@ -135,7 +141,9 @@
 <div class="content">
     <div class="button-container">
         <div class="left-button">
-            <button onclick="window.location.href='/main'">Главная страница</button>
+            <button onclick="window.location.href='/main'">
+                Главная страница
+            </button>
         </div>
     </div>
     <h1>СПИСОК ВСЕХ ТЕСТОВ НАШЕЙ ПЛАТФОРМЫ</h1>
@@ -202,6 +210,37 @@
                 <p>Тест на наложение объекта на движущийся объект</p>
             </div>
             <button class="start-button" onclick="window.location.href='/test_analog_chase'">Начать тест</button>
+        </div>
+        <div class="test">
+            <div>
+                <strong>Тест на внимание</strong>
+                <p>Тест Шульте (красно-черная таблица)</p>
+            </div>
+            <button class="start-button" onclick="window.location.href='/test_shulte'">Начать тест</button>
+        </div>
+
+        <div class="test">
+            <div>
+                <strong>Тест на внимание</strong>
+                <p>Тест Струпа</p>
+            </div>
+            <button class="start-button" onclick="window.location.href='/test_strupe'">Начать тест</button>
+        </div>
+
+        <div class="test">
+            <div>
+                <strong>Тест на кратковременную память</strong>
+                <p>Тест на кратковременную память с числами</p>
+            </div>
+            <button class="start-button" onclick="window.location.href='/test_short_memory'">Начать тест</button>
+        </div>
+
+        <div class="test">
+            <div>
+                <strong>Тест на зрительную память</strong>
+                <p>Тест на зрительную память с фигурами</p>
+            </div>
+            <button class="start-button" onclick="window.location.href='/test_visual_memory'">Начать тест</button>
         </div>
     </div>
 </div>

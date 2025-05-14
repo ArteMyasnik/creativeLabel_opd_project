@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Тест на кратковременную память</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+    :root {
+      --primary-color: #479C92;
+      --secondary-color: #ff6b6b;
+      --background-color: #121212;
+      --text-color: #ffffff;
+      --card-bg: #1e1e1e;
+      --border-radius: 12px;
+      --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: var(--background-color);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .test-container, .results {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+    }
+    .btn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius);
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    #sequenceDisplay {
+      font-size: 36px;
+      margin: 20px;
+      letter-spacing: 12px;
+    }
+    #inputField {
+      font-size: 24px;
+      padding: 10px;
+      border-radius: var(--border-radius);
+      border: none;
+      width: 100%;
+      max-width: 300px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>Тест на кратковременную память</h1>
+    <p>Запомните последовательность чисел. После её исчезновения — введите её по памяти.</p>
+    <div id="sequenceDisplay"></div>
+    <input type="text" id="inputField" placeholder="Введите последовательность" style="display:none">
+    <button class="btn" id="startBtn">Начать тест</button>
+  </div>
+
+  <div class="results" id="results" style="display:none">
+    <h2>Результаты</h2>
+    <p id="resultText"></p>
+    <button class="btn" onclick="location.reload()">Пройти ещё раз</button>
+  </div>
+
+  <script>
+    const startBtn = document.getElementById('startBtn');
+    const sequenceDisplay = document.getElementById('sequenceDisplay');
+    const inputField = document.getElementById('inputField');
+    const results = document.getElementById('results');
+    const resultText = document.getElementById('resultText');
+
+    let generatedSequence = '';
+
+    function generateSequence(length = 5) {
+      let seq = '';
+      for (let i = 0; i < length; i++) {
+        seq += Math.floor(Math.random() * 10);
+      }
+      return seq;
+    }
+
+    function startTest() {
+      generatedSequence = generateSequence();
+      sequenceDisplay.textContent = generatedSequence;
+      inputField.style.display = 'none';
+      inputField.value = '';
+      startBtn.style.display = 'none';
+
+      setTimeout(() => {
+        sequenceDisplay.textContent = '';
+        inputField.style.display = 'inline-block';
+        inputField.focus();
+      }, 3000);
+    }
+
+    inputField.addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        const userInput = inputField.value;
+        inputField.style.display = 'none';
+        showResults(userInput);
+      }
+    });
+
+    function showResults(input) {
+      resultText.textContent = input === generatedSequence
+        ? 'Правильно! Вы точно воспроизвели последовательность.'
+        : `Неверно. Правильная последовательность была: ${generatedSequence}`;
+      results.style.display = 'block';
+    }
+
+    startBtn.addEventListener('click', startTest);
+  </script>
+</body>
+</html>
