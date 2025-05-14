@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рекоммендованные экспертами тесты для определения предрасположенности к профессии</title>
+    <link rel="stylesheet" href="../../Styles/piqStyles.css" />
+</head>
+<body>
+<div class="button-container">
+    <div class="left-button">
+        <button onclick="window.location.href='/main'">Главная страница</button>
+    </div>
+</div>
+
+
+    
+        
+    <% for (const professionId in usersProfessionsTests[userId]) { %>
+        <% const professionData = usersProfessionsTests[userId][professionId]; %>
+        <h3>Профессия: <%= professionData.profession_name %></h3>
+        <% for (const userId in usersProfessionsTests) { %>
+            <h4>ID эксперта: <%= userId %></h4>
+            <ul>
+                <% professionData.tests.forEach(test => { %>
+                    <li>
+                        Тест: <%= test.test_name %> - Оценка: <%= test.mark %>
+                    </li>
+                <% }); %>
+            </ul>
+        <% } %>
+    <% } %>
+
+</body>
+</html>

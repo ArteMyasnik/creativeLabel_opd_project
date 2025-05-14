@@ -303,8 +303,43 @@ app.get('/professions_tests', async (req, res) => {
         const tests = result_tests.rows;
         const result_profession = await pool.query('SELECT * FROM professions');
         const professions = result_profession.rows;
-        res.render('professions_tests', { tests: tests, professions: professions, isAdmin: !!req.session.isAdmin, login: req.session.login || null, isExpert: !!req.session.isExpert });
-
+        const result__prof_expert_tests =  await pool.qiery('')
+        const result_profession_tests = await pool.query(`
+            SELECT pt.user_id, pt.profession_id, pt.test_id, pt.mark, 
+                   p.name as profession_name, t.name as test_name
+            FROM profession_test pt
+            JOIN professions p ON pt.profession_id = p.id
+            JOIN tests t ON pt.test_id = t.id
+        `);
+        
+        // Создаём трёхмерную структуру
+        const usersProfessionsTests = {};
+        
+        result_profession_tests.rows.forEach(row => {
+            const { user_id, profession_id, test_id, mark, profession_name, test_name } = row;
+            
+            // Если нет записи для этого пользователя - создаём
+            if (!usersProfessionsTests[user_id]) {
+                usersProfessionsTests[user_id] = {};
+            }
+            
+            // Если нет записи для этой профессии у пользователя - создаём
+            if (!usersProfessionsTests[user_id][profession_id]) {
+                usersProfessionsTests[user_id][profession_id] = {
+                    profession_name: profession_name,
+                    tests: []
+                };
+            }
+            
+            // Добавляем тест
+            usersProfessionsTests[user_id][profession_id].tests.push({
+                test_id: test_id,
+                test_name: test_name,
+                mark: mark
+            });
+        });
+        res.render('professions_tests', { usersProfessionsTests: usersProfessionsTests, tests: tests, professions: professions, isAdmin: !!req.session.isAdmin, login: req.session.login || null, isExpert: !!req.session.isExpert });
+        
     } catch (err) {
         console.error('Ошибка при выполнении запроса:', err);
         res.status(500).send('Ошибка сервера');
