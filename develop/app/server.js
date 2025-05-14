@@ -522,6 +522,17 @@ app.get("/test_visual_memory", async (req, res) => {
   res.render("tests/extra_tests/test_visual_memory", { login });
 });
 
+app.get("/test_ariphmet", async (req, res) => {
+  const login = req.session.login || null;
+  res.render("tests/extra_tests/test_ariphmet", { login });
+});
+
+app.get("/test_chislovr", async (req, res) => {
+  const login = req.session.login || null;
+  res.render("tests/extra_tests/test_chislovr", { login });
+});
+
+
 app.get("/test_shulte", async (req, res) => {
   const login = req.session.login || null;
   res.render("tests/extra_tests/test_shulte", { login });
