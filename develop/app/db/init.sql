@@ -50,20 +50,15 @@ CREATE TABLE profession_pvk
     UNIQUE (profession_id, pvk_id, user_id)
 );
 
--- CREATE TABLE expert_profession_tests
--- (
---     id SERIAL PRIMARY KEY,
---     user_id INTEGER REFERENCES users (id) ON DELETE CASCADE,
---     profession_id INTEGER REFERENCES professions (id) ON DELETE CASCADE,
---     tests INTEGER[], CONSTRAINT valid_test_ids CHECK (
---         (array_length(tests, 1) > 0 AND -- если массив не пустой
---          NOT EXISTS (
---              SELECT 1
---              FROM unnest(tests) AS t
---              WHERE NOT EXISTS (SELECT 1 FROM tests WHERE id = t)
---          ))
---     )
--- );
+CREATE TABLE profession_test
+(
+    id            SERIAL PRIMARY KEY,
+    profession_id INTEGER REFERENCES professions (id) ON DELETE CASCADE,
+    user_id       INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    test_id       INTEGER REFERENCES pvks (id) ON DELETE CASCADE,
+    mark          INTEGER,
+    UNIQUE (profession_id, pvk_id, user_id)
+);
 
 -- Создание таблицы test_visual_signal
 CREATE TABLE personality
@@ -90,11 +85,19 @@ VALUES ('admin'),
 CREATE TABLE tests
 (
     id          SERIAL PRIMARY KEY,
-    name        VARCHAR(255) NOT NULL UNIQUE,
+    test        VARCHAR(255) NOT NULL,
+    type        VARCHAR(255) NOT NULL,
     description TEXT
 );
 
-INSERT INTO tests (name)
+INSERT INTO tests (test)
+VALUES ('Простая сенсомоторная реакция'),
+       ('Сложная сенсомоторная реакция'),
+       ('Простая реакция на движущийся объект'),
+       ('Сложная реакция на движущийся объект'),
+       ('Аналоговое слежение');
+
+INSERT INTO tests (type)
 VALUES ('test_visual_signal'),
        ('test_sound_signal'),
        ('test_color_signal'),
@@ -225,16 +228,16 @@ CREATE OR REPLACE FUNCTION add_test_user_record()
 $$
 DECLARE
     test_id_val INTEGER;
-    table_name  TEXT;
+    table_type  TEXT;
 BEGIN
     -- Получаем имя таблицы, в которую вставляются данные
-    table_name := TG_TABLE_NAME;
+    table_type := TG_TABLE_NAME;
 
     -- Находим ID теста по имени таблицы
     SELECT id
     INTO test_id_val
     FROM tests
-    WHERE name = table_name;
+    WHERE type = table_type;
 
     -- Если тест найден и запись для этого пользователя и теста еще не существует
     IF test_id_val IS NOT NULL AND NOT EXISTS (SELECT 1
@@ -256,14 +259,14 @@ $$
     DECLARE
         test_record RECORD;
     BEGIN
-        FOR test_record IN SELECT name FROM tests
+        FOR test_record IN SELECT type FROM tests
             LOOP
                 EXECUTE format('
             CREATE TRIGGER tr_after_insert_%s
             AFTER INSERT ON %I
             FOR EACH ROW
             EXECUTE FUNCTION add_test_user_record()',
-                               test_record.name, test_record.name);
+                               test_record.type, test_record.type);
             END LOOP;
     END;
 $$;

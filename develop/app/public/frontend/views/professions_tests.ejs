@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="vfewport" content="width=device-width, initial-scale=1.0"/>
+<title>Выбор тестов для профессии</title>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<link rel="stylesheet" href="../../Styles/expertStyles.css">
+<style>
+    .content {
+            position: relative;
+            padding: 20px;
+            text-align: center;
+            font-size: 10px;
+            opacity: 0;
+            animation: ani 2.5s forwards;
+        }
+
+        .professions-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin: 0 5%;
+        }
+
+        .profession-card {
+            width: 300px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 3px solid #585858;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.7s ease;
+            min-height: 150px;
+            position: relative;
+            color: white;
+        }
+
+        .profession-card:hover {
+            background-color: #2d5e58;
+            transform: scale(1.05);
+            border-color: #2d5e58;
+        }
+
+        .profession-card.selected {
+            background: #1e3d38;
+            border-color: #479C92;
+        }
+
+        .profession-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 2.4em;
+            color: white;
+        }
+
+        .profession-description {
+            color: #ccc;
+            font-size: 1.6em;
+            margin-bottom: 10px;
+        }
+
+        .evaluation-button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background: #479C92;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-family: Montserrat;
+        }
+
+        .evaluation-button:hover {
+            background: #2d5e58;
+        }
+
+        .evaluation-list {
+            margin-top: 10px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            border: 1px solid transparent;
+            border-radius: 5px;
+            text-align: left;
+        }
+
+        .evaluation-list.visible {
+            max-height: 300px;
+            border-color: #585858;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            margin-bottom: 10px;
+            overflow-y: auto;
+        }
+
+        .test-label {
+            display: block;
+            margin: 8px 0;
+            padding: 5px;
+            border-radius: 3px;
+            transition: background 0.2s;
+            color: white;
+        }
+
+        .test-label:hover {
+            background: rgba(71, 156, 146, 0.3);
+        }
+
+        .checkbox-controls {
+            margin-top: 10px;
+            display: none;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #585858;
+            border-radius: 5px;
+            flex-direction: column;
+        }
+
+        .checkbox-counter {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .checkbox-counter span {
+            color: #4CAF50;
+        }
+
+        .checkbox-counter .limit-reached {
+            color: #f44336;
+        }
+
+        .save-selection-button {
+            padding: 8px 15px;
+            background: #479C92;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-family: Montserrat;
+        }
+
+        .save-selection-button:hover {
+            background: #2d5e58;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: rgba(0, 0, 0, 0.9);
+            margin: 10% auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            border: 3px solid #585858;
+            color: white;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+        }
+
+        .close:hover {
+            color: #ccc;
+        }
+
+        #professionName, #professionDescription {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #585858;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+        }
+
+        #professionDescription {
+            height: 100px;
+            resize: vertical;
+        }
+
+        #saveProfessionButton, #saveOrderButton {
+            padding: 10px 15px;
+            background: #479C92;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-family: Montserrat;
+        }
+
+        #saveProfessionButton:hover, #saveOrderButton:hover {
+            background: #2d5e58;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .test-type {
+            font-weight: bold;
+            margin-top: 10px;
+            color: #479C92;
+            border-bottom: 1px solid #585858;
+            padding-bottom: 5px;
+        }
+
+        /* Обновленные стили для модального окна сортировки */
+        #orderModal .modal-content {
+            max-width: 400px;
+            width: 90%;
+            max-height: 65vh;
+            margin: 15vh auto;
+            padding: 15px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #orderModal h2 {
+            margin-top: 0;
+            font-size: 1.3em;
+            color: white;
+        }
+
+        #orderModal .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        #orderedList {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #orderedList li {
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #585858;
+            border-radius: 4px;
+            cursor: move;
+            transition: all 0.2s;
+            font-size: 0.9em;
+            color: white;
+        }
+
+        #orderedList li:hover {
+            background: rgba(71, 156, 146, 0.3);
+        }
+
+        #orderedList li.sortable-ghost {
+            opacity: 0.5;
+            background: rgba(71, 156, 146, 0.5);
+        }
+
+        .save-order-footer {
+            padding: 10px 0 0;
+            border-top: 1px solid #585858;
+            text-align: right;
+        }
+
+        .delete-button {
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-family: Montserrat;
+        }
+
+        .delete-button:hover {
+            background: #d32f2f;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 8px;
+        }
+</style>
+</head>
+<body>
+<div class="button-container">
+    <div class="left-button">
+        <button onclick="window.location.href='/main'">Главная страница</button>
+    </div>
+</div>
+
+<div class="content">
+    <h1>Рекоммендовать тесты для профессии</h1>
+
+    <div class="professions-container" id="professionsContainer">
+        <% professions.forEach(function(profession) { %>
+            <div class="profession-card" data-id="<%= profession.id %>" onclick="selectProfession(<%= profession.id %>, event)">
+                <div class="profession-title"><%= profession.name %></div>
+                <div class="profession-description"><%= profession.description %></div>
+                <button class="evaluation-button" onclick="toggleEvaluationList(<%= profession.id %>, event)">Выбрать тесты</button>
+                <div class="evaluation-list" id="evalList-<%= profession.id %>">
+                    <% const testGroups = [];
+                        tests.forEach(test => {
+                            testGroups.push(test);
+                        });
+                    %>
+                    <% testGroups.forEach(function(test) { %>
+                            <label class="test-label">
+                                <input type="checkbox" data-test-id="<%= test.id %>"
+                                        <%= profession.tests && profession.tests.includes(test.id) ? 'checked' : '' %>
+                                       onclick="updateCheckboxCounter(<%= profession.id %>, event)">
+                                <%= test.test %>
+                                <% if (test.description) { %>
+                                    <span style="font-size: 0.8em; color: #aaa;">(<%= test.description %>)</span>
+                                <% } %>
+                            </label>
+                        <% }); %>
+                </div>
+                <div class="checkbox-controls" id="controls-<%= profession.id %>">
+                    <div class="checkbox-counter">Выбрано: <span>0</span>/10</div>
+                    <button class="save-selection-button" onclick="savetestSelection(<%= profession.id %>, event)">Сохранить выбор</button>
+                </div>
+            </div>
+        <% }); %>
+
+        <div class="profession-card" onclick="openProfessionModal()">
+            <div class="profession-title">+ Новая профессия</div>
+            <div class="profession-description">Нажмите, чтобы создать</div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно создания профессии -->
+<div id="professionModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeProfessionModal()">&times;</span>
+        <h2>Создание профессии</h2>
+        <input type="text" id="professionName" placeholder="Название профессии" required>
+        <textarea id="professionDescription" placeholder="Описание профессии" required></textarea>
+        <button id="saveProfessionButton" onclick="saveProfession()">Сохранить профессию</button>
+    </div>
+</div>
+
+<!-- Модальное окно сортировки тестов -->
+<div id="orderModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeOrderModal()">&times;</span>
+        <h2>Упорядочить тесты для профессии</h2>
+        <div class="modal-body">
+            <p style="margin-top: 0; color: #ccc;">Перетащите элементы для расстановки порядка прохождения(от первого до последнего)</p>
+            <ul id="orderedList"></ul>
+        </div>
+        <div class="save-order-footer">
+            <button id="saveOrderButton">Сохранить порядок</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Данные из EJS
+    const professions = <%- JSON.stringify(professions) %>;
+    const tests = <%- JSON.stringify(tests) %>;
+    let selectedProfessionId = null;
+    let selectedProfessionName = null;
+    let selectedtests = {};
+    let currentlyOpenEvaluation = null;
+
+    // Выбор профессии
+    function selectProfession(id, event) {
+        if (event.target.classList.contains('profession-card') ||
+            event.target.classList.contains('profession-title') ||
+            event.target.classList.contains('profession-description')) {
+            selectedProfessionId = id;
+            const selectedProfession = professions.find(p => p.id == id);
+            selectedProfessionName = selectedProfession ? selectedProfession.name : null;
+
+            document.querySelectorAll('.profession-card').forEach(card => {
+                card.classList.toggle('selected', card.dataset.id == id);
+            });
+        }
+    }
+
+    // Переключение списка тестов
+    function toggleEvaluationList(professionId, event) {
+        event.stopPropagation();
+        const evalList = document.getElementById(`evalList-${professionId}`);
+        const controls = document.getElementById(`controls-${professionId}`);
+
+        if (currentlyOpenEvaluation && currentlyOpenEvaluation !== professionId) {
+            const prevEvalList = document.getElementById(`evalList-${currentlyOpenEvaluation}`);
+            const prevControls = document.getElementById(`controls-${currentlyOpenEvaluation}`);
+            if (prevEvalList) {
+                prevEvalList.classList.remove('visible');
+                prevEvalList.style.maxHeight = '0';
+            }
+            if (prevControls) prevControls.style.display = 'none';
+        }
+
+        if (!evalList.classList.contains('visible')) {
+            evalList.classList.add('visible');
+            evalList.style.maxHeight = '300px';
+            controls.style.display = 'flex';
+            currentlyOpenEvaluation = professionId;
+            updateCheckboxCounterForProfession(professionId);
+        } else {
+            evalList.classList.remove('visible');
+            evalList.style.maxHeight = '0';
+            controls.style.display = 'none';
+            currentlyOpenEvaluation = null;
+        }
+    }
+
+    // Обновление счетчика выбранных тестов
+    function updateCheckboxCounter(professionId, event) {
+        event.stopPropagation();
+        updateCheckboxCounterForProfession(professionId);
+    }
+
+    function updateCheckboxCounterForProfession(professionId) {
+        const evalList = document.getElementById(`evalList-${professionId}`);
+        const checkboxes = evalList.querySelectorAll('input[type="checkbox"]:checked');
+        const counter = document.querySelector(`#controls-${professionId} .checkbox-counter span`);
+        const MAX_SELECTION = 10;
+
+        counter.textContent = checkboxes.length;
+
+        if (checkboxes.length >= MAX_SELECTION) {
+            evalList.querySelectorAll('input[type="checkbox"]:not(:checked)').forEach(checkbox => {
+                checkbox.closest('.test-label').classList.add('hidden');
+            });
+            counter.classList.add('limit-reached');
+        } else {
+            evalList.querySelectorAll('.test-label').forEach(label => {
+                label.classList.remove('hidden');
+            });
+            counter.classList.remove('limit-reached');
+        }
+    }
+
+    // Сохранение выбранных тестов
+    function savetestSelection(professionId, event) {
+        event.stopPropagation();
+        const evalList = document.getElementById(`evalList-${professionId}`);
+        const checkboxes = evalList.querySelectorAll('input[type="checkbox"]:checked');
+
+        if (checkboxes.length < 3) {
+            alert('Выберите хотя бы три теста!');
+            return;
+        }
+
+        selectedtests[professionId] = Array.from(checkboxes).map(cb => ({
+            id: parseInt(cb.dataset.testId),
+            name: cb.parentElement.textContent.trim(),
+        }));
+
+        openOrderModal(professionId);
+    }
+
+    // Функция открытия модального окна с упорядочиванием тестов
+    function openOrderModal(professionId) {
+        const orderedList = document.getElementById('orderedList');
+        orderedList.innerHTML = '';
+
+        selectedtests[professionId].forEach(test => {
+            const li = document.createElement('li');
+            li.dataset.testId = test.id;
+            const testNameOnly = test.name.split('\n')[0].split('<br>')[0];
+            li.textContent = testNameOnly;
+            orderedList.appendChild(li);
+        });
+
+        new Sortable(orderedList, {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            dragClass: 'sortable-drag'
+        });
+
+        document.getElementById('orderModal').style.display = 'block';
+    }
+
+    // Открытие окна создания профессии
+    function openProfessionModal() {
+        document.getElementById('professionName').value = '';
+        document.getElementById('professionDescription').value = '';
+        document.getElementById('professionModal').style.display = 'block';
+    }
+
+    // Закрытие окна создания профессии
+    function closeProfessionModal() {
+        document.getElementById('professionModal').style.display = 'none';
+    }
+
+    // Сохранение профессии
+    function saveProfession() {
+        const name = document.getElementById('professionName').value.trim();
+        const description = document.getElementById('professionDescription').value.trim();
+
+        if (!name || !description) {
+            alert('Заполните все поля!');
+            return;
+        }
+
+        fetch('http://localhost:3000/api/professions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: name,
+                description: description
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Профессия "${name}" сохранена!`);
+                    window.location.reload();
+                } else {
+                    alert('Ошибка: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при сохранении');
+            });
+    }
+
+    // Закрытие окна сортировки
+    function closeOrderModal() {
+        document.getElementById('orderModal').style.display = 'none';
+    }
+
+    // Сохранение порядка тестов
+    function saveOrder() {
+        const login = "<%= login %>";
+        const orderedList = document.getElementById('orderedList');
+        const items = orderedList.querySelectorAll('li');
+        const result = Array.from(items).map((item, index) => ({
+            test_id: parseInt(item.dataset.testId),
+            mark: items.length - index
+        }));
+
+        if (!selectedProfessionName) {
+            alert('Ошибка: не выбрана профессия');
+            return;
+        }
+
+        fetch('http://localhost:3000/api/profession_tests', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                login: login,
+                profession_name: selectedProfessionName,
+                tests: result
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Порядок сохранен!');
+                    closeOrderModal();
+                } else {
+                    alert('Ошибка: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при сохранении');
+            });
+    }
+
+    // Назначение обработчика для кнопки сохранения порядка
+    document.getElementById('saveOrderButton').addEventListener('click', saveOrder);
+
+    // Закрытие модальных окон при клике вне их
+    window.onclick = function(event) {
+        if (event.target === document.getElementById('professionModal')) {
+            closeProfessionModal();
+        }
+        if (event.target === document.getElementById('orderModal')) {
+            closeOrderModal();
+        }
+    };
+</script>
+</body>
+</html>

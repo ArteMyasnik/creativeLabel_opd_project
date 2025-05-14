@@ -240,6 +240,20 @@ app.get('/experts', async (req, res) => {
     }
 });
 
+app.get('/professions_tests', async (req, res) => {
+    try {
+        const result_tests = await pool.query('SELECT * FROM tests');
+        const tests = result_tests.rows;
+        const result_profession = await pool.query('SELECT * FROM professions');
+        const professions = result_profession.rows;
+        res.render('professions_tests', { tests: tests, professions: professions, isAdmin: !!req.session.isAdmin, login: req.session.login || null, isExpert: !!req.session.isExpert });
+    
+    } catch (err) {
+        console.error('Ошибка при выполнении запроса:', err);
+        res.status(500).send('Ошибка сервера');
+    }
+});
+
 app.put('/experts', (req, res) => {
     const { login } = req.body;
     res.status(200).json({ message: 'Логин обновлен успешно!' });

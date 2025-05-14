@@ -324,7 +324,7 @@
     function generateReferralLink() {
         const testUrl = window.location.href.split('?')[0];
         let userId = 'guest';
-        
+
         // Проверка URL параметров
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('ref')) {
@@ -345,7 +345,7 @@
         else if (sessionStorage.getItem('user_id')) {
             userId = sessionStorage.getItem('user_id');
         }
-        
+
         return `${testUrl}?ref=${encodeURIComponent(userId)}&utm_source=referral&utm_medium=social&utm_campaign=reaction_test`;
     }
 
@@ -398,7 +398,7 @@
     function initInviteWidget() {
         const inviteLink = generateReferralLink();
         document.getElementById('inviteLink').textContent = inviteLink;
-        
+
         document.getElementById('copyButton').addEventListener('click', copyToClipboard);
         document.getElementById('whatsappButton').addEventListener('click', shareViaWhatsApp);
         document.getElementById('telegramButton').addEventListener('click', shareViaTelegram);
@@ -571,7 +571,7 @@
     // Инициализация при загрузке страницы
     document.addEventListener('DOMContentLoaded', function() {
         initInviteWidget();
-        
+
         // Проверяем, пришел ли пользователь по реферальной ссылке
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('ref')) {
