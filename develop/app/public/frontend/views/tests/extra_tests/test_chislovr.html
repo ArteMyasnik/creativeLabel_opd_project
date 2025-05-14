@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест на числовые ряды</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat :ital,wght@0,100..900;1,100..900&display=swap');
+        :root {
+            --primary-color: #479C92;
+            --primary-hover: #2d5e58;
+            --accent-color: #FF6B6B;
+            --background-color: #121212;
+            --card-color: #1E1E1E;
+            --text-color: #FFFFFF;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --disabled-color: #666666;
+            --pressed-color: #333333;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+        .header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            margin-bottom: 30px;
+        }
+        .btn {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Montserrat', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .btn-primary:disabled {
+            background-color: var(--disabled-color);
+            cursor: not-allowed;
+        }
+        .btn-accent {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        .btn-accent:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .btn-option {
+            background-color: #333;
+            color: white;
+        }
+        .btn-option:hover:not(:disabled) {
+            background-color: #444;
+        }
+        .btn-correct {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .btn-incorrect {
+            background-color: #F44336;
+            color: white;
+        }
+        .btn-pressed {
+            transform: scale(0.98);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        .btn-disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+            background-color: var(--disabled-color) !important;
+        }
+        .test-container {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .duration-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .duration-btn {
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .duration-btn.selected {
+            background-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        .sequence-display {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 30px 0;
+            min-height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #2a2a2a;
+            padding: 20px;
+            border-radius: var(--border-radius);
+        }
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: #333;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .results {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: var(--box-shadow);
+            display: none;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background-color: #2a2a2a;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+        .stat-card h3 {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+        .stat-card p {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        @media (max-width: 600px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+            .duration-selector {
+                flex-direction: column;
+            }
+            .test-container, .results {
+                padding: 20px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css ">
+</head>
+<body>
+    <div class="header">
+        <button class="btn btn-primary" onclick="window.location.href='/main'">
+            <i class="fas fa-home"></i> Главная страница
+        </button>
+    </div>
+    <div class="test-container fade-in">
+        <h1><i class="fas fa-sort-numeric-up"></i> Тест на числовые ряды</h1>
+        <p id="instructions">Нажмите кнопку "Начать тест", затем определите следующее число в последовательности</p>
+        <div class="duration-selector" id="durationButtons">
+            <button class="duration-btn selected" data-duration="10">10 вопросов</button>
+            <button class="duration-btn" data-duration="20">20 вопросов</button>
+            <button class="duration-btn" data-duration="30">30 вопросов</button>
+        </div>
+        <div class="sequence-display" id="sequenceDisplay">
+            Нажмите "Начать тест"
+        </div>
+        <div class="options-container" id="optionsContainer">
+            <!-- Опции будут добавлены динамически -->
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <button class="btn btn-primary" id="startButton">Начать тест</button>
+    </div>
+    <div class="results" id="results">
+        <h2><i class="fas fa-chart-bar"></i> Результаты теста</h2>
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Правильные ответы</h3>
+                <p id="correctCount">0</p>
+                <small>из <span id="totalCount">0</span></small>
+            </div>
+            <div class="stat-card">
+                <h3>Среднее время</h3>
+                <p id="averageTime">0</p>
+                <small>секунд</small>
+            </div>
+            <div class="stat-card">
+                <h3>Точность</h3>
+                <p id="accuracy">0%</p>
+            </div>
+        </div>
+        <button class="btn btn-accent" id="restartButton">Повторить тест</button>
+    </div>
+
+    <script>
+        // Утилиты
+        function shuffle(arr) {
+            const array = [...arr];
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function generateUniqueOptions(correctAnswer) {
+            const options = new Set();
+            options.add(correctAnswer);
+
+            let attempts = 0;
+            while (options.size < 4 && attempts < 100) {
+                attempts++;
+                let wrongOption;
+
+                if (Math.random() > 0.5) {
+                    wrongOption = correctAnswer + Math.floor(Math.random() * 10 + 1);
+                } else {
+                    wrongOption = correctAnswer - Math.floor(Math.random() * 10 + 1);
+                }
+
+                if (!isNaN(wrongOption) && isFinite(wrongOption) && wrongOption !== correctAnswer) {
+                    options.add(wrongOption);
+                }
+            }
+
+            // Резервные значения, если не удалось собрать за 100 попыток
+            for (let i = 1; options.size < 4; i++) {
+                const backup = correctAnswer + i;
+                if (!options.has(backup)) options.add(backup);
+            }
+
+            return shuffle([...options]);
+        }
+
+        // Конфигурация теста
+        const config = {
+            delayAfterAnswer: 1000,
+        };
+
+        // Состояние теста
+        let state = {
+            testLength: 10,
+            isRunning: false,
+            currentQuestion: 0,
+            questions: [],
+            startTime: null,
+            answerTimes: [],
+            correctAnswers: 0,
+            timeoutIds: [],
+            progressInterval: null
+        };
+
+        // Элементы DOM
+        const elements = {
+            startButton: document.getElementById('startButton'),
+            restartButton: document.getElementById('restartButton'),
+            sequenceDisplay: document.getElementById('sequenceDisplay'),
+            optionsContainer: document.getElementById('optionsContainer'),
+            results: document.getElementById('results'),
+            correctCount: document.getElementById('correctCount'),
+            totalCount: document.getElementById('totalCount'),
+            averageTime: document.getElementById('averageTime'),
+            accuracy: document.getElementById('accuracy'),
+            progressBar: document.getElementById('progressBar'),
+            instructions: document.getElementById('instructions'),
+            durationButtons: document.querySelectorAll('.duration-btn')
+        };
+
+        // Типы последовательностей
+        const sequenceTypes = [
+            {
+                name: "Арифметическая прогрессия",
+                generate: () => {
+                    const start = 2 + Math.floor(Math.random() * 10);
+                    const step = 2 + Math.floor(Math.random() * 5);
+                    const length = 3 + Math.floor(Math.random() * 2); // 3-4 числа
+                    const sequence = [];
+                    for (let i = 0; i < length; i++) {
+                        sequence.push(start + i * step);
+                    }
+                    const correctAnswer = start + length * step;
+                    const options = generateUniqueOptions(correctAnswer);
+
+                    return {
+                        sequence: sequence,
+                        correctAnswer: correctAnswer,
+                        options: options
+                    };
+                }
+            },
+            {
+                name: "Геометрическая прогрессия",
+                generate: () => {
+                    const start = 2 + Math.floor(Math.random() * 5);
+                    const step = 2 + Math.floor(Math.random() * 3);
+                    const length = 3 + Math.floor(Math.random() * 2); // 3-4 числа
+                    const sequence = [];
+                    for (let i = 0; i < length; i++) {
+                        sequence.push(start * Math.pow(step, i));
+                    }
+                    const correctAnswer = start * Math.pow(step, length);
+                    const options = generateUniqueOptions(correctAnswer);
+
+                    return {
+                        sequence: sequence,
+                        correctAnswer: correctAnswer,
+                        options: options
+                    };
+                }
+            },
+            {
+                name: "Квадраты чисел",
+                generate: () => {
+                    const start = 2 + Math.floor(Math.random() * 5); // 2-6
+                    const length = 3;
+                    const sequence = [];
+                    for (let i = 0; i < length; i++) {
+                        sequence.push(Math.pow(start + i, 2));
+                    }
+                    const correctAnswer = Math.pow(start + length, 2);
+                    const options = generateUniqueOptions(correctAnswer);
+
+                    return {
+                        sequence: sequence,
+                        correctAnswer: correctAnswer,
+                        options: options
+                    };
+                }
+            },
+            {
+                name: "Чередование операций",
+                generate: () => {
+                    const start = 2 + Math.floor(Math.random() * 10); // 2-11
+                    const length = 4;
+                    const sequence = [start];
+                    for (let i = 1; i < length; i++) {
+                        if (i % 2 === 1) {
+                            sequence.push(sequence[i-1] + (i + 1));
+                        } else {
+                            sequence.push(sequence[i-1] - (i - 1));
+                        }
+                    }
+                    const correctAnswer = sequence[length-1] + (length % 2 === 1 ? length + 1 : -(length - 1));
+                    const options = generateUniqueOptions(correctAnswer);
+
+                    return {
+                        sequence: sequence,
+                        correctAnswer: correctAnswer,
+                        options: options
+                    };
+                }
+            }
+        ];
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', () => {
+            initEventListeners();
+        });
+
+        function initEventListeners() {
+            elements.startButton.addEventListener('click', startTest);
+            elements.restartButton.addEventListener('click', resetTest);
+            elements.durationButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    elements.durationButtons.forEach(b => b.classList.remove('selected'));
+                    this.classList.add('selected');
+                    state.testLength = parseInt(this.dataset.duration);
+                });
+            });
+        }
+
+        function generateQuestions(count) {
+            const questions = [];
+            for (let i = 0; i < count; i++) {
+                const typeIndex = Math.floor(Math.random() * sequenceTypes.length);
+                const type = sequenceTypes[typeIndex];
+                const question = type.generate();
+                questions.push({
+                    sequence: question.sequence,
+                    correctAnswer: question.correctAnswer,
+                    options: question.options,
+                    type: type.name
+                });
+            }
+            return questions;
+        }
+
+        function displayQuestion(question) {
+            elements.sequenceDisplay.textContent = question.sequence.join(', ') + ', ?';
+            elements.optionsContainer.innerHTML = '';
+            question.options.forEach((option) => {
+                const button = document.createElement('button');
+                button.className = 'btn btn-option';
+                button.textContent = option;
+                button.dataset.value = option;
+                button.addEventListener('click', function() {
+                    if (state.isRunning) {
+                        handleAnswer(this, option, question.correctAnswer);
+                    }
+                });
+                elements.optionsContainer.appendChild(button);
+            });
+        }
+
+        function startTest() {
+            if (state.isRunning) return;
+            resetTestState();
+            elements.startButton.disabled = true;
+            elements.startButton.textContent = "Тест выполняется...";
+            elements.instructions.textContent = "Определите следующее число в последовательности";
+            elements.results.style.display = "none";
+
+            state.isRunning = true;
+            state.startTime = Date.now();
+            state.questions = generateQuestions(state.testLength);
+            state.currentQuestion = 0;
+            updateProgressBar();
+            state.progressInterval = setInterval(updateProgressBar, 100);
+            displayQuestion(state.questions[state.currentQuestion]);
+        }
+
+        function handleAnswer(button, selectedAnswer, correctAnswer) {
+            const answerTime = (Date.now() - state.startTime) / 1000;
+            state.answerTimes.push(answerTime);
+
+            const buttons = elements.optionsContainer.querySelectorAll('.btn');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (parseInt(btn.dataset.value) === correctAnswer) {
+                    btn.classList.add('btn-correct');
+                } else if (btn === button) {
+                    btn.classList.add('btn-incorrect');
+                }
+            });
+
+            if (selectedAnswer === correctAnswer) {
+                state.correctAnswers++;
+            }
+
+            state.currentQuestion++;
+
+            state.timeoutIds.forEach(id => clearTimeout(id));
+            state.timeoutIds = [];
+
+            state.timeoutIds.push(setTimeout(() => {
+                if (state.currentQuestion < state.questions.length) {
+                    displayQuestion(state.questions[state.currentQuestion]);
+                } else {
+                    endTest();
+                }
+            }, config.delayAfterAnswer));
+        }
+
+        function endTest() {
+            if (!state.isRunning) return;
+            state.isRunning = false;
+            clearInterval(state.progressInterval);
+            state.timeoutIds.forEach(id => clearTimeout(id));
+            state.timeoutIds = [];
+
+            elements.startButton.disabled = false;
+            elements.startButton.textContent = "Начать тест";
+            elements.instructions.textContent = "Нажмите кнопку \"Начать тест\", затем определите следующее число в последовательности";
+            showResults();
+        }
+
+        function showResults() {
+            const accuracy = Math.round((state.correctAnswers / state.questions.length) * 100);
+            const averageTime = state.answerTimes.length > 0 
+                ? (state.answerTimes.reduce((a, b) => a + b, 0) / state.answerTimes.length).toFixed(2)
+                : 0;
+            elements.correctCount.textContent = state.correctAnswers;
+            elements.totalCount.textContent = state.questions.length;
+            elements.averageTime.textContent = averageTime;
+            elements.accuracy.textContent = accuracy + "%";
+            elements.results.style.display = "block";
+            elements.results.classList.add("fade-in");
+        }
+
+        function resetTestState() {
+            state.timeoutIds.forEach(id => clearTimeout(id));
+            if (state.progressInterval) clearInterval(state.progressInterval);
+            Object.assign(state, {
+                isRunning: false,
+                currentQuestion: 0,
+                questions: [],
+                startTime: null,
+                answerTimes: [],
+                correctAnswers: 0,
+                timeoutIds: [],
+                progressInterval: null
+            });
+            elements.progressBar.style.width = "0%";
+            elements.sequenceDisplay.textContent = "Нажмите \"Начать тест\"";
+            elements.optionsContainer.innerHTML = '';
+        }
+
+        function resetTest() {
+            resetTestState();
+            elements.results.style.display = "none";
+        }
+
+        function updateProgressBar() {
+            if (!state.isRunning) return;
+            const progress = (state.currentQuestion / state.questions.length) * 100;
+            elements.progressBar.style.width = `${progress}%`;
+            if (progress > 80) {
+                elements.progressBar.style.backgroundColor = "#ff6b6b";
+            } else if (progress > 50) {
+                elements.progressBar.style.backgroundColor = "#feca57";
+            } else {
+                elements.progressBar.style.backgroundColor = "#479C92";
+            }
+        }
+    </script>
+</body>
+</html>

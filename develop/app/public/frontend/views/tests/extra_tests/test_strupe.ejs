@@ -1,0 +1,344 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест Струпа</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+        .button-container {
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 5px;
+            background-repeat: no-repeat;
+            font-size: 0;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .button-container button {
+            margin: 0.5rem 0.5rem;
+            padding: 0.7rem 2rem;
+            font-size: 17px;
+            font-family: Montserrat;
+            cursor: pointer;
+            border: none;
+            border-radius: 20px;
+            background-color: #479C92;
+            color: white;
+        }
+        .button-container button:hover {
+            background-color: #2d5e58;
+            transition: all 0.3s ease;
+        }
+        .left-button {
+            margin-right: auto;
+        }
+
+        body {
+            font-family: Montserrat;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: black;
+            color: white;
+            position: relative;
+            padding: 60px 20px 20px;
+            box-sizing: border-box;
+        }
+
+        .word-display {
+            font-size: 72px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .buttons {
+            display: none;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 100%;
+            width: 600px;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .button {
+            min-width: 100px;
+            height: 50px;
+            background-color: #479C92;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: Montserrat;
+            font-size: 16px;
+            font-weight: normal;
+            cursor: pointer;
+            margin: 5px;
+            padding: 5px 10px;
+            box-sizing: border-box;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .button.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        #results {
+            margin-top: 20px;
+            display: none;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 100%;
+            width: 300px;
+            text-align: center;
+            background-color: black;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: white;
+            font-family: 'Montserrat', Arial, sans-serif;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #startButton {
+            margin-top: 20px;
+            background-color: #479C92;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px 30px;
+            font-family: 'Montserrat', Arial, sans-serif;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #startButton.hidden {
+            display: none;
+        }
+
+        .time-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .time-button {
+            width: 80px;
+            height: 40px;
+            background-color: #479C92;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: Montserrat;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .time-button.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        @media (max-width: 600px) {
+            .word-display {
+                font-size: 48px;
+                height: 80px;
+            }
+            
+            .button {
+                min-width: 80px;
+                height: 40px;
+                font-size: 14px;
+            }
+            
+            .time-button {
+                width: 70px;
+                height: 35px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="button-container">
+    <div class="left-button">
+        <button onclick="window.location.href='/main'">Главная страница</button>
+    </div>
+</div>
+
+<h1>Тест Струпа</h1>
+<div class="word-display" id="wordDisplay"></div>
+
+<div class="time-buttons" id="timeButtons">
+    <button class="time-button" onclick="setTestDuration(30, this)">30 сек</button>
+    <button class="time-button" onclick="setTestDuration(60, this)">1 мин</button>
+    <button class="time-button" onclick="setTestDuration(120, this)">2 мин</button>
+</div>
+
+<div class="buttons" id="colorButtons">
+    <button class="button" data-color="red">Красный</button>
+    <button class="button" data-color="green">Зеленый</button>
+    <button class="button" data-color="blue">Синий</button>
+    <button class="button" data-color="yellow">Желтый</button>
+    <button class="button" data-color="purple">Фиолетовый</button>
+    <button class="button" data-color="orange">Оранжевый</button>
+    <button class="button" data-color="pink">Розовый</button>
+    <button class="button" data-color="brown">Коричневый</button>
+</div>
+
+<button id="startButton" onclick="startTest()">Начать тест</button>
+
+<div id="results"></div>
+
+<script>
+    const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'orange', 'pink', 'brown'];
+    const colorNames = ['Красный', 'Зеленый', 'Синий', 'Желтый', 'Фиолетовый', 'Оранжевый', 'Розовый', 'Коричневый'];
+    const colorValues = {
+        'red': '#FF0000',
+        'green': '#00FF00',
+        'blue': '#0000FF',
+        'yellow': '#FFFF00',
+        'purple': '#800080',
+        'orange': '#FFA500',
+        'pink': '#FFC0CB',
+        'brown': '#A52A2A'
+    };
+    
+    let currentTextColor = '';
+    let currentWord = '';
+    let startTime = 0;
+    let reactionTimes = [];
+    let correctAnswers = 0;
+    let missedClicks = 0;
+    let wrongClicks = 0;
+    let testTimeout, wordTimeout;
+    let testDuration = 30;
+
+    function setTestDuration(seconds, button) {
+        testDuration = seconds;
+        const timeButtons = document.querySelectorAll('.time-button');
+        timeButtons.forEach(btn => btn.classList.remove('disabled'));
+        button.classList.add('disabled');
+    }
+
+    function showNewWord() {
+        const wordDisplay = document.getElementById('wordDisplay');
+        
+        // Выбираем случайное слово и случайный цвет
+        currentWord = colorNames[Math.floor(Math.random() * colorNames.length)];
+        currentTextColor = colors[Math.floor(Math.random() * colors.length)];
+        
+        wordDisplay.textContent = currentWord;
+        wordDisplay.style.color = colorValues[currentTextColor];
+        startTime = Date.now();
+
+        wordTimeout = setTimeout(() => {
+            missedClicks++;
+            showNewWord();
+        }, 3000);
+    }
+
+    function checkAnswer(selectedColor) {
+        clearTimeout(wordTimeout);
+        const reactionTime = Date.now() - startTime;
+
+        if (selectedColor === currentTextColor) {
+            correctAnswers++;
+            reactionTimes.push(reactionTime);
+        } else {
+            wrongClicks++;
+        }
+        
+        showNewWord();
+    }
+
+    function showResults() {
+        let averageReactionTime = 0, standardDeviation = 0;
+        if (reactionTimes.length > 0) {
+            averageReactionTime = reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length;
+            const variance = reactionTimes
+                .map(x => Math.pow(x - averageReactionTime, 2))
+                .reduce((a, b) => a + b, 0) / reactionTimes.length;
+            standardDeviation = Math.sqrt(variance);
+        }
+
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = `
+            <h3>Результаты теста</h3>
+            <p>Среднее время реакции: ${averageReactionTime.toFixed(2)} мс</p>
+            <p>Стандартное отклонение: ${standardDeviation.toFixed(2)} мс</p>
+            <p>Правильные ответы: ${correctAnswers}</p>
+            <p>Ошибки: ${wrongClicks}</p>
+            <p>Пропущенные слова: ${missedClicks}</p>
+        `;
+        resultsDiv.style.display = 'block';
+    }
+
+    function finishTest() {
+        clearTimeout(testTimeout);
+        clearTimeout(wordTimeout);
+        document.getElementById('wordDisplay').textContent = '';
+        document.getElementById('colorButtons').style.display = 'none';
+        document.getElementById('timeButtons').style.display = 'flex';
+        document.getElementById('startButton').classList.remove('hidden');
+        document.getElementById('startButton').textContent = 'Пройти заново'; 
+        showResults();
+    }
+
+    function resetTestState() {
+        reactionTimes = [];
+        correctAnswers = 0;
+        missedClicks = 0;
+        wrongClicks = 0;
+    }
+
+    function startTest() {
+        resetTestState();
+        document.getElementById('startButton').classList.add('hidden');
+        document.getElementById('colorButtons').style.display = 'flex';
+        document.getElementById('timeButtons').style.display = 'none';
+        document.getElementById('results').style.display = 'none';
+
+        const colorButtons = document.querySelectorAll('.button');
+        colorButtons.forEach(button => {
+            const colorKey = button.getAttribute('data-color');
+            button.style.backgroundColor = colorValues[colorKey];
+            button.onclick = function() {
+                checkAnswer(colorKey);
+            };
+        });
+
+        showNewWord();
+        testTimeout = setTimeout(finishTest, testDuration * 1000);
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Тест на зрительную память</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+
+      :root {
+        --primary-color: #479c92;
+        --primary-hover: #2d5e58;
+        --secondary-color: #ff6b6b;
+        --background-color: #121212;
+        --text-color: #ffffff;
+        --card-bg: #1e1e1e;
+        --border-radius: 12px;
+        --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Montserrat", sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        position: relative;
+      }
+
+      .header {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        margin-bottom: 30px;
+      }
+
+      .btn {
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: 600;
+        border: none;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: "Montserrat", sans-serif;
+      }
+
+      .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background-color: var(--primary-hover);
+        transform: translateY(-2px);
+      }
+
+      .btn-secondary {
+        background-color: var(--secondary-color);
+        color: white;
+      }
+
+      .btn-secondary:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+      }
+
+      .btn-disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .test-container {
+        background-color: var(--card-bg);
+        border-radius: var(--border-radius);
+        padding: 30px;
+        width: 100%;
+        max-width: 600px;
+        box-shadow: var(--box-shadow);
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      h1 {
+        font-size: 28px;
+        margin-bottom: 20px;
+        color: var(--primary-color);
+      }
+
+      p {
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+
+      .shapes-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin: 30px 0;
+        flex-wrap: wrap;
+      }
+
+      .shape {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        position: relative;
+      }
+
+      .shape.active {
+        transform: scale(1.1);
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+      }
+
+      .shape.circle {
+        background-color: #ff6b6b;
+      }
+
+      .shape.square {
+        background-color: #4d96ff;
+        border-radius: 10px;
+      }
+
+      .shape.triangle {
+        background-color: #6bff6b;
+        clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+      }
+
+      .shape.diamond {
+        background-color: #ffcc4d;
+        clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+      }
+
+      .shape.star {
+        background-color: #cc4dff;
+        clip-path: polygon(
+          50% 0%,
+          61% 35%,
+          98% 35%,
+          68% 57%,
+          79% 91%,
+          50% 70%,
+          21% 91%,
+          32% 57%,
+          2% 35%,
+          39% 35%
+        );
+      }
+
+      .sequence-container {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin: 30px 0;
+        flex-wrap: wrap;
+      }
+
+      .sequence-item {
+        width: 40px;
+        height: 40px;
+        border: 2px dashed var(--text-color);
+        border-radius: 50%;
+        opacity: 0.7;
+      }
+
+      .sequence-item.filled {
+        border: 2px solid var(--primary-color);
+        opacity: 1;
+      }
+
+      .results {
+        background-color: var(--card-bg);
+        border-radius: var(--border-radius);
+        padding: 25px;
+        width: 100%;
+        max-width: 600px;
+        box-shadow: var(--box-shadow);
+        display: none;
+      }
+
+      .results h2 {
+        color: var(--primary-color);
+        margin-bottom: 15px;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .stat {
+        background-color: #222;
+        border-radius: var(--border-radius);
+        padding: 15px;
+        text-align: center;
+      }
+
+      .stat strong {
+        display: block;
+        font-size: 20px;
+        margin-bottom: 5px;
+      }
+
+      .progress-container {
+        width: 100%;
+        height: 8px;
+        background-color: #333;
+        border-radius: 4px;
+        margin: 20px 0;
+        overflow: hidden;
+      }
+
+      .progress-bar {
+        height: 100%;
+        background-color: var(--primary-color);
+        width: 0%;
+        transition: width 0.3s;
+      }
+
+      .message {
+        margin: 20px 0;
+        padding: 10px;
+        border-radius: var(--border-radius);
+        background-color: rgba(255, 255, 255, 0.1);
+        display: none;
+      }
+
+      .message.show {
+        display: block;
+      }
+
+      .message.correct {
+        color: #6bff6b;
+      }
+
+      .message.incorrect {
+        color: #ff6b6b;
+      }
+
+      /* Адаптивность */
+      @media (max-width: 600px) {
+        .stats {
+          grid-template-columns: 1fr;
+        }
+
+        .shape {
+          width: 50px;
+          height: 50px;
+        }
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="header">
+      <button class="btn btn-primary" onclick="window.location.href='/main'">
+        <i class="fas fa-home"></i> Главная страница
+      </button>
+    </div>
+
+    <div class="test-container">
+      <h1><i class="fas fa-brain"></i> Тест на зрительную память</h1>
+      <p id="instructions">
+        Запомните последовательность фигур, а затем повторите её.
+      </p>
+
+      <div class="shapes-container" id="shapesContainer">
+        <div class="shape circle" data-shape="circle"></div>
+        <div class="shape square" data-shape="square"></div>
+        <div class="shape triangle" data-shape="triangle"></div>
+        <div class="shape diamond" data-shape="diamond"></div>
+        <div class="shape star" data-shape="star"></div>
+      </div>
+
+      <div class="sequence-container" id="sequenceContainer"></div>
+
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <div class="message" id="message"></div>
+
+      <button class="btn btn-primary" id="startButton">Начать тест</button>
+      <button
+        class="btn btn-secondary"
+        id="restartButton"
+        style="display: none"
+      >
+        Повторить тест
+      </button>
+    </div>
+
+    <div class="results" id="results">
+      <h2><i class="fas fa-chart-bar"></i> Результаты теста</h2>
+
+      <div class="stats">
+        <div class="stat">
+          <strong>Уровень</strong>
+          <span id="level">1</span>
+        </div>
+        <div class="stat">
+          <strong>Правильно</strong>
+          <span id="correctCount">0</span>
+        </div>
+        <div class="stat">
+          <strong>Ошибки</strong>
+          <span id="errorCount">0</span>
+        </div>
+        <div class="stat">
+          <strong>Рекорд</strong>
+          <span id="record">0</span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Конфигурация теста
+      const config = {
+        initialSequenceLength: 3,
+        maxSequenceLength: 10,
+        showTime: 1000,
+        delayBetweenShapes: 500,
+      };
+
+      // Состояние теста
+      let state = {
+        isRunning: false,
+        isShowingSequence: false,
+        isUserTurn: false,
+        currentSequence: [],
+        userSequence: [],
+        level: 1,
+        correctAnswers: 0,
+        errors: 0,
+        record: 0,
+        timeoutIds: [],
+      };
+
+      // Элементы DOM
+      const elements = {
+        shapesContainer: document.getElementById("shapesContainer"),
+        sequenceContainer: document.getElementById("sequenceContainer"),
+        startButton: document.getElementById("startButton"),
+        restartButton: document.getElementById("restartButton"),
+        results: document.getElementById("results"),
+        progressBar: document.getElementById("progressBar"),
+        instructions: document.getElementById("instructions"),
+        message: document.getElementById("message"),
+        level: document.getElementById("level"),
+        correctCount: document.getElementById("correctCount"),
+        errorCount: document.getElementById("errorCount"),
+        record: document.getElementById("record"),
+      };
+
+      // Инициализация при загрузке страницы
+      document.addEventListener("DOMContentLoaded", () => {
+        initEventListeners();
+      });
+
+      function initEventListeners() {
+        // Кнопка старта теста
+        elements.startButton.addEventListener("click", startTest);
+
+        // Кнопка перезапуска теста
+        elements.restartButton.addEventListener("click", resetTest);
+
+        // Обработчики кликов по фигурам
+        document.querySelectorAll(".shape").forEach((shape) => {
+          shape.addEventListener("click", () => {
+            if (state.isUserTurn && state.isRunning) {
+              handleShapeClick(shape);
+            }
+          });
+        });
+      }
+
+      //================= Функции управления тестом ======================//
+
+      function startTest() {
+        if (state.isRunning) return;
+
+        resetDisplay();
+        state.isRunning = true;
+        state.level = 1;
+        state.correctAnswers = 0;
+        state.errors = 0;
+
+        elements.startButton.style.display = "none";
+        elements.instructions.textContent =
+          "Запомните последовательность фигур...";
+
+        generateSequence();
+        showSequence();
+      }
+
+      function endTest() {
+        state.isRunning = false;
+        state.isUserTurn = false;
+
+        // Обновляем рекорд если текущий уровень больше
+        if (state.level - 1 > state.record) {
+          state.record = state.level - 1;
+        }
+
+        showResults();
+        elements.restartButton.style.display = "block";
+      }
+
+      function resetTest() {
+        resetState();
+        resetDisplay();
+        elements.restartButton.style.display = "none";
+        elements.startButton.style.display = "block";
+      }
+
+      function resetState() {
+        state = {
+          isRunning: false,
+          isShowingSequence: false,
+          isUserTurn: false,
+          currentSequence: [],
+          userSequence: [],
+          level: 1,
+          correctAnswers: 0,
+          errors: 0,
+          record: state.record, // Сохраняем рекорд
+          timeoutIds: [],
+        };
+      }
+
+      function resetDisplay() {
+        elements.sequenceContainer.innerHTML = "";
+        elements.message.className = "message";
+        elements.progressBar.style.width = "0%";
+        elements.results.style.display = "none";
+        elements.instructions.textContent =
+          "Запомните последовательность фигур, а затем повторите её.";
+      }
+
+      //============== Функции управления последовательностями ===========//
+
+      function generateSequence() {
+        state.currentSequence = [];
+        const shapes = Array.from(elements.shapesContainer.children);
+        const sequenceLength = Math.min(
+          config.initialSequenceLength + state.level - 1,
+          config.maxSequenceLength
+        );
+
+        for (let i = 0; i < sequenceLength; i++) {
+          const randomIndex = Math.floor(Math.random() * shapes.length);
+          state.currentSequence.push(shapes[randomIndex].dataset.shape);
+        }
+      }
+
+      function showSequence() {
+        state.isShowingSequence = true;
+        state.isUserTurn = false;
+        elements.sequenceContainer.innerHTML = "";
+
+        // Создаем элементы для отображения последовательности
+        state.currentSequence.forEach((shape) => {
+          const item = document.createElement("div");
+          item.className = "sequence-item";
+          item.dataset.shape = shape;
+          elements.sequenceContainer.appendChild(item);
+        });
+
+        // Показываем последовательность с задержкой
+        let delay = 0;
+        state.currentSequence.forEach((shape, index) => {
+          state.timeoutIds.push(
+            setTimeout(() => {
+              highlightShape(shape);
+              updateSequenceDisplay(index, true);
+            }, delay)
+          );
+
+          delay += config.showTime + config.delayBetweenShapes;
+
+          state.timeoutIds.push(
+            setTimeout(() => {
+              updateSequenceDisplay(index, false);
+            }, delay - config.delayBetweenShapes)
+          );
+        });
+
+        // После показа всей последовательности - ход пользователя
+        state.timeoutIds.push(
+          setTimeout(() => {
+            state.isShowingSequence = false;
+            state.isUserTurn = true;
+            state.userSequence = [];
+            elements.instructions.textContent =
+              "Повторите последовательность...";
+          }, delay)
+        );
+      }
+
+      function highlightShape(shapeType) {
+        const shape = document.querySelector(
+          `.shape[data-shape="${shapeType}"]`
+        );
+        if (shape) {
+          shape.classList.add("active");
+          setTimeout(() => {
+            shape.classList.remove("active");
+          }, config.showTime - 100);
+        }
+      }
+
+      function updateSequenceDisplay(index, show) {
+        const items = elements.sequenceContainer.children;
+        if (index < items.length) {
+          if (show) {
+            items[index].classList.add("filled");
+            items[index].dataset.shape = state.currentSequence[index];
+          } else {
+            items[index].classList.remove("filled");
+          }
+        }
+      }
+
+      //============== Обработка действий пользователя ==================//
+
+      function handleShapeClick(shape) {
+        if (!state.isUserTurn || state.isShowingSequence) return;
+
+        const shapeType = shape.dataset.shape;
+        state.userSequence.push(shapeType);
+
+        // Подсвечиваем выбранную фигуру
+        shape.classList.add("active");
+        setTimeout(() => {
+          shape.classList.remove("active");
+        }, 300);
+
+        // Проверяем последовательность
+        const currentIndex = state.userSequence.length - 1;
+        if (
+          state.userSequence[currentIndex] !==
+          state.currentSequence[currentIndex]
+        ) {
+          // Ошибка
+          handleWrongAnswer();
+          return;
+        }
+
+        // Правильный ответ
+        if (state.userSequence.length === state.currentSequence.length) {
+          handleCorrectAnswer();
+        }
+      }
+
+      function handleCorrectAnswer() {
+        state.correctAnswers++;
+        showMessage("Правильно! Переход на следующий уровень.", "correct");
+
+        state.timeoutIds.push(
+          setTimeout(() => {
+            state.level++;
+            generateSequence();
+            showSequence();
+            updateProgressBar();
+          }, 1500)
+        );
+      }
+
+      function handleWrongAnswer() {
+        state.errors++;
+        showMessage("Ошибка! Тест завершен.", "incorrect");
+        endTest();
+      }
+
+      function showMessage(text, type) {
+        elements.message.textContent = text;
+        elements.message.className = "message show " + type;
+      }
+
+      //============== Отображение результатов ==================//
+
+      function showResults() {
+        elements.level.textContent = state.level - 1;
+        elements.correctCount.textContent = state.correctAnswers;
+        elements.errorCount.textContent = state.errors;
+        elements.record.textContent = state.record;
+        elements.results.style.display = "block";
+      }
+
+      function updateProgressBar() {
+        const progress = ((state.level - 1) / config.maxSequenceLength) * 100;
+        elements.progressBar.style.width = Math.min(progress, 100) + "%";
+      }
+    </script>
+  </body>
+</html>
