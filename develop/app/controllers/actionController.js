@@ -74,6 +74,119 @@ class ActionController {
         }
     }
 
+    async saveProfessionsTestsRating(req, res) {
+        const { login, profession_name, tests } = req.body;
+        const user = await pool.query(
+            'SELECT id FROM users WHERE login = $1',
+            [login]
+        );
+
+        if (user.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Пользователь не найден'
+            });
+        }
+
+        const userId = user.rows[0].id;
+
+        // Валидация входных данных
+        if (!profession_name || !tests || !Array.isArray(tests) || tests.length < 3) {
+            return res.status(400).json({
+                success: false,
+                message: 'Необходимо выбрать и упорядочить минимум 3 теста'
+            });
+        }
+
+        try {
+            // 1. Получаем ID профессии
+            const professionRes = await pool.query(
+                'SELECT id FROM professions WHERE name = $1',
+                [profession_name]
+            );
+
+            if (professionRes.rows.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Профессия не найдена'
+                });
+            }
+
+            const professionId = professionRes.rows[0].id;
+
+            // 2. Проверяем существующие оценки
+            const existingRatingsRes = await pool.query(
+                'SELECT 1 FROM profession_test WHERE profession_id = $1 AND user_id = $2 LIMIT 1',
+                [professionId, userId]
+            );
+
+            const isUpdate = existingRatingsRes.rows.length > 0;
+
+            // 3. Начинаем транзакцию
+            const client = await pool.connect();
+
+            try {
+                await client.query('BEGIN');
+
+                // 4. Удаляем старые оценки при обновлении
+                if (isUpdate) {
+                    await client.query(
+                        'DELETE FROM profession_test WHERE profession_id = $1 AND user_id = $2',
+                        [professionId, userId]
+                    );
+                }
+
+                // 5. Подготавливаем оценки от 10 до 1
+                const testsWithMarks = tests.map((test, index) => ({
+                    ...test,
+                    mark: 10 - index // Первый элемент получает 10, последний - 10 - (n-1)
+                }));
+
+                // 6. Вставляем новые оценки с рассчитанными marks
+                const insertValues = testsWithMarks.map(test =>
+                    `(${professionId}, ${userId}, ${test.test_id}, ${test.mark})`
+                ).join(',');
+
+                await client.query(
+                    `INSERT INTO profession_test 
+                (profession_id, user_id, test_id, mark)
+                VALUES ${insertValues}`
+                );
+
+                // 7. Обновляем счетчик экспертов только для новых оценок
+                if (!isUpdate) {
+                    await client.query(
+                        'UPDATE professions SET expert_count = expert_count + 1 WHERE id = $1',
+                        [professionId]
+                    );
+                }
+
+                await client.query('COMMIT');
+
+                return res.json({
+                    success: true,
+                    message: isUpdate ? 'Порядок успешно обновлен' : 'Порядок успешно сохранен',
+                    profession: profession_name,
+                    tests: testsWithMarks // Возвращаем тесты с оценками для отладки
+                });
+
+            } catch (err) {
+                await client.query('ROLLBACK');
+                console.error('Ошибка транзакции:', err);
+                throw err;
+            } finally {
+                client.release();
+            }
+
+        } catch (err) {
+            console.error('Ошибка сохранения порядка:', err);
+            return res.status(500).json({
+                success: false,
+                message: 'Ошибка сервера при сохранении порядка'
+            });
+        }
+    };
+
     async testVisualSignal(req, res) {
         try {
             const { login, reactionTimes, testDuration } = req.body;
@@ -454,8 +567,6 @@ class ActionController {
         }
     }
 
-
-
     async createProfession(req, res) {
         try {
             const {name, description} = req.body;
@@ -588,118 +699,6 @@ class ActionController {
             return res.status(500).json({
                 success: false,
                 message: 'Ошибка сервера при сохранении оценок'
-            });
-        }
-    };
-async saveProfessionsTestsRating(req, res) {
-        const { login, profession_name, tests } = req.body;
-        const user = await pool.query(
-            'SELECT id FROM users WHERE login = $1',
-            [login]
-        );
-
-        if (user.rows.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: 'Пользователь не найден'
-            });
-        }
-
-        const userId = user.rows[0].id;
-
-        // Валидация входных данных
-        if (!profession_name || !tests || !Array.isArray(tests) || tests.length < 3) {
-            return res.status(400).json({
-                success: false,
-                message: 'Необходимо выбрать и упорядочить минимум 3 теста'
-            });
-        }
-
-        try {
-            // 1. Получаем ID профессии
-            const professionRes = await pool.query(
-                'SELECT id FROM professions WHERE name = $1',
-                [profession_name]
-            );
-
-            if (professionRes.rows.length === 0) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Профессия не найдена'
-                });
-            }
-
-            const professionId = professionRes.rows[0].id;
-
-            // 2. Проверяем существующие оценки
-            const existingRatingsRes = await pool.query(
-                'SELECT 1 FROM profession_test WHERE profession_id = $1 AND user_id = $2 LIMIT 1',
-                [professionId, userId]
-            );
-
-            const isUpdate = existingRatingsRes.rows.length > 0;
-
-            // 3. Начинаем транзакцию
-            const client = await pool.connect();
-
-            try {
-                await client.query('BEGIN');
-
-                // 4. Удаляем старые оценки при обновлении
-                if (isUpdate) {
-                    await client.query(
-                        'DELETE FROM profession_test WHERE profession_id = $1 AND user_id = $2',
-                        [professionId, userId]
-                    );
-                }
-
-                // 5. Подготавливаем оценки от 10 до 1
-                const testsWithMarks = tests.map((test, index) => ({
-                    ...test,
-                    mark: 10 - index // Первый элемент получает 10, последний - 10 - (n-1)
-                }));
-
-                // 6. Вставляем новые оценки с рассчитанными marks
-                const insertValues = testsWithMarks.map(test =>
-                    `(${professionId}, ${userId}, ${test.test_id}, ${test.mark})`
-                ).join(',');
-
-                await client.query(
-                    `INSERT INTO profession_test 
-                (profession_id, user_id, test_id, mark)
-                VALUES ${insertValues}`
-                );
-
-                // 7. Обновляем счетчик экспертов только для новых оценок
-                if (!isUpdate) {
-                    await client.query(
-                        'UPDATE professions SET expert_count = expert_count + 1 WHERE id = $1',
-                        [professionId]
-                    );
-                }
-
-                await client.query('COMMIT');
-
-                return res.json({
-                    success: true,
-                    message: isUpdate ? 'Порядок успешно обновлен' : 'Порядок успешно сохранен',
-                    profession: profession_name,
-                    tests: testsWithMarks // Возвращаем тесты с оценками для отладки
-                });
-
-            } catch (err) {
-                await client.query('ROLLBACK');
-                console.error('Ошибка транзакции:', err);
-                throw err;
-            } finally {
-                client.release();
-            }
-
-        } catch (err) {
-            console.error('Ошибка сохранения порядка:', err);
-            return res.status(500).json({
-                success: false,
-                message: 'Ошибка сервера при сохранении порядка'
             });
         }
     };

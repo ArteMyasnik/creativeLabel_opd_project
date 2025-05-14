@@ -1,321 +1,322 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Список тестов</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
-      rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+            rel="stylesheet"
     />
     <style>
-      body {
-        background-color: black;
-        color: white;
-        margin: 0;
-        padding: 0;
-        font-family: "Montserrat", sans-serif;
-        min-height: 100vh;
-        position: relative;
-        overflow-y: auto;
-      }
-
-      body::before {
-        content: "";
-        background-image: url("../../Images/фон 2.jpg");
-        background-size: cover;
-        background-position: center;
-        opacity: 0.2;
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: -1;
-        pointer-events: none;
-      }
-
-      .content {
-        position: relative;
-        padding: 20px;
-        text-align: center;
-        font-size: 10px;
-        opacity: 0;
-        animation: ani 2.5s forwards;
-      }
-
-      @keyframes ani {
-        0% {
-          opacity: 0;
+        body {
+            background-color: black;
+            color: white;
+            margin: 0;
+            padding: 0;
+            font-family: "Montserrat", sans-serif;
+            min-height: 100vh;
+            position: relative;
+            overflow-y: auto;
         }
-        100% {
-          opacity: 1;
+
+        body::before {
+            content: "";
+            background-image: url("../../Images/фон 2.jpg");
+            background-size: cover;
+            background-position: center;
+            opacity: 0.2;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            pointer-events: none;
         }
-      }
 
-      .content h1 {
-        font-size: 45px;
-        text-align: left;
-        margin-left: 5%;
-        padding-bottom: 20px;
-      }
+        .content {
+            position: relative;
+            padding: 20px;
+            text-align: center;
+            font-size: 10px;
+            opacity: 0;
+            animation: ani 2.5s forwards;
+        }
 
-      .test-container {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        margin-left: 5%;
-        margin-right: 5%;
-      }
+        @keyframes ani {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
 
-      .test {
-        background-color: black;
-        border: 3px solid #585858;
-        border-radius: 20px;
-        font-family: "Montserrat", sans-serif;
-        font-size: 25px;
-        padding: 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        text-align: left;
-        color: white;
-        position: relative;
-      }
+        .content h1 {
+            font-size: 45px;
+            text-align: left;
+            margin-left: 5%;
+            padding-bottom: 20px;
+        }
 
-      .test p {
-        margin: 0;
-        font-size: 18px;
-        color: #ccc;
-      }
+        .test-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-left: 5%;
+            margin-right: 5%;
+        }
 
-      .start-button {
-        background-color: #479c92;
-        color: white;
-        padding: 10px 20px;
-        font-size: 16px;
-        border: none;
-        border-radius: 20px;
-        cursor: pointer;
-        font-family: "Montserrat", sans-serif;
-      }
+        .test {
+            background-color: black;
+            border: 3px solid #585858;
+            border-radius: 20px;
+            font-family: "Montserrat", sans-serif;
+            font-size: 25px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: left;
+            color: white;
+            position: relative;
+        }
 
-      .start-button:hover {
-        background-color: #2d5e58;
-        transition: all 0.3s ease;
-      }
+        .test p {
+            margin: 0;
+            font-size: 18px;
+            color: #ccc;
+        }
 
-      .button-container {
-        padding-top: 10px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-radius: 5px;
-        background-repeat: no-repeat;
-        font-size: 0;
-      }
+        .start-button {
+            background-color: #479c92;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: "Montserrat", sans-serif;
+        }
 
-      .button-container button {
-        margin: 0.5rem 0.5rem;
-        padding: 0.7rem 2rem;
-        font-size: 17px;
-        font-family: Montserrat;
-        cursor: pointer;
-        border: none;
-        border-radius: 20px;
-        background-color: #479c92;
-        color: white;
-      }
-      .button-container button:hover {
-        background-color: #2d5e58;
-        transition: all 0.3s ease;
-      }
+        .start-button:hover {
+            background-color: #2d5e58;
+            transition: all 0.3s ease;
+        }
 
-      .left-button {
-        margin-right: auto;
-      }
+        .button-container {
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 5px;
+            background-repeat: no-repeat;
+            font-size: 0;
+        }
+
+        .button-container button {
+            margin: 0.5rem 0.5rem;
+            padding: 0.7rem 2rem;
+            font-size: 17px;
+            font-family: Montserrat;
+            cursor: pointer;
+            border: none;
+            border-radius: 20px;
+            background-color: #479c92;
+            color: white;
+        }
+
+        .button-container button:hover {
+            background-color: #2d5e58;
+            transition: all 0.3s ease;
+        }
+
+        .left-button {
+            margin-right: auto;
+        }
     </style>
-  </head>
-  <body>
-    <div class="content">
-      <div class="button-container">
+</head>
+<body>
+<div class="content">
+    <div class="button-container">
         <div class="left-button">
-          <button onclick="window.location.href='/main'">
-            Главная страница
-          </button>
+            <button onclick="window.location.href='/main'">
+                Главная страница
+            </button>
         </div>
-      </div>
-      <h1>СПИСОК ВСЕХ ТЕСТОВ НАШЕЙ ПЛАТФОРМЫ</h1>
-      <div class="test-container">
-        <div class="test">
-          <div>
-            <strong>Реакция на изменение цвета</strong>
-            <p>
-              Этим тестом вы проверите скорость вашей реакции по средствам
-              резкого изменения цвета на экране
-            </p>
-          </div>
-          <button
-            class="start-button"
-            onclick="window.location.href='/test_visual_signal'"
-          >
-            Начать тест
-          </button>
-        </div>
-        <div class="test">
-          <div>
-            <strong>Реакция на звук</strong>
-            <p>
-              Этим тестом вы проверите скорость вашей реакции по средствам
-              звукового сигнала
-            </p>
-          </div>
-          <button
-            class="start-button"
-            onclick="window.location.href='/test_sound_signal'"
-          >
-            Начать тест
-          </button>
-        </div>
-        <div class="test">
-          <div>
-            <strong>Реакция на изменение цвета (3)</strong>
-            <p>Усложненная версия прошлого теста</p>
-          </div>
-          <button
-            class="start-button"
-            onclick="window.location.href='/test_color_signal'"
-          >
-            Начать тест
-          </button>
-        </div>
-        <div class="test">
-          <div>
-            <strong>Четная или нечетная сумма</strong>
-            <p>Тест на скорость сложения в уме и восприятия чисел визуально</p>
-          </div>
-          <button
-            class="start-button"
-            onclick="window.location.href='/test_digital_signal'"
-          >
-            Начать тест
-          </button>
-        </div>
-        <div class="test">
-          <div>
-            <strong>Четная или нечетная сумма (звуковой)</strong>
-            <p>Тест на скорость сложения в уме и восприятия чисел на звук</p>
-          </div>
-          <button
-            class="start-button"
-            onclick="window.location.href='/test_audio_sum'"
-          >
-            Начать тест
-          </button>
-        </div>
-        <div class="test">
-          <div>
-            <strong>Реакция на движущийся объект</strong>
-            <p>Тест на простую реакцию на движущийся объект</p>
-          </div>
-          <button
-            class="start-button"
-            onclick="window.location.href='/test_simple_rdo'"
-          >
-            Начать тест
-          </button>
-        </div>
-        <div class="test">
-          <div>
-            <strong>Реакция на движущийся объект (3)</strong>
-            <p>Усложненный тест на реакцию на движущийся объект(3)</p>
-          </div>
-          <button
-            class="start-button"
-            onclick="window.location.href='/test_complex_rdo'"
-          >
-            Начать тест
-          </button>
-        </div>
-
-        <div class="test">
-          <div>
-            <strong>Тест на внимание</strong>
-            <p>Тест Шульте (красно-черная таблица)</p>
-          </div>
-          <button
-                  class="start-button"
-                  onclick="window.location.href='/test_shulte'"
-          >
-            Начать тест
-          </button>
-        </div>
-
-        <div class="test">
-          <div>
-            <strong>Тест на внимание</strong>
-            <p>Тест Струпа</p>
-          </div>
-          <button
-                  class="start-button"
-                  onclick="window.location.href='/test_strupe'"
-          >
-            Начать тест
-          </button>
-        </div>
-
-        <div class="test">
-          <div>
-            <strong>Тест на мышление</strong>
-            <p>Тест на числовые ряды</p>
-          </div>
-          <button
-                  class="start-button"
-                  onclick="window.location.href='/test_chislovr'"
-          >
-            Начать тест
-          </button>
-        </div>
-
-        <div class="test">
-          <div>
-            <strong>Тест на мышление</strong>
-            <p>Тест на арифметический счет</p>
-          </div>
-          <button
-                  class="start-button"
-                  onclick="window.location.href='/test_ariphmet'"
-          >
-            Начать тест
-          </button>
-        </div>
-
-        <div class="test">
-          <div>
-            <strong>Тест на кратковременную память</strong>
-            <p>Тест на кратковременную память с числами</p>
-          </div>
-          <button
-                  class="start-button"
-                  onclick="window.location.href='/test_short_memory'"
-          >
-            Начать тест
-          </button>
-        </div>
-
-        <div class="test">
-          <div>
-            <strong>Тест на зрительную память</strong>
-            <p>Тест на зрительную память с фигурами</p>
-          </div>
-          <button
-            class="start-button"
-            onclick="window.location.href='/test_visual_memory'"
-          >
-            Начать тест
-          </button>
-        </div>
-      </div>
     </div>
-  </body>
+    <h1>СПИСОК ВСЕХ ТЕСТОВ НАШЕЙ ПЛАТФОРМЫ</h1>
+    <div class="test-container">
+        <div class="test">
+            <div>
+                <strong>Реакция на изменение цвета</strong>
+                <p>
+                    Этим тестом вы проверите скорость вашей реакции по средствам
+                    резкого изменения цвета на экране
+                </p>
+            </div>
+            <button
+                    class="start-button"
+                    onclick="window.location.href='/test_visual_signal'"
+            >
+                Начать тест
+            </button>
+        </div>
+        <div class="test">
+            <div>
+                <strong>Реакция на звук</strong>
+                <p>
+                    Этим тестом вы проверите скорость вашей реакции по средствам
+                    звукового сигнала
+                </p>
+            </div>
+            <button
+                    class="start-button"
+                    onclick="window.location.href='/test_sound_signal'"
+            >
+                Начать тест
+            </button>
+        </div>
+        <div class="test">
+            <div>
+                <strong>Реакция на изменение цвета (3)</strong>
+                <p>Усложненная версия прошлого теста</p>
+            </div>
+            <button
+                    class="start-button"
+                    onclick="window.location.href='/test_color_signal'"
+            >
+                Начать тест
+            </button>
+        </div>
+        <div class="test">
+            <div>
+                <strong>Четная или нечетная сумма</strong>
+                <p>Тест на скорость сложения в уме и восприятия чисел визуально</p>
+            </div>
+            <button
+                    class="start-button"
+                    onclick="window.location.href='/test_digital_signal'"
+            >
+                Начать тест
+            </button>
+        </div>
+        <div class="test">
+            <div>
+                <strong>Четная или нечетная сумма (звуковой)</strong>
+                <p>Тест на скорость сложения в уме и восприятия чисел на звук</p>
+            </div>
+            <button
+                    class="start-button"
+                    onclick="window.location.href='/test_audio_sum'"
+            >
+                Начать тест
+            </button>
+        </div>
+        <div class="test">
+            <div>
+                <strong>Реакция на движущийся объект</strong>
+                <p>Тест на простую реакцию на движущийся объект</p>
+            </div>
+            <button
+                    class="start-button"
+                    onclick="window.location.href='/test_simple_rdo'"
+            >
+                Начать тест
+            </button>
+        </div>
+        <div class="test">
+            <div>
+                <strong>Реакция на движущийся объект (3)</strong>
+                <p>Усложненный тест на реакцию на движущийся объект(3)</p>
+            </div>
+            <button
+                    class="start-button"
+                    onclick="window.location.href='/test_complex_rdo'"
+            >
+                Начать тест
+            </button>
+        </div>
+
+        <div class="test">
+            <div>
+                <strong>Тест на внимание</strong>
+                <p>Тест Шульте (красно-черная таблица)</p>
+            </div>
+            <button
+                    class="start-button"
+                    onclick="window.location.href='/test_shulte'"
+            >
+                Начать тест
+            </button>
+        </div>
+
+        <div class="test">
+            <div>
+                <strong>Тест на внимание</strong>
+                <p>Тест Струпа</p>
+            </div>
+            <button
+                    class="start-button"
+                    onclick="window.location.href='/test_strupe'"
+            >
+                Начать тест
+            </button>
+        </div>
+
+        <div class="test">
+            <div>
+                <strong>Тест на мышление</strong>
+                <p>Тест на числовые ряды</p>
+            </div>
+            <button
+                    class="start-button"
+                    onclick="window.location.href='/test_chislovr'"
+            >
+                Начать тест
+            </button>
+        </div>
+
+        <div class="test">
+            <div>
+                <strong>Тест на мышление</strong>
+                <p>Тест на арифметический счет</p>
+            </div>
+            <button
+                    class="start-button"
+                    onclick="window.location.href='/test_ariphmet'"
+            >
+                Начать тест
+            </button>
+        </div>
+
+        <div class="test">
+            <div>
+                <strong>Тест на кратковременную память</strong>
+                <p>Тест на кратковременную память с числами</p>
+            </div>
+            <button
+                    class="start-button"
+                    onclick="window.location.href='/test_short_memory'"
+            >
+                Начать тест
+            </button>
+        </div>
+
+        <div class="test">
+            <div>
+                <strong>Тест на зрительную память</strong>
+                <p>Тест на зрительную память с фигурами</p>
+            </div>
+            <button
+                    class="start-button"
+                    onclick="window.location.href='/test_visual_memory'"
+            >
+                Начать тест
+            </button>
+        </div>
+    </div>
+</div>
+</body>
 </html>

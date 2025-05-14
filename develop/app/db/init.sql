@@ -50,16 +50,6 @@ CREATE TABLE profession_pvk
     UNIQUE (profession_id, pvk_id, user_id)
 );
 
-CREATE TABLE profession_test
-(
-    id            SERIAL PRIMARY KEY,
-    profession_id INTEGER REFERENCES professions (id) ON DELETE CASCADE,
-    user_id       INTEGER REFERENCES users (id) ON DELETE CASCADE,
-    test_id       INTEGER REFERENCES pvks (id) ON DELETE CASCADE,
-    mark          INTEGER,
-    UNIQUE (profession_id, pvk_id, user_id)
-);
-
 -- Создание таблицы test_visual_signal
 CREATE TABLE personality
 (
@@ -90,23 +80,27 @@ CREATE TABLE tests
     description TEXT
 );
 
-INSERT INTO tests (test)
-VALUES ('Простая сенсомоторная реакция'),
-       ('Сложная сенсомоторная реакция'),
-       ('Простая реакция на движущийся объект'),
-       ('Сложная реакция на движущийся объект'),
-       ('Аналоговое слежение');
+INSERT INTO tests (test, type)
+VALUES ('Реакция на изменение цвета', 'test_visual_signal'),
+       ('Реакция на звук', 'test_sound_signal'),
+       ('Реакция на изменение цвета (3)', 'test_color_signal'),
+       ('Четная или нечетная сумма (визуально)', 'test_digital_signal'),
+       ('Четная или нечетная сумма (звуковой)', 'test_audio_sum'),
+       ('Реакция на движущийся объект', 'test_simple_rdo'),
+       ('Реакция на движущийся объект (3)', 'test_complex_rdo'),
+       ('Аналоговое слежение', 'test_analog_tracking'),
+       ('Аналоговое преследование', 'test_analog_chase');
 
-INSERT INTO tests (type)
-VALUES ('test_visual_signal'),
-       ('test_sound_signal'),
-       ('test_color_signal'),
-       ('test_digital_signal'),
-       ('test_audio_sum'),
-       ('test_simple_rdo'),
-       ('test_complex_rdo'),
-       ('test_analog_tracking'),
-       ('test_analog_chase');
+-- Создание таблицы profession_test
+CREATE TABLE profession_test
+(
+    id            SERIAL PRIMARY KEY,
+    profession_id INTEGER REFERENCES professions (id) ON DELETE CASCADE,
+    user_id       INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    test_id       INTEGER REFERENCES tests (id) ON DELETE CASCADE,
+    mark          INTEGER,
+    UNIQUE (profession_id, test_id, user_id)
+);
 
 -- Создание таблицы test_visual_signal
 CREATE TABLE test_visual_signal
@@ -282,7 +276,7 @@ CREATE TABLE test_pvk
 
 -- Создание индексов для ускорения запросов (опционально)
 CREATE INDEX idx_users_login ON users (login);
-CREATE INDEX idx_tests_name ON tests (name);
+CREATE INDEX idx_tests_name ON tests (test);
 CREATE INDEX idx_pvks_pvk ON pvks (pvk);
 CREATE INDEX idx_professions_name ON professions (name);
 
