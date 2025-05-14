@@ -130,21 +130,26 @@ app.get("/profile/:login", async (req, res) => {
       login,
     ]);
 
-    if (user.rows.length === 0) {
-      return res.status(404).send("Пользователь не найден");
-    }
 
-    // Передача данных в шаблон
-    res.render("profile", {
-      login: user.rows[0].login,
-      email: user.rows[0].email,
-      sex: user.rows[0].sex,
-      age: user.rows[0].age,
-    });
-  } catch (err) {
-    console.error("Ошибка при получении данных пользователя:", err);
-    res.status(500).send("Ошибка сервера");
-  }
+        if (user.rows.length === 0) {
+            return res.status(404).send('Пользователь не найден');
+        }
+
+        // Получаем список пройденных тестов пользователя
+        const userTestsResult = await pool.query('SELECT t.name as test_name FROM test_user tu INNER JOIN tests t ON tu.test_id = t.id WHERE tu.user_id = $1', [user.rows[0].id]);
+
+        // Передача данных в шаблон
+        res.render('profile', {
+            login: user.rows[0].login,
+            email: user.rows[0].email,
+            sex: user.rows[0].sex,
+            age: user.rows[0].age,
+            userTests: userTestsResult.rows
+        });
+    } catch (err) {
+        console.error('Ошибка при получении данных пользователя:', err);
+        res.status(500).send('Ошибка сервера');
+    }
 });
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------
@@ -291,19 +296,19 @@ app.get("/experts", async (req, res) => {
   }
 });
 
-app.get("/professions_tests", async (req, res) => {
-  try {
-    const professions = await pool.query("SELECT * FROM professions");
-    const tests = await pool.query("SELECT name FROM tests");
-    const testsName = tests.rows.name;
-    res.render("professions_tests", {
-      professions: professions.rows,
-      testsName,
-    });
-  } catch (err) {
-    console.error("Ошибка при выполнении запроса:", err);
-    res.status(500).send("Ошибка сервера");
-  }
+
+app.get('/professions_tests', async (req, res) => {
+    try {
+        const result_tests = await pool.query('SELECT * FROM tests');
+        const tests = result_tests.rows;
+        const result_profession = await pool.query('SELECT * FROM professions');
+        const professions = result_profession.rows;
+        res.render('professions_tests', { tests: tests, professions: professions, isAdmin: !!req.session.isAdmin, login: req.session.login || null, isExpert: !!req.session.isExpert });
+
+    } catch (err) {
+        console.error('Ошибка при выполнении запроса:', err);
+        res.status(500).send('Ошибка сервера');
+    }
 });
 
 app.put("/experts", (req, res) => {
@@ -525,6 +530,16 @@ app.get("/test_shulte", async (req, res) => {
 app.get("/test_strupe", async (req, res) => {
   const login = req.session.login || null;
   res.render("tests/extra_tests/test_strupe", { login });
+});
+
+app.get('/test_analog_tracking', async (req, res) => {
+    const login = req.session.login || null;
+    res.render('tests/test_analog_tracking', { login });
+});
+
+app.get('/test_analog_chase', async (req, res) => {
+    const login = req.session.login || null;
+    res.render('tests/test_analog_chase', { login });
 });
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------

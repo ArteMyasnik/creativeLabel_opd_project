@@ -41,6 +41,10 @@ router.post('/test_audio_sum', ActionController.testAudioSum);
 router.post('/test_simple_rdo', ActionController.testSimpleRdo);
 // Тест на реакцию(шарик)
 router.post('/test_complex_rdo', ActionController.testComplexRdo);
+// Тест на аналоговое слежение
+router.post('/test_analog_tracking', ActionController.testAnalogTracking);
+// Тест на аналоговое преследование
+router.post('/test_analog_chase', ActionController.testAnalogChase);
 
 // router.get('/user/:id', UserController.getOneUser);
 // router.get('/user', UserController.getUsers);
