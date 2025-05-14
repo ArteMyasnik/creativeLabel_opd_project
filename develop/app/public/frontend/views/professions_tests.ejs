@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="vfewport" content="width=device-width, initial-scale=1.0"/>
 <title>Выбор тестов для профессии</title>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <link rel="stylesheet" href="../../Styles/expertStyles.css">
@@ -323,11 +323,22 @@
                 <div class="profession-description"><%= profession.description %></div>
                 <button class="evaluation-button" onclick="toggleEvaluationList(<%= profession.id %>, event)">Выбрать тесты</button>
                 <div class="evaluation-list" id="evalList-<%= profession.id %>">
-                    <% const testGroups = {};
+                    <% const testGroups = [];
                         tests.forEach(test => {
-                            testsGroups.push(test);
+                            testGroups.push(test);
                         });
                     %>
+                    <% testGroups.forEach(function(test) { %>
+                            <label class="test-label">
+                                <input type="checkbox" data-test-id="<%= test.id %>"
+                                        <%= profession.tests && profession.tests.includes(test.id) ? 'checked' : '' %>
+                                       onclick="updateCheckboxCounter(<%= profession.id %>, event)">
+                                <%= test.test %>
+                                <% if (test.description) { %>
+                                    <span style="font-size: 0.8em; color: #aaa;">(<%= test.description %>)</span>
+                                <% } %>
+                            </label>
+                        <% }); %>
                 </div>
                 <div class="checkbox-controls" id="controls-<%= profession.id %>">
                     <div class="checkbox-counter">Выбрано: <span>0</span>/10</div>
@@ -544,7 +555,7 @@
         document.getElementById('orderModal').style.display = 'none';
     }
 
-    // Сохранение порядка ПВК
+    // Сохранение порядка тестов
     function saveOrder() {
         const login = "<%= login %>";
         const orderedList = document.getElementById('orderedList');
@@ -559,7 +570,7 @@
             return;
         }
 
-        fetch('http://localhost:3000/api/profession_rating', {
+        fetch('http://localhost:3000/api/profession_tests', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

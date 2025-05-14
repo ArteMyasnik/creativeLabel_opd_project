@@ -50,12 +50,14 @@ CREATE TABLE profession_pvk
     UNIQUE (profession_id, pvk_id, user_id)
 );
 
-CREATE TABLE expert_profession_tests
+CREATE TABLE profession_test
 (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    id            SERIAL PRIMARY KEY,
     profession_id INTEGER REFERENCES professions (id) ON DELETE CASCADE,
-    tests INTEGER[]
+    user_id       INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    test_id        INTEGER REFERENCES pvks (id) ON DELETE CASCADE,
+    mark          INTEGER,
+    UNIQUE (profession_id, pvk_id, user_id)
 );
 
 -- Создание таблицы test_visual_signal
@@ -83,16 +85,17 @@ VALUES ('admin'),
 CREATE TABLE tests
 (
     id          SERIAL PRIMARY KEY,
-    name        VARCHAR(255) NOT NULL,
+    test        VARCHAR(255) NOT NULL,
+    type        VARCHAR(255),
     description TEXT
 );
 
-INSERT INTO tests (name)
-VALUES ('Простая сенсомоторная реакция'),
-       ('Сложная сенсомоторная реакция'),
-       ('Простая реакция на движущийся объект'),
-       ('Сложная реакция на движущийся объект'),
-       ('Аналоговое слежение');
+INSERT INTO tests (test,type,description)
+VALUES ('Простая сенсомоторная реакция','',''),
+       ('Сложная сенсомоторная реакция','',''),
+       ('Простая реакция на движущийся объект','',''),
+       ('Сложная реакция на движущийся объект','',''),
+       ('Аналоговое слежение','','');
 
 -- Создание таблицы test_visual_signal
 CREATE TABLE test_visual_signal
