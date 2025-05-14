@@ -107,12 +107,6 @@ app.put('/profile/:login/update-password', (req, res) => {
     res.status(200).json({ message: 'Пароль обновлен успешно!' });
 });
 
-// app.put('/profile/:login/update-email', (req, res) => {
-//     const { login } = req.params;
-//     const { email } = req.body;
-//     res.status(200).json({ message: 'Логин обновлен успешно!' });
-// });
-
 app.get('/profile/:login', async (req, res) => {
     const { login } = req.params;
 
@@ -125,7 +119,7 @@ app.get('/profile/:login', async (req, res) => {
         }
 
         // Получаем список пройденных тестов пользователя
-        const userTestsResult = await pool.query('SELECT t.name as test_name FROM test_user tu INNER JOIN tests t ON tu.test_id = t.id WHERE tu.user_id = $1', [user.rows[0].id]);
+        const userTestsResult = await pool.query('SELECT t.type as test_type FROM test_user tu INNER JOIN tests t ON tu.test_id = t.id WHERE tu.user_id = $1', [user.rows[0].id]);
 
         // Передача данных в шаблон
         res.render('profile', {
@@ -247,7 +241,6 @@ app.get('/professions_tests', async (req, res) => {
         const result_profession = await pool.query('SELECT * FROM professions');
         const professions = result_profession.rows;
         res.render('professions_tests', { tests: tests, professions: professions, isAdmin: !!req.session.isAdmin, login: req.session.login || null, isExpert: !!req.session.isExpert });
-    
     } catch (err) {
         console.error('Ошибка при выполнении запроса:', err);
         res.status(500).send('Ошибка сервера');

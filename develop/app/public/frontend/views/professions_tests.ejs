@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="vfewport" content="width=device-width, initial-scale=1.0"/>
-<title>Выбор тестов для профессии</title>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-<link rel="stylesheet" href="../../Styles/expertStyles.css">
-<style>
-    .content {
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Выбор тестов для профессии</title>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <link rel="stylesheet" href="../../Styles/expertStyles.css">
+    <style>
+        .content {
             position: relative;
             padding: 20px;
             text-align: center;
@@ -304,7 +304,7 @@
         input[type="checkbox"] {
             margin-right: 8px;
         }
-</style>
+    </style>
 </head>
 <body>
 <div class="button-container">
@@ -318,10 +318,13 @@
 
     <div class="professions-container" id="professionsContainer">
         <% professions.forEach(function(profession) { %>
-            <div class="profession-card" data-id="<%= profession.id %>" onclick="selectProfession(<%= profession.id %>, event)">
+            <div class="profession-card" data-id="<%= profession.id %>"
+                 onclick="selectProfession(<%= profession.id %>, event)">
                 <div class="profession-title"><%= profession.name %></div>
                 <div class="profession-description"><%= profession.description %></div>
-                <button class="evaluation-button" onclick="toggleEvaluationList(<%= profession.id %>, event)">Выбрать тесты</button>
+                <button class="evaluation-button" onclick="toggleEvaluationList(<%= profession.id %>, event)">Выбрать
+                    тесты
+                </button>
                 <div class="evaluation-list" id="evalList-<%= profession.id %>">
                     <% const testGroups = [];
                         tests.forEach(test => {
@@ -329,20 +332,22 @@
                         });
                     %>
                     <% testGroups.forEach(function(test) { %>
-                            <label class="test-label">
-                                <input type="checkbox" data-test-id="<%= test.id %>"
-                                        <%= profession.tests && profession.tests.includes(test.id) ? 'checked' : '' %>
-                                       onclick="updateCheckboxCounter(<%= profession.id %>, event)">
-                                <%= test.test %>
-                                <% if (test.description) { %>
-                                    <span style="font-size: 0.8em; color: #aaa;">(<%= test.description %>)</span>
-                                <% } %>
-                            </label>
-                        <% }); %>
+                        <label class="test-label">
+                            <input type="checkbox" data-test-id="<%= test.id %>"
+                                    <%= profession.tests && profession.tests.includes(test.id) ? 'checked' : '' %>
+                                   onclick="updateCheckboxCounter(<%= profession.id %>, event)">
+                            <%= test.test %>
+                            <% if (test.description) { %>
+                                <span style="font-size: 0.8em; color: #aaa;">(<%= test.description %>)</span>
+                            <% } %>
+                        </label>
+                    <% }); %>
                 </div>
                 <div class="checkbox-controls" id="controls-<%= profession.id %>">
                     <div class="checkbox-counter">Выбрано: <span>0</span>/10</div>
-                    <button class="save-selection-button" onclick="savetestSelection(<%= profession.id %>, event)">Сохранить выбор</button>
+                    <button class="save-selection-button" onclick="savetestSelection(<%= profession.id %>, event)">
+                        Сохранить выбор
+                    </button>
                 </div>
             </div>
         <% }); %>
@@ -371,7 +376,8 @@
         <span class="close" onclick="closeOrderModal()">&times;</span>
         <h2>Упорядочить тесты для профессии</h2>
         <div class="modal-body">
-            <p style="margin-top: 0; color: #ccc;">Перетащите элементы для расстановки порядка прохождения(от первого до последнего)</p>
+            <p style="margin-top: 0; color: #ccc;">Перетащите элементы для расстановки порядка прохождения(от первого до
+                последнего)</p>
             <ul id="orderedList"></ul>
         </div>
         <div class="save-order-footer">
@@ -557,7 +563,6 @@
 
     // Сохранение порядка тестов
     function saveOrder() {
-        const login = "<%= login %>";
         const orderedList = document.getElementById('orderedList');
         const items = orderedList.querySelectorAll('li');
         const result = Array.from(items).map((item, index) => ({
@@ -576,7 +581,7 @@
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                login: login,
+                login: "<%= login %>",
                 profession_name: selectedProfessionName,
                 tests: result
             })
@@ -600,7 +605,7 @@
     document.getElementById('saveOrderButton').addEventListener('click', saveOrder);
 
     // Закрытие модальных окон при клике вне их
-    window.onclick = function(event) {
+    window.onclick = function (event) {
         if (event.target === document.getElementById('professionModal')) {
             closeProfessionModal();
         }
