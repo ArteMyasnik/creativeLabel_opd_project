@@ -560,6 +560,11 @@ app.get("/test_complex_rdo", async (req, res) => {
     res.render("tests/test_complex_rdo", {login});
 });
 
+app.get("/test_complex_rdo_15", async (req, res) => {
+    const login = req.session.login || null;
+    res.render("tests/test_complex_rdo_15", {login});
+});
+
 app.get("/test_short_memory", async (req, res) => {
     const login = req.session.login || null;
     res.render("tests/extra_tests/test_short_memory", {login});
