@@ -124,12 +124,16 @@ app.get('/profile/:login', async (req, res) => {
             return res.status(404).send('Пользователь не найден');
         }
 
+        // Получаем список пройденных тестов пользователя
+        const userTestsResult = await pool.query('SELECT t.name as test_name FROM test_user tu INNER JOIN tests t ON tu.test_id = t.id WHERE tu.user_id = $1', [user.rows[0].id]);
+
         // Передача данных в шаблон
         res.render('profile', {
             login: user.rows[0].login,
             email: user.rows[0].email,
             sex: user.rows[0].sex,
-            age: user.rows[0].age
+            age: user.rows[0].age,
+            userTests: userTestsResult.rows
         });
     } catch (err) {
         console.error('Ошибка при получении данных пользователя:', err);
@@ -410,6 +414,16 @@ app.get('/test_simple_rdo', async (req, res) => {
 app.get('/test_complex_rdo', async (req, res) => {
     const login = req.session.login || null;
     res.render('tests/test_complex_rdo', { login });
+});
+
+app.get('/test_analog_tracking', async (req, res) => {
+    const login = req.session.login || null;
+    res.render('tests/test_analog_tracking', { login });
+});
+
+app.get('/test_analog_chase', async (req, res) => {
+    const login = req.session.login || null;
+    res.render('tests/test_analog_chase', { login });
 });
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------

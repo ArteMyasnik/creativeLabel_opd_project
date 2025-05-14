@@ -385,16 +385,47 @@
             setTimeout(startRandomMovement, 1000);
         }
 
+        function sendResultsToServer() {
+            const results = {
+                login: "<%= login %>",
+                reactionTimes: state.currentAttempt.reactionTimes,
+                movementsCount: state.currentAttempt.movements,
+                centerHits: state.currentAttempt.centerHits,
+                duration: state.testDuration / 1000
+            };
+
+            fetch('http://localhost:3000/api/test_analog_tracking', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(results),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success === true) {
+                        console.log(data.message);
+                    } else {
+                        console.error('Ошибка при сохранении результатов:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert('Произошла ошибка при отправке результатов.');
+                });
+        }
+
         function endTest() {
             state.isRunning = false;
             cancelAnimationFrame(state.animationId);
             clearTimeout(state.timeoutId);
-            
+
             // Разблокировка элементов управления
             elements.startBtn.disabled = false;
             elements.durationButtons.forEach(b => b.disabled = false);
-            
+
             showResults();
+            sendResultsToServer();
         }
 
         function showResults() {

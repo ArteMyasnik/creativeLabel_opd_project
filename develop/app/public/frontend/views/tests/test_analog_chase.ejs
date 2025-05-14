@@ -477,18 +477,54 @@
         }
 
         // Показать результаты
+        // Функция для отправки результатов на сервер (идентичная требуемой)
+        function sendResultsToServer(results) {
+            fetch('http://localhost:3000/api/test_analog_chase', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(results),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success === true) {
+                        console.log(data.message);
+                    } else {
+                        console.error('Ошибка при сохранении результатов:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert('Произошла ошибка при отправке результатов.');
+                });
+        }
+
+        // Модифицированная функция showResults для отправки минимальных данных
         function showResults() {
-            const avgTime = state.currentAttempt.reactionTimes.length > 0 
+            const avgTime = state.currentAttempt.reactionTimes.length > 0
                 ? Math.round(state.currentAttempt.reactionTimes.reduce((a, b) => a + b, 0) / state.currentAttempt.reactionTimes.length)
                 : 0;
-                
+
             const bestTime = state.currentAttempt.bestTime || 0;
-            
+
             elements.avgTime.textContent = avgTime + ' мс';
             elements.bestTime.textContent = bestTime + ' мс';
             elements.overlaps.textContent = state.currentAttempt.overlaps;
             elements.holdTime.textContent = state.currentAttempt.totalOverlapTime + ' мс';
             elements.results.style.display = 'block';
+
+            const testResults = {
+                login: "<%= login %>",
+                rawData: {
+                    reactionTimes: state.currentAttempt.reactionTimes, // все времена реакций
+                    overlaps: state.currentAttempt.overlaps, // количество пересечений
+                    totalOverlapTime: state.currentAttempt.totalOverlapTime, // общее время удержания
+                    movements: state.currentAttempt.movements // количество перемещений цели
+                },
+                duration: state.testDuration / 1000
+            };
+            sendResultsToServer(testResults);
         }
 
         // Сброс состояния теста

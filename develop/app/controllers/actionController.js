@@ -368,6 +368,94 @@ class ActionController {
         }
     }
 
+    async testAnalogTracking(req, res) {
+        try {
+            const { login, reactionTimes, movementsCount, centerHits, testDuration } = req.body;
+
+            if (login == null) {
+                return res.status(200).json({
+                    success: true,
+                    message: 'Пользователь не зарегистрирован, результаты не сохраняются'
+                });
+            }
+
+            const user = await pool.query(
+                'SELECT id FROM users WHERE login = $1',
+                [login]
+            );
+
+            if (!user.rows || user.rows.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Пользователь с таким логином не найден'
+                });
+            }
+
+            const result = await pool.query(
+                'INSERT INTO test_analog_tracking (user_id, reaction_times, movements_count, center_hits, test_duration) VALUES ($1, $2, $3, $4, $5) RETURNING *'
+                [user.rows[0].id, reactionTimes, movementsCount, centerHits, testDuration]
+            );
+
+            return res.status(201).json({
+                success: true,
+                message: 'Результаты теста аналогового слежения успешно сохранены',
+                data: result.rows[0]
+            });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json({
+                success: false,
+                message: "Ошибка сервера при сохранении результатов аналогового слежения"
+            });
+        }
+    }
+
+    async testAnalogChase(req, res) {
+        try {
+            const { login, reactionTimes, movements, overLaps, totalOverlapTime, testDuration } = req.body;
+
+            if (login == null) {
+                return res.status(200).json({
+                    success: true,
+                    message: 'Пользователь не зарегистрирован, результаты не сохраняются'
+                });
+            }
+
+            const user = await pool.query(
+                'SELECT id FROM users WHERE login = $1',
+                [login]
+            );
+
+            if (!user.rows || user.rows.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Пользователь с таким логином не найден'
+                });
+            }
+
+            const result = await pool.query(
+                `INSERT INTO test_analog_chase 
+            (user_id, reaction_times, movements, over_laps, total_overlap_time, test_duration) 
+            VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+                [user.rows[0].id, reactionTimes, movements, overLaps, totalOverlapTime, testDuration]
+            );
+
+            return res.status(201).json({
+                success: true,
+                message: 'Результаты теста успешно сохранены',
+                data: result.rows[0]
+            });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json({
+                success: false,
+                message: "Ошибка сервера"
+            });
+        }
+    }
+
+
+
     async createProfession(req, res) {
         try {
             const {name, description} = req.body;
