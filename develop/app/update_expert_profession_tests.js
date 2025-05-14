@@ -1,5 +1,5 @@
 async function addExpertProfessionTest(userId, professionId, tests) {
-    
+
     if (!Array.isArray(tests) || tests.length === 0) {
         throw new Error('Поле tests должно быть непустым массивом чисел');
     }
@@ -18,7 +18,7 @@ async function addExpertProfessionTest(userId, professionId, tests) {
         }
         // Проверяем, существует ли запись для данной профессии и PVK
         const checkQuery = `
-        SELECT id FROM expert_professtion_tests
+        SELECT id FROM profession_test
         WHERE user_id = $1 AND profession_id = $2;
         `;
         const checkResult = await pool.query(checkQuery,[userId, professionId]);
@@ -26,7 +26,7 @@ async function addExpertProfessionTest(userId, professionId, tests) {
         if (checkResult.rows.length > 0) {
         // Если запись существует, обновляем оценку
         const updateQuery = `
-            UPDATE expert_professtion_tests
+            UPDATE profession_test
             SET tetst = $1
             WHERE user_id = $2 AND profession_id = $3;
         `;
@@ -34,7 +34,7 @@ async function addExpertProfessionTest(userId, professionId, tests) {
         } else {
         // Добавляем запись
         const insertQuery = `
-        INSERT INTO expert_professtion_tests (user_id, profession_id, tests)
+        INSERT INTO profession_test (user_id, profession_id, tests)
         VALUES ($1, $2, $3);
         `;
         await pool.query(insertQuery, [userId, professionId, tests]);

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест: Арифметический счёт</title>
+
+    <!-- Шрифт -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat :wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome для иконок -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css ">
+
+    <style>
+        :root {
+            --primary-color: #479C92;
+            --primary-hover: #2d5e58;
+            --accent-color: #FF6B6B;
+            --background-color: #121212;
+            --card-color: #1E1E1E;
+            --text-color: #FFFFFF;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --disabled-color: #666666;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .test-container {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .question-display {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 30px 0;
+            min-height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #2a2a2a;
+            padding: 20px;
+            border-radius: var(--border-radius);
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #333;
+            color: white;
+        }
+
+        .btn:hover:not(:disabled) {
+            background-color: #444;
+        }
+
+        .btn.correct {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .btn.incorrect {
+            background-color: #F44336;
+            color: white;
+        }
+
+        .results {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: var(--box-shadow);
+            display: none;
+            text-align: center;
+        }
+
+        .stat-card {
+            margin-top: 15px;
+            font-size: 20px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-accent {
+            background-color: var(--accent-color);
+        }
+
+        .btn-disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .duration-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .duration-btn {
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .duration-btn.selected {
+            background-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1><i class="fas fa-calculator"></i> Тест: Арифметический счёт</h1>
+        <p id="instructions">Выберите количество вопросов и нажмите «Начать тест»</p>
+
+        <!-- Выбор длины теста -->
+        <div class="duration-selector" id="durationButtons">
+            <button class="duration-btn selected" data-duration="10">10 вопросов</button>
+            <button class="duration-btn" data-duration="20">20 вопросов</button>
+            <button class="duration-btn" data-duration="30">30 вопросов</button>
+        </div>
+
+        <!-- Отображение вопроса -->
+        <div class="question-display" id="questionDisplay">Нажмите "Начать"</div>
+
+        <!-- Варианты ответов -->
+        <div class="options-container" id="optionsContainer"></div>
+
+        <!-- Кнопка начала -->
+        <button class="btn btn-primary" id="startButton">Начать тест</button>
+    </div>
+
+    <!-- Блок результатов -->
+    <div class="results" id="results">
+        <h2>Ваш результат:</h2>
+        <div class="stat-card">Правильных ответов: <span id="correctCount">0</span> из <span id="totalCount">10</span></div>
+        <div class="stat-card">Процент правильных: <span id="accuracy">0%</span></div>
+        <button class="btn btn-accent" onclick="resetTest()">Пройти снова</button>
+    </div>
+
+    <script>
+        const config = {
+            delayAfterAnswer: 1000,
+            operations: ['+', '-', '×']
+        };
+
+        let state = {
+            testLength: 10,
+            isRunning: false,
+            currentQuestion: 0,
+            questions: [],
+            correctAnswers: 0,
+            answerTimes: []
+        };
+
+        const elements = {
+            startButton: document.getElementById("startButton"),
+            questionDisplay: document.getElementById("questionDisplay"),
+            optionsContainer: document.getElementById("optionsContainer"),
+            results: document.getElementById("results"),
+            correctCount: document.getElementById("correctCount"),
+            totalCount: document.getElementById("totalCount"),
+            accuracy: document.getElementById("accuracy")
+        };
+
+        // Универсальная генерация уникальных ответов
+        function generateUniqueOptions(correctAnswer) {
+            const options = new Set([correctAnswer]);
+            while (options.size < 4) {
+                let wrongAnswer;
+                if (Math.random() > 0.5) {
+                    wrongAnswer = correctAnswer + Math.floor(Math.random() * 10 + 1);
+                } else {
+                    wrongAnswer = correctAnswer - Math.floor(Math.random() * 10 + 1);
+                }
+                if (!isNaN(wrongAnswer) && isFinite(wrongAnswer) && wrongAnswer !== correctAnswer) {
+                    options.add(wrongAnswer);
+                }
+            }
+            return [...options].sort(() => 0.5 - Math.random());
+        }
+
+        // Генерация случайного арифметического выражения
+        function generateArithmeticQuestion() {
+            const op = config.operations[Math.floor(Math.random() * config.operations.length)];
+            let a, b;
+
+            switch(op) {
+                case '+':
+                    a = Math.floor(Math.random() * 100) + 1;
+                    b = Math.floor(Math.random() * 100) + 1;
+                    return {
+                        question: `${a} + ${b}`,
+                        correct: a + b
+                    };
+                case '-':
+                    a = Math.floor(Math.random() * 100) + 1;
+                    b = Math.floor(Math.random() * a) + 1;
+                    return {
+                        question: `${a} − ${b}`,
+                        correct: a - b
+                    };
+                case '×':
+                    a = Math.floor(Math.random() * 10) + 2;
+                    b = Math.floor(Math.random() * 10) + 2;
+                    return {
+                        question: `${a} × ${b}`,
+                        correct: a * b
+                    };
+            }
+        }
+
+        // Генерация всех вопросов
+        function generateQuestions(count) {
+            const questions = [];
+            for (let i = 0; i < count; i++) {
+                const { question, correct } = generateArithmeticQuestion();
+                const options = generateUniqueOptions(correct);
+                questions.push({ question, correct, options });
+            }
+            return questions;
+        }
+
+        // Отображение текущего вопроса
+        function displayQuestion(question) {
+            elements.questionDisplay.textContent = `Сколько будет ${question.question}?`;
+            elements.optionsContainer.innerHTML = '';
+            question.options.forEach(option => {
+                const button = document.createElement("button");
+                button.className = "btn";
+                button.textContent = option;
+                button.addEventListener("click", () => handleAnswer(button, option, question.correct));
+                elements.optionsContainer.appendChild(button);
+            });
+        }
+
+        // Обработка ответа
+        function handleAnswer(button, selected, correct) {
+            const buttons = elements.optionsContainer.querySelectorAll(".btn");
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (parseInt(btn.textContent) === correct) {
+                    btn.classList.add("correct");
+                } else if (btn === button && parseInt(btn.textContent) !== correct) {
+                    btn.classList.add("incorrect");
+                }
+            });
+
+            if (selected === correct) {
+                state.correctAnswers++;
+            }
+
+            state.currentQuestion++;
+
+            setTimeout(() => {
+                if (state.currentQuestion < state.testLength) {
+                    displayQuestion(state.questions[state.currentQuestion]);
+                } else {
+                    endTest();
+                }
+            }, config.delayAfterAnswer);
+        }
+
+        // Начало теста
+        function startTest() {
+            if (state.isRunning) return;
+
+            resetTestState();
+            elements.startButton.disabled = true;
+            elements.startButton.textContent = "Тест выполняется...";
+            elements.questionDisplay.textContent = "Загрузка...";
+
+            state.isRunning = true;
+            state.startTime = Date.now();
+            state.questions = generateQuestions(state.testLength);
+
+            setTimeout(() => {
+                state.currentQuestion = 0;
+                displayQuestion(state.questions[0]);
+            }, 500);
+        }
+
+        // Завершение теста
+        function endTest() {
+            state.isRunning = false;
+            const totalTime = (Date.now() - state.startTime) / 1000;
+            const avgTime = (totalTime / state.testLength).toFixed(2);
+
+            elements.correctCount.textContent = state.correctAnswers;
+            elements.totalCount.textContent = state.testLength;
+            elements.accuracy.textContent = Math.round((state.correctAnswers / state.testLength) * 100) + "%";
+            elements.results.style.display = "block";
+            elements.startButton.textContent = "Начать тест";
+        }
+
+        // Перезапуск теста
+        function resetTest() {
+            state.isRunning = false;
+            state.currentQuestion = 0;
+            state.correctAnswers = 0;
+            elements.questionDisplay.textContent = "Нажмите \"Начать\"";
+            elements.optionsContainer.innerHTML = "";
+            elements.results.style.display = "none";
+            elements.startButton.disabled = false;
+        }
+
+        // Сброс состояния
+        function resetTestState() {
+            state.isRunning = false;
+            state.currentQuestion = 0;
+            state.correctAnswers = 0;
+            state.questions = [];
+            state.answerTimes = [];
+        }
+
+        // Выбор длины теста
+        document.querySelectorAll('.duration-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.duration-btn').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                state.testLength = parseInt(this.dataset.duration);
+            });
+        });
+
+        // Обработчики событий
+        document.getElementById("startButton").addEventListener("click", startTest);
+    </script>
+</body>
+</html>

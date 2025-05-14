@@ -25,6 +25,8 @@ router.post('/experts/reset', ActionController.resetExperts);
 router.post('/professions', ActionController.createProfession);
 // Оценка профессий
 router.post('/profession_rating', ActionController.saveProfessionsRating);
+// Расстановка порядка тестов
+router.post('/profession_tests', ActionController.saveProfessionsTestsRating);
 
 // Тесты
 // Тест на реакцию
@@ -46,10 +48,5 @@ router.post('/test_analog_tracking', ActionController.testAnalogTracking);
 // Тест на аналоговое преследование
 router.post('/test_analog_chase', ActionController.testAnalogChase);
 
-// router.get('/user/:id', UserController.getOneUser);
-// router.get('/user', UserController.getUsers);
-// router.post('/user', UserController.createUser);
-// router.put('/user/:id', UserController.updateUser);
-// router.delete('/user/:id', UserController.deleteUser);
 
 module.exports = router;
