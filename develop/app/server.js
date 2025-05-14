@@ -289,8 +289,7 @@ app.get("/experts", async (req, res) => {
     }
 });
 
-
-app.get('/professions_tests', async (req, res) => {
+app.get('/prof_test_results', async (req, res) => {
     try {
         const result_tests = await pool.query('SELECT * FROM tests');
         const tests = result_tests.rows;
@@ -298,7 +297,7 @@ app.get('/professions_tests', async (req, res) => {
         const professions = result_profession.rows;
         const result_profession_tests = await pool.query(`
             SELECT pt.user_id, pt.profession_id, pt.test_id, pt.mark, 
-                   p.name as profession_name, t.name as test_name
+                   p.name as profession_name, t.test as test_name
             FROM profession_test pt
             JOIN professions p ON pt.profession_id = p.id
             JOIN tests t ON pt.test_id = t.id
@@ -308,29 +307,51 @@ app.get('/professions_tests', async (req, res) => {
         const usersProfessionsTests = {};
         
         result_profession_tests.rows.forEach(row => {
-            const { user_id, profession_id, test_id, mark, profession_name, test_name } = row;
+            const {  user_id, profession_id, test_id, mark, profession_name, test_name } = row;
             
-            // Если нет записи для этого пользователя - создаём
-            if (!usersProfessionsTests[user_id]) {
-                usersProfessionsTests[user_id] = {};
+            // Если нет записи для этого профессии - создаём
+            if (!usersProfessionsTests[profession_id]) {
+                usersProfessionsTests[profession_id] = {};
             }
             
-            // Если нет записи для этой профессии у пользователя - создаём
-            if (!usersProfessionsTests[user_id][profession_id]) {
-                usersProfessionsTests[user_id][profession_id] = {
+            // Если нет записи для этого пользователя у этой профессии - создаём
+            if (!usersProfessionsTests[profession_id][user_id]) {
+                usersProfessionsTests[profession_id][user_id] = {
                     profession_name: profession_name,
                     tests: []
                 };
             }
             
             // Добавляем тест
-            usersProfessionsTests[user_id][profession_id].tests.push({
+            usersProfessionsTests[profession_id][user_id].tests.push({
                 test_id: test_id,
                 test_name: test_name,
                 mark: mark
             });
         });
-        res.render('professions_tests', { usersProfessionsTests: usersProfessionsTests, tests: tests, professions: professions, isAdmin: !!req.session.isAdmin, login: req.session.login || null, isExpert: !!req.session.isExpert });
+        res.render('prof_test_results', { usersProfessionsTests: usersProfessionsTests, tests: tests, professions: professions, isAdmin: !!req.session.isAdmin, login: req.session.login || null, isExpert: !!req.session.isExpert });
+        
+    } catch (err) {
+        console.error('Ошибка при выполнении запроса:', err);
+        res.status(500).send('Ошибка сервера');
+    }
+});
+app.get('/professions_tests', async (req, res) => {
+    try {
+        const result_tests = await pool.query('SELECT * FROM tests');
+        const tests = result_tests.rows;
+        const result_profession = await pool.query('SELECT * FROM professions');
+        const professions = result_profession.rows;
+        const result_profession_tests = await pool.query(`
+            SELECT pt.user_id, pt.profession_id, pt.test_id, pt.mark, 
+                   p.name as profession_name, t.test as test_name
+            FROM profession_test pt
+            JOIN professions p ON pt.profession_id = p.id
+            JOIN tests t ON pt.test_id = t.id
+        `);
+        
+        
+        res.render('professions_tests', {  tests: tests, professions: professions, isAdmin: !!req.session.isAdmin, login: req.session.login || null, isExpert: !!req.session.isExpert });
         
     } catch (err) {
         console.error('Ошибка при выполнении запроса:', err);
