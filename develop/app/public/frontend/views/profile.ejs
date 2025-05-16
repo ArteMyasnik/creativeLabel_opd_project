@@ -212,7 +212,7 @@
                         <div class="test-container">
                             <% if (userTests && userTests.length > 0) { %>
                                 <% userTests.forEach(test => { %>
-                                    <% if (test.test_name === 'test_visual_signal') { %>
+                                    <% if (test.test_type === 'test_visual_signal') { %>
                                         <div class="test">
                                             <div>
                                                 <strong>Реакция на изменение цвета</strong>
@@ -223,7 +223,7 @@
                                             </button>
                                         </div>
                                     <% } %>
-                                    <% if (test.test_name === 'test_sound_signal') { %>
+                                    <% if (test.test_type === 'test_sound_signal') { %>
                                         <div class="test">
                                             <div>
                                                 <strong>Реакция на звук</strong>
@@ -234,7 +234,7 @@
                                             </button>
                                         </div>
                                     <% } %>
-                                    <% if (test.test_name === 'test_color_signal') { %>
+                                    <% if (test.test_type === 'test_color_signal') { %>
                                         <div class="test">
                                             <div>
                                                 <strong>Реакция на изменение цвета (3)</strong>
@@ -245,7 +245,7 @@
                                             </button>
                                         </div>
                                     <% } %>
-                                    <% if (test.test_name === 'test_digital_signal') { %>
+                                    <% if (test.test_type === 'test_digital_signal') { %>
                                         <div class="test">
                                             <div>
                                                 <strong>Четная или нечетная сумма (визуально)</strong>
@@ -256,7 +256,7 @@
                                             </button>
                                         </div>
                                     <% } %>
-                                    <% if (test.test_name === 'test_audio_sum') { %>
+                                    <% if (test.test_type === 'test_audio_sum') { %>
                                         <div class="test">
                                             <div>
                                                 <strong>Четная или нечетная сумма (звуковой)</strong>
@@ -267,7 +267,7 @@
                                             </button>
                                         </div>
                                     <% } %>
-                                    <% if (test.test_name === 'test_simple_rdo') { %>
+                                    <% if (test.test_type === 'test_simple_rdo') { %>
                                         <div class="test">
                                             <div>
                                                 <strong>Реакция на движущийся объект</strong>
@@ -278,13 +278,35 @@
                                             </button>
                                         </div>
                                     <% } %>
-                                    <% if (test.test_name === 'test_complex_rdo') { %>
+                                    <% if (test.test_type === 'test_complex_rdo') { %>
                                         <div class="test">
                                             <div>
                                                 <strong>Реакция на движущийся объект (3)</strong>
                                             </div>
                                             <button class="start-button"
                                                     onclick="window.location.href='/stats_test_complex_rdo/<%= login %>'">
+                                                Мои результаты
+                                            </button>
+                                        </div>
+                                    <% } %>
+                                    <% if (test.test_type === 'test_analog_tracking') { %>
+                                        <div class="test">
+                                            <div>
+                                                <strong>Аналоговое слежение</strong>
+                                            </div>
+                                            <button class="start-button"
+                                                    onclick="window.location.href='/stats_test_analog_tracking/<%= login %>'">
+                                                Мои результаты
+                                            </button>
+                                        </div>
+                                    <% } %>
+                                    <% if (test.test_type === 'test_analog_chase') { %>
+                                        <div class="test">
+                                            <div>
+                                                <strong>Аналоговое преследование</strong>
+                                            </div>
+                                            <button class="start-button"
+                                                    onclick="window.location.href='/stats_test_analog_chase/<%= login %>'">
                                                 Мои результаты
                                             </button>
                                         </div>

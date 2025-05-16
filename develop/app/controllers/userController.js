@@ -138,14 +138,14 @@ class UserController {
                 const isAdmin = await comparePassword('adminPassword123!!!', hashedPassword);
                 if (isAdmin) {
                     const registrationUser = await pool.query(
-                        'INSERT INTO users (login, email, password_hash, isAdmin, isModerator) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-                        [login, email, hashedPassword, 'true', 'true']
+                        'INSERT INTO users (login, email, password_hash, isAdmin) VALUES ($1, $2, $3, $4) RETURNING *',
+                        [login, email, hashedPassword, 'true']
                     );
                     req.session.isAdmin = true; // Если пароль adminPassword123!!! , то пользователь админ
                 } else {
                     const registrationUser = await pool.query(
-                        'INSERT INTO users (login, email, password_hash, isAdmin, isModerator) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-                        [login, email, hashedPassword, 'false', 'false']
+                        'INSERT INTO users (login, email, password_hash, isAdmin) VALUES ($1, $2, $3, $4) RETURNING *',
+                        [login, email, hashedPassword, 'false']
                     );
                     req.session.isAdmin = false; // По умолчанию пользователь не администратор
                 }

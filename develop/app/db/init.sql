@@ -6,10 +6,9 @@ CREATE TABLE users
     email         VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(64)  NOT NULL,
     isAdmin       BOOLEAN   DEFAULT FALSE,
-    isModerator   BOOLEAN   DEFAULT FALSE,
     isExpert      BOOLEAN   DEFAULT FALSE,
     createdAt     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    age           INTEGER,
+    age           INTEGER CHECK (age BETWEEN 1 AND 120),
     sex           VARCHAR(10) CHECK (sex IN ('male', 'female'))
 );
 
@@ -36,51 +35,17 @@ CREATE TABLE professions
     id           SERIAL PRIMARY KEY,
     name         VARCHAR(255) NOT NULL UNIQUE,
     description  TEXT,
-    expert_count INTEGER DEFAULT 0
+    expert_count INTEGER NOT NULL DEFAULT 0
 );
-
--- Создание таблицы profession_pvk (Связь профессий и PVK)
-CREATE TABLE profession_pvk
-(
-    id            SERIAL PRIMARY KEY,
-    profession_id INTEGER REFERENCES professions (id) ON DELETE CASCADE,
-    user_id       INTEGER REFERENCES users (id) ON DELETE CASCADE,
-    pvk_id        INTEGER REFERENCES pvks (id) ON DELETE CASCADE,
-    mark          INTEGER,
-    UNIQUE (profession_id, pvk_id, user_id)
-);
-
-
--- Создание таблицы test_visual_signal
-CREATE TABLE personality
-(
-    id   SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE
-);
-
-CREATE TABLE user_roles
-(
-    id      SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users (id) ON DELETE CASCADE,
-    role_id INTEGER REFERENCES personality (id) ON DELETE CASCADE,
-    UNIQUE (user_id, role_id)
-);
-
-INSERT INTO personality (name)
-VALUES ('admin'),
-       ('moderator'),
-       ('expert'),
-       ('user');
 
 -- Создание таблицы tests
 CREATE TABLE tests
 (
     id          SERIAL PRIMARY KEY,
     test        VARCHAR(255) NOT NULL,
-    type        VARCHAR(255),
+    type        VARCHAR(255) NOT NULL,
     description TEXT
 );
-
 
 INSERT INTO tests (test, type)
 VALUES ('Реакция на изменение цвета', 'test_visual_signal'),
@@ -92,6 +57,17 @@ VALUES ('Реакция на изменение цвета', 'test_visual_signal
        ('Реакция на движущийся объект (3)', 'test_complex_rdo'),
        ('Аналоговое слежение', 'test_analog_tracking'),
        ('Аналоговое преследование', 'test_analog_chase');
+
+-- Создание таблицы profession_pvk (Связь профессий и PVK)
+CREATE TABLE profession_pvk
+(
+    id            SERIAL PRIMARY KEY,
+    profession_id INTEGER REFERENCES professions (id) ON DELETE CASCADE,
+    user_id       INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    pvk_id        INTEGER REFERENCES pvks (id) ON DELETE CASCADE,
+    mark          INTEGER,
+    UNIQUE (profession_id, pvk_id, user_id)
+);
 
 -- Создание таблицы profession_test
 CREATE TABLE profession_test
@@ -184,6 +160,31 @@ CREATE TABLE test_complex_rdo
     created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Создание таблицы test_analog_tracking
+CREATE TABLE test_analog_tracking
+(
+    id              SERIAL PRIMARY KEY,
+    user_id         INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    reaction_times  INTEGER[] NOT NULL,
+    movements_count INTEGER   NOT NULL CHECK (movements_count >= 0),
+    center_hits     INTEGER   NOT NULL CHECK (center_hits >= 0 AND center_hits <= movements_count),
+    test_duration   SMALLINT  NOT NULL CHECK (test_duration > 0),
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Создание таблицы test_analog_chase
+CREATE TABLE test_analog_chase
+(
+    id                 SERIAL PRIMARY KEY,
+    user_id            INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    reaction_times     INTEGER[] NOT NULL,
+    over_laps          INTEGER   NOT NULL CHECK (over_laps >= 0),
+    total_overlap_time INTEGER   NOT NULL CHECK (total_overlap_time >= 0),
+    movements          INTEGER   NOT NULL CHECK (movements >= 1),
+    test_duration      SMALLINT  NOT NULL CHECK (test_duration > 0),
+    created_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Создание таблицы test_pvk (Связь тестов и PVK)
 CREATE TABLE test_pvk
 (
@@ -196,12 +197,60 @@ CREATE TABLE test_pvk
 -- Создание таблицы test_user (Связь пользователей и тестов)
 CREATE TABLE test_user
 (
-    id              SERIAL PRIMARY KEY,
-    test_id         INTEGER REFERENCES tests (id) ON DELETE CASCADE,
-    user_id         INTEGER REFERENCES users (id) ON DELETE CASCADE,
-    result          INTEGER,
-    time_of_passage TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id         SERIAL PRIMARY KEY,
+    test_id    INTEGER REFERENCES tests (id) ON DELETE CASCADE,
+    user_id    INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Создаем триггерную функцию
+CREATE OR REPLACE FUNCTION add_test_user_record()
+    RETURNS TRIGGER AS
+$$
+DECLARE
+    test_id_val INTEGER;
+    table_type  TEXT;
+BEGIN
+    -- Получаем имя таблицы, в которую вставляются данные
+    table_type := TG_TABLE_NAME;
+
+    -- Находим ID теста по имени таблицы
+    SELECT id
+    INTO test_id_val
+    FROM tests
+    WHERE type = table_type;
+
+    -- Если тест найден и запись для этого пользователя и теста еще не существует
+    IF test_id_val IS NOT NULL AND NOT EXISTS (SELECT 1
+                                               FROM test_user
+                                               WHERE test_id = test_id_val
+                                                 AND user_id = NEW.user_id) THEN
+        -- Вставляем новую запись
+        INSERT INTO test_user (test_id, user_id)
+        VALUES (test_id_val, NEW.user_id);
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Создаем триггеры для каждой таблицы тестов
+DO
+$$
+    DECLARE
+        test_record RECORD;
+    BEGIN
+        FOR test_record IN SELECT type FROM tests
+            LOOP
+                EXECUTE format('
+            CREATE TRIGGER tr_after_insert_%s
+            AFTER INSERT ON %I
+            FOR EACH ROW
+            EXECUTE FUNCTION add_test_user_record()',
+                               test_record.type, test_record.type);
+            END LOOP;
+    END;
+$$;
 
 -- Создание индексов для ускорения запросов (опционально)
 CREATE INDEX idx_users_login ON users (login);
@@ -211,16 +260,6 @@ CREATE INDEX idx_professions_name ON professions (name);
 
 -- Вставка начальных данных (опционально)
 -- Пример добавления ролей, если они нужны
-INSERT INTO users (login, email, password_hash, isAdmin, isModerator)
-VALUES ('ArteMyasnik', 'artemyasnik@mail.ru', '', true, true),
-       ('everpr0g', 'everpr0g@mail.ru', '', true, true),
-       ('sdnssijxi', 'sdnssijxi@mail.ru', '', true, true),
-       ('tanunika', 'tanunika@mail.ru', '', true, true),
-       ('tisak142', 'tisak142@mail.ru', '', true, true),
-       ('xqzmy22', 'xqzmy22@mail.ru', '', true, true),
-       ('Barrrakyda', 'barrrakyda@mail.ru', '', true, true),
-       ('oleg-music', 'oleg_music@mail.ru', '', true, true);
-
 INSERT INTO pvks (type, pvk, description)
 VALUES ('Ценностно-побудительные качества личности', 'Готовность к защите Родины с оружием в руках', ''),
        ('Ценностно-побудительные качества личности', 'Военно-профессиональная направленность', ''),
@@ -441,65 +480,13 @@ VALUES ('Ценностно-побудительные качества личн
        ('Физические ПВК',
         'Физическая подготовленность к воздействию неблагоприятных факторов профессиональной деятельности', '');
 
-
--- Распределение ролей
-DO
-$$
-    DECLARE
-        r_admin INTEGER;
-        r_moderator
-                INTEGER;
-        r_user
-                INTEGER;
-        u_id
-                INTEGER;
-        u_isAdmin
-                BOOLEAN;
-        u_isModerator
-                BOOLEAN;
-    BEGIN
-        -- Получаем ID для ролей
-        SELECT id
-        INTO r_admin
-        FROM personality
-        WHERE name = 'admin';
-        SELECT id
-        INTO r_moderator
-        FROM personality
-        WHERE name = 'moderator';
-        SELECT id
-        INTO r_user
-        FROM personality
-        WHERE name = 'user';
-
--- Пробегаем по всем пользователям
-        FOR u_id IN (SELECT id FROM users)
-            LOOP
-                -- Получаем значения isAdmin и isModerator для текущего пользователя
-                SELECT isAdmin, isModerator
-                INTO u_isAdmin, u_isModerator
-                FROM users
-                WHERE id = u_id;
-
--- Присваиваем роли в зависимости от флагов
-                IF
-                    u_isAdmin THEN
-                    -- Если isAdmin = true, присваиваем роль admin
-                    INSERT INTO user_roles (user_id, role_id)
-                    VALUES (u_id, r_admin)
-                    ON CONFLICT (user_id, role_id) DO NOTHING;
-                ELSIF
-                    u_isModerator THEN
-                    -- Если isModerator = true, присваиваем роль moderator
-                    INSERT INTO user_roles (user_id, role_id)
-                    VALUES (u_id, r_moderator)
-                    ON CONFLICT (user_id, role_id) DO NOTHING;
-                ELSE
-                    -- Если ни один флаг не установлен, присваиваем роль user
-                    INSERT INTO user_roles (user_id, role_id)
-                    VALUES (u_id, r_user)
-                    ON CONFLICT (user_id, role_id) DO NOTHING;
-                END IF;
-            END LOOP;
-    END
-$$;
+-- Admins
+-- INSERT INTO users (login, email, password_hash, isAdmin)
+-- VALUES ('ArteMyasnik', 'artemyasnik@mail.ru', '', true),
+--        ('everpr0g', 'everpr0g@mail.ru', '', true),
+--        ('sdnssijxi', 'sdnssijxi@mail.ru', '', true),
+--        ('tanunika', 'tanunika@mail.ru', '', true),
+--        ('tisak142', 'tisak142@mail.ru', '', true),
+--        ('xqzmy22', 'xqzmy22@mail.ru', '', true),
+--        ('Barrrakyda', 'barrrakyda@mail.ru', '', true),
+--        ('oleg-music', 'oleg_music@mail.ru', '', true);

@@ -3,7 +3,7 @@ const session = require("express-session");
 const path = require("path");
 const app = express();
 const userRouter = require("./controllers/userRoutes");
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 const pool = require("./db/db");
 const crypto = require("crypto");
 
@@ -35,9 +35,7 @@ app.get("/main", async (req, res) => {
     try {
         const login = req.session.login || null;
         const isAdmin = req.session.isAdmin || false;
-        const user = await pool.query("SELECT * FROM users WHERE login = $1", [
-            login,
-        ]);
+        const user = await pool.query("SELECT * FROM users WHERE login = $1", [login]);
         if (user.rows.length === 0) {
             const isExpert = false;
             console.log(login, isAdmin, isExpert);

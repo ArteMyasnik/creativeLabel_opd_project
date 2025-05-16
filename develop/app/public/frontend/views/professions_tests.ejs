@@ -591,6 +591,7 @@
                 if (data.success) {
                     alert('Порядок сохранен!');
                     closeOrderModal();
+                    window.location.reload();
                 } else {
                     alert('Ошибка: ' + data.message);
                 }
